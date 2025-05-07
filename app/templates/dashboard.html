@@ -399,6 +399,470 @@
             }, 30000); // Refresh every 30 seconds
             {% endif %}
         });
+        
+        // Tor Browser Modal Functions
+        document.addEventListener('DOMContentLoaded', function() {
+            const launchBrowserBtn = document.getElementById('launch-tor-browser');
+            const configureTorBtn = document.getElementById('configure-tor');
+            const torBrowserModal = document.getElementById('torBrowserModal');
+            const torSettingsModal = document.getElementById('torSettingsModal');
+            const closeTorModal = document.getElementById('closeTorModal');
+            const closeTorSettingsModal = document.getElementById('closeTorSettingsModal');
+            
+            // Setup event listeners
+            if (launchBrowserBtn) {
+                launchBrowserBtn.addEventListener('click', function() {
+                    showModal(torBrowserModal);
+                });
+            }
+            
+            if (configureTorBtn) {
+                configureTorBtn.addEventListener('click', function() {
+                    showModal(torSettingsModal);
+                });
+            }
+            
+            if (closeTorModal) {
+                closeTorModal.addEventListener('click', function() {
+                    hideModal(torBrowserModal);
+                });
+            }
+            
+            if (closeTorSettingsModal) {
+                closeTorSettingsModal.addEventListener('click', function() {
+                    hideModal(torSettingsModal);
+                });
+            }
+            
+            // Handle security level buttons
+            const securityLevelBtns = document.querySelectorAll('.security-level-btn');
+            securityLevelBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    securityLevelBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+            
+            // Handle start browsing button
+            const startBrowsingBtn = document.getElementById('startBrowsing');
+            if (startBrowsingBtn) {
+                startBrowsingBtn.addEventListener('click', function() {
+                    const content = document.getElementById('torBrowserContent');
+                    content.innerHTML = '<div style="padding: 20px; text-align: center;"><p>Connecting to the Tor network...</p><div class="loading-spinner"></div></div>';
+                    
+                    // Simulate connection
+                    setTimeout(function() {
+                        content.innerHTML = '<div style="padding: 20px; text-align: center;"><p>Loading dark web content...</p><div class="loading-spinner"></div></div>';
+                        
+                        // Simulate loading content
+                        setTimeout(function() {
+                            content.innerHTML = `
+                                <div style="padding: 20px;">
+                                    <h1 style="color: #ddd; font-size: 24px; font-family: 'Courier New', monospace;">BLACK BOOK</h1>
+                                    <p style="color: #aaa; margin-bottom: 20px;">Welcome to the Black Book - The Dark Web's Resource Library</p>
+                                    
+                                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 20px;">
+                                        <div style="background: #111; padding: 15px; border-radius: 5px;">
+                                            <h3 style="color: #ddd; margin-top: 0;">Marketplaces</h3>
+                                            <ul style="color: #888; padding-left: 20px;">
+                                                <li>Dream Market</li>
+                                                <li>Empire Market</li>
+                                                <li>White House</li>
+                                                <li>Dark0de</li>
+                                            </ul>
+                                        </div>
+                                        
+                                        <div style="background: #111; padding: 15px; border-radius: 5px;">
+                                            <h3 style="color: #ddd; margin-top: 0;">Forums</h3>
+                                            <ul style="color: #888; padding-left: 20px;">
+                                                <li>Dread</li>
+                                                <li>The Hub</li>
+                                                <li>Envoy</li>
+                                                <li>DNM Avengers</li>
+                                            </ul>
+                                        </div>
+                                        
+                                        <div style="background: #111; padding: 15px; border-radius: 5px;">
+                                            <h3 style="color: #ddd; margin-top: 0;">Resources</h3>
+                                            <ul style="color: #888; padding-left: 20px;">
+                                                <li>DNM Bible</li>
+                                                <li>PGP Tutorials</li>
+                                                <li>Security Guides</li>
+                                                <li>OPSEC Resources</li>
+                                            </ul>
+                                        </div>
+                                        
+                                        <div style="background: #111; padding: 15px; border-radius: 5px;">
+                                            <h3 style="color: #ddd; margin-top: 0;">News</h3>
+                                            <ul style="color: #888; padding-left: 20px;">
+                                                <li>Dark Web News</li>
+                                                <li>Market Statuses</li>
+                                                <li>Alert Center</li>
+                                                <li>Security Bulletins</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    
+                                    <div style="margin-top: 30px; background: #111; padding: 15px; border-radius: 5px;">
+                                        <h3 style="color: #ddd; margin-top: 0;">WARNING</h3>
+                                        <p style="color: #888;">
+                                            This is a simulation of a dark web site for educational purposes only. In the real dark web, 
+                                            sites like these would provide links to resources that may contain illegal content. Always 
+                                            exercise caution and follow legal guidelines.
+                                        </p>
+                                    </div>
+                                </div>
+                            `;
+                        }, 2000);
+                    }, 1500);
+                });
+            }
+            
+            // Modal helper functions
+            function showModal(modal) {
+                if (!modal) return;
+                modal.style.display = 'block';
+                setTimeout(() => {
+                    modal.classList.add('show');
+                    document.body.classList.add('modal-open');
+                }, 10);
+            }
+            
+            function hideModal(modal) {
+                if (!modal) return;
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                    document.body.classList.remove('modal-open');
+                }, 300);
+            }
+        });
     </script>
+    
+    <!-- Tor Browser Modal -->
+    <div id="torBrowserModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title"><i data-feather="shield"></i> Tor Browser</h2>
+                <button class="close-modal" id="closeTorModal">&times;</button>
+            </div>
+            <div class="browser-container">
+                <div class="browser-toolbar">
+                    <div class="browser-actions">
+                        <div class="browser-action action-close"></div>
+                        <div class="browser-action action-minimize"></div>
+                        <div class="browser-action action-maximize"></div>
+                    </div>
+                    <div class="browser-address-bar">
+                        <i data-feather="lock"></i>
+                        <input type="text" class="browser-url" id="torUrl" value="http://blackbooksrgc3ocih.onion/index.php" placeholder="Enter .onion URL">
+                        <button id="goButton" class="button primary-button" style="padding: 4px 8px; font-size: 12px;">
+                            Go
+                        </button>
+                    </div>
+                </div>
+                <div class="browser-content" id="torBrowserContent">
+                    <div style="text-align: center; padding: 40px 20px;">
+                        <i data-feather="shield" style="width: 60px; height: 60px; margin-bottom: 20px;"></i>
+                        <h3>Welcome to Tor Browser</h3>
+                        <p style="max-width: 600px; margin: 15px auto; color: #aaa;">
+                            Browse the dark web anonymously and securely. Your traffic is routed through the Tor network, providing multiple layers of encryption and privacy.
+                        </p>
+                        <div style="background-color: #222; border-radius: 8px; padding: 15px; max-width: 600px; margin: 20px auto; text-align: left;">
+                            <h4 style="margin-top: 0;"><i data-feather="alert-circle" style="vertical-align: middle; margin-right: 8px;"></i> Safety Tips</h4>
+                            <ul style="color: #aaa; padding-left: 25px;">
+                                <li>Never reveal personal information</li>
+                                <li>Use cryptocurrency for any transactions</li>
+                                <li>Be aware that many .onion sites may contain illegal content</li>
+                                <li>Don't download files unless you trust the source</li>
+                                <li>Consider using a VPN for additional protection</li>
+                            </ul>
+                        </div>
+                        <button id="startBrowsing" class="button primary-button" style="margin-top: 15px;">
+                            <i data-feather="compass"></i> Start Browsing
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tor Settings Modal -->
+    <div id="torSettingsModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2 class="modal-title"><i data-feather="settings"></i> Tor Browser Settings</h2>
+                <button class="close-modal" id="closeTorSettingsModal">&times;</button>
+            </div>
+            <div style="padding: 10px 0;">
+                <div style="margin-bottom: 20px;">
+                    <h3>Security Level</h3>
+                    <p style="color: #aaa;">Higher security may affect website functionality</p>
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <button class="button secondary-button security-level-btn active" data-level="standard">
+                            Standard
+                        </button>
+                        <button class="button secondary-button security-level-btn" data-level="safer">
+                            Safer
+                        </button>
+                        <button class="button secondary-button security-level-btn" data-level="safest">
+                            Safest
+                        </button>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h3>Connection</h3>
+                    <div style="background-color: #111; border-radius: 6px; padding: 15px; margin-top: 10px;">
+                        <label style="display: block; margin-bottom: 5px;">Tor Circuit</label>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                            <div style="flex: 1; height: 6px; background-color: #333; border-radius: 3px; position: relative;">
+                                <div style="position: absolute; top: 0; left: 0; height: 100%; width: 100%; background-color: var(--secondary-color); border-radius: 3px;"></div>
+                            </div>
+                            <button id="newCircuit" class="button secondary-button" style="padding: 4px 8px; font-size: 12px;">
+                                New Circuit
+                            </button>
+                        </div>
+                        
+                        <label style="display: block; margin-bottom: 5px;">Exit Country</label>
+                        <select class="browser-url" style="width: 100%; padding: 8px; margin-bottom: 15px; background-color: #0a0a0a;">
+                            <option value="auto">Automatic (Fastest)</option>
+                            <option value="us">United States</option>
+                            <option value="nl">Netherlands</option>
+                            <option value="de">Germany</option>
+                            <option value="fr">France</option>
+                            <option value="gb">United Kingdom</option>
+                            <option value="jp">Japan</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h3>Privacy</h3>
+                    <div style="background-color: #111; border-radius: 6px; padding: 15px; margin-top: 10px;">
+                        <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                            <input type="checkbox" id="blockTrackers" checked style="margin-right: 10px;">
+                            <label for="blockTrackers">Block Trackers</label>
+                        </div>
+                        
+                        <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                            <input type="checkbox" id="httpsOnly" checked style="margin-right: 10px;">
+                            <label for="httpsOnly">HTTPS-Only Mode</label>
+                        </div>
+                        
+                        <div style="display: flex; align-items: center;">
+                            <input type="checkbox" id="noScript" style="margin-right: 10px;">
+                            <label for="noScript">No Script</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="text-align: right; margin-top: 20px;">
+                    <button id="saveTorSettings" class="button primary-button">
+                        Save Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <style>
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.7);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal.show {
+            opacity: 1;
+        }
+        
+        .modal-content {
+            background-color: var(--dark-bg);
+            margin: 5% auto;
+            padding: 25px;
+            border: 1px solid var(--border-color);
+            width: 90%;
+            max-width: 900px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+        }
+        
+        .modal.show .modal-content {
+            transform: translateY(0);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .close-modal {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        
+        .close-modal:hover {
+            color: var(--text-light);
+        }
+        
+        .browser-container {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #0a0a0a;
+            height: 600px;
+        }
+        
+        .browser-toolbar {
+            background-color: #1b1b1b;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #2c2c2c;
+        }
+        
+        .browser-actions {
+            display: flex;
+            gap: 10px;
+            margin-right: 15px;
+        }
+        
+        .browser-action {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .action-close {
+            background-color: #ff5f57;
+        }
+        
+        .action-minimize {
+            background-color: #febc2e;
+        }
+        
+        .action-maximize {
+            background-color: #27c93f;
+        }
+        
+        .browser-address-bar {
+            flex: 1;
+            background-color: #0a0a0a;
+            border-radius: 5px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid #2c2c2c;
+        }
+        
+        .browser-address-bar i {
+            color: #5f6368;
+        }
+        
+        .browser-url {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-light);
+            font-size: 14px;
+            outline: none;
+        }
+        
+        .browser-content {
+            height: calc(100% - 50px);
+            overflow-y: auto;
+            color: var(--text-light);
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary-color);
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Toggle switch */
+        .toggle-switch {
+            position: relative;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 40px;
+            height: 20px;
+            border-radius: 34px;
+            background-color: #333;
+            transition: .3s;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            border-radius: 50%;
+            transition: .3s;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: var(--primary-color);
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+    </style>
 </body>
 </html>
