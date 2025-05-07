@@ -27,12 +27,19 @@ def check_tor_status():
         logger.info(f"✅ Tor is running. Current exit node IP: {ip}")
         return True
     else:
-        logger.error("❌ Tor is not running. Please start the Tor service.")
+        logger.error("❌ Tor is not running. Please start Tor Browser or the Tor service.")
         return False
 
 def check_ollama_status():
     """Check if Ollama is running and list available models"""
     analyzer = OllamaAnalyzer()
+    
+    # First check if OpenAI API key is set (this is a fallback)
+    if analyzer.use_openai and analyzer.openai_api_key:
+        logger.info("✅ Using OpenAI API for analysis (Ollama not required)")
+        return True
+    
+    # Otherwise check if Ollama is running
     if analyzer.wait_for_ollama(max_retries=1, retry_delay=1):
         logger.info("✅ Ollama service is running")
         
@@ -45,6 +52,8 @@ def check_ollama_status():
         return True
     else:
         logger.error("❌ Ollama service is not running")
+        # Suggest using OpenAI API key as a fallback
+        logger.info("💡 Tip: You can set the OPENAI_API_KEY environment variable to use OpenAI API instead of Ollama")
         return False
 
 def analyze_single_url(url, save_path=None):
