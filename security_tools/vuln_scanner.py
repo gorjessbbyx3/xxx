@@ -207,9 +207,23 @@ class VulnerabilityScanner:
             return result
 
     def _analyze_headers(self, result: Dict[str, Any], headers: Any) -> None:
-        """Enhanced header analysis with additional security checks"""
-        # Check for security headers
+        """Enhanced header analysis with modern security checks"""
         security_headers = {
+            'X-XSS-Protection': {'required': True, 'recommended': '1; mode=block'},
+            'X-Content-Type-Options': {'required': True, 'recommended': 'nosniff'},
+            'X-Frame-Options': {'required': True, 'recommended': ['DENY', 'SAMEORIGIN']},
+            'Content-Security-Policy': {'required': True},
+            'Strict-Transport-Security': {'required': True},
+            'Referrer-Policy': {'required': False, 'recommended': 'strict-origin-when-cross-origin'},
+            'Permissions-Policy': {'required': True},
+            'Cross-Origin-Embedder-Policy': {'required': False},
+            'Cross-Origin-Opener-Policy': {'required': False},
+            'Cross-Origin-Resource-Policy': {'required': False},
+            'Access-Control-Allow-Origin': {'required': False, 'check': self._check_cors},
+            'Expect-CT': {'required': False},
+            'Report-To': {'required': False},
+            'NEL': {'required': False}
+        }
             'X-XSS-Protection': {'required': True, 'recommended': '1; mode=block'},
             'X-Content-Type-Options': {'required': True, 'recommended': 'nosniff'},
             'X-Frame-Options': {'required': True, 'recommended': ['DENY', 'SAMEORIGIN']},

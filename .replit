@@ -2,6 +2,7 @@ modules = ["python-3.11"]
 
 [nix]
 channel = "stable-24_05"
+packages = ["freetype", "geckodriver", "gmp", "imagemagickBig", "lcms2", "libGL", "libGLU", "libimagequant", "libjpeg", "libtiff", "libwebp", "libxcrypt", "openjpeg", "sox", "tcl", "tcpdump", "tk", "wireshark", "zlib"]
 
 [workflows]
 runButton = "Project"
@@ -13,20 +14,11 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Dark Web Crawler Server"
+args = "darkweb_crawler"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "darkweb_crawler"
-
-[[workflows.workflow]]
-name = "Dark Web Crawler Server"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python attached_assets/run.py"
-waitForPort = 5000
+args = "Dark Web Crawler Server"
 
 [[workflows.workflow]]
 name = "darkweb_crawler"
@@ -35,6 +27,15 @@ author = "agent"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "python cli.py status"
+
+[[workflows.workflow]]
+name = "Dark Web Crawler Server"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python app.py"
+waitForPort = 5000
 
 [deployment]
 run = ["sh", "-c", "python attached_assets/run.py"]
