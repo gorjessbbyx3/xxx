@@ -795,7 +795,52 @@ def api_execute_bot_task(bot_id):
 def check_designer():
     """Check designer tool with customization options"""
     service_status = check_services()
-    return render_template('check_designer.html', service_status=service_status)
+    
+    # Define standard check dimensions
+    check_dimensions = {
+        'business': {'width': 8.5, 'height': 3.5},
+        'personal': {'width': 6.0, 'height': 2.75},
+        'voucher': {'width': 8.5, 'height': 3.67}
+    }
+    
+    # Define MICR specs
+    micr_specs = {
+        'font': 'MICR E13-B',
+        'size': '0.117 inches',
+        'clear_band': {'height': 0.625, 'min_margin': 0.315}
+    }
+    
+    return render_template('check_designer.html', 
+                         service_status=service_status,
+                         check_dimensions=check_dimensions,
+                         micr_specs=micr_specs)
+
+@app.route('/api/check/validate-micr', methods=['POST'])
+def validate_micr():
+    """Validate MICR line format"""
+    if not request.is_json:
+        return jsonify({"error": "Request must be JSON"}), 400
+        
+    routing = request.json.get('routing')
+    account = request.json.get('account')
+    check_number = request.json.get('check_number')
+    
+    # Validate routing number (9 digits)
+    if not routing or not routing.isdigit() or len(routing) != 9:
+        return jsonify({"error": "Invalid routing number"}), 400
+        
+    # Validate account number (usually 8-12 digits)
+    if not account or not account.isdigit() or len(account) < 8 or len(account) > 12:
+        return jsonify({"error": "Invalid account number"}), 400
+        
+    # Validate check number (usually 4 digits)
+    if not check_number or not check_number.isdigit():
+        return jsonify({"error": "Invalid check number"}), 400
+        
+    return jsonify({
+        "valid": True,
+        "micr_line": f"⑆{routing}⑆ ⑈{account}⑈ {check_number}"
+    })
 
 @app.route('/api/save-check-template', methods=['POST'])
 def save_check_template():
@@ -809,9 +854,23 @@ def save_check_template():
     if not template_data:
         return jsonify({"error": "Template data is required"}), 400
     
-    # In a production environment, this would save to a database
-    # For demo purposes, we'll just return success
+    # Validate check dimensions
+    width = template_data.get('width')
+    height = template_data.get('height')
+    
+    if width < 6.0 or width > 8.75 or height < 2.75 or height > 3.67:
+        return jsonify({"error": "Invalid check dimensions"}), 400
+    
+    # Validate MICR line position
+    micr_y = template_data.get('micr_position_y', 0)
+    if micr_y < (height - 0.625):  # Must be within clear band
+        return jsonify({"error": "MICR line must be within clear band"}), 400
+        
     return jsonify({
+        "success": True,
+        "template_id": str(uuid.uuid4()),
+        "name": template_name
+    })
         "success": True,
         "message": f"Template '{template_name}' saved successfully",
         "template_id": f"template_{int(time.time())}"
