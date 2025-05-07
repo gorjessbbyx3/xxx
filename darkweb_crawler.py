@@ -41,7 +41,7 @@ class DarkWebCrawler:
     ]
 
     def __init__(self, output_dir='crawl_results', depth=1, delay_range=(2, 5),
-                 analyze_content=True, max_pages=50, capture_screenshots=False,
+                 analyze_content=False, max_pages=50, capture_screenshots=False,
                  export_pdf=False, rotate_user_agent=True, custom_cookies=None,
                  respect_robots=True):
         """Initialize crawler with enhanced features"""
@@ -63,7 +63,7 @@ class DarkWebCrawler:
         self.robots_cache = {}
 
         # Create output directory
-        create_directory(output_dir)
+        os.makedirs(output_dir, exist_ok=True)
 
         # Initialize AI analyzer
         if analyze_content:
