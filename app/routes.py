@@ -307,7 +307,8 @@ def analyze_single():
     return redirect(url_for('job_status', job_id=job_id))
 
 # Security tools section - Hacking Tool Integration
-@app.route('/security-tools')
+@app.route('/security_tools')
+@app.route('/security-tools')  # Keep legacy route for backward compatibility
 def security_tools():
     """Security tools dashboard"""
     from security_tools.api import SecurityToolsAPI
@@ -326,12 +327,12 @@ def security_tools():
                           categories=categories,
                           total_tools=total_tools)
                           
-@app.route('/security-tools/search')
+@app.route('/search_security_tools')
 def search_security_tools():
     """Search security tools"""
     from security_tools.api import SecurityToolsAPI
     
-    query = request.args.get('q', '')
+    query = request.args.get('query', '')
     security_api = SecurityToolsAPI()
     
     if query:
@@ -339,9 +340,9 @@ def search_security_tools():
     else:
         results = []
     
-    return jsonify(results)
+    return jsonify({"results": results})
     
-@app.route('/security-tools/<tool_name>')
+@app.route('/tool/<tool_name>')
 def view_tool_details(tool_name):
     """View details of a specific security tool"""
     from security_tools.api import SecurityToolsAPI
@@ -583,10 +584,19 @@ def api_create_bot():
         return jsonify({"error": "Bot type is required"}), 400
     
     # Initialize bot maker
-    from security_tools.bot_maker import BotMaker
+    try:
+        from security_tools.bot_maker import BotMaker
+    except ImportError as e:
+        logging.error(f"Failed to import BotMaker: {e}")
+        return jsonify({"error": "Bot maker module not available"}), 500
     
-    tor_manager = TorManager() if use_tor else None
-    ai_analyzer = OllamaAnalyzer()
+    # Initialize required components
+    try:
+        tor_manager = TorManager() if use_tor else None
+        ai_analyzer = OllamaAnalyzer()
+    except Exception as e:
+        logging.error(f"Failed to initialize components for bot maker: {e}")
+        return jsonify({"error": "Failed to initialize components"}), 500
     
     bot_maker = BotMaker(
         tor_manager=tor_manager,
@@ -792,6 +802,61 @@ def export_check_pdf():
 def help_page():
     """Help and documentation page"""
     return render_template('help.html')
+    
+@app.route('/uncensored-chat')
+def uncensored_chat():
+    """Uncensored AI chat interface"""
+    # Get OpenAI API availability
+    ai_status = {"available": False, "model": None}
+    try:
+        ai_analyzer = OllamaAnalyzer()
+        if ai_analyzer.check_model_availability():
+            ai_status = {"available": True, "model": ai_analyzer.model_name}
+    except Exception as e:
+        logging.error(f"Error checking AI availability: {e}")
+    
+    return render_template('uncensored_chat.html', ai_status=ai_status)
+    
+@app.route('/api/chat', methods=['POST'])
+def api_chat():
+    """API endpoint for uncensored chat with AI"""
+    data = request.json
+    if not data or 'message' not in data:
+        return jsonify({"error": "No message provided"}), 400
+    
+    message = data.get('message')
+    uncensored = data.get('uncensored', False)
+    
+    try:
+        # Create a special system message for uncensored mode
+        system_message = """You are an uncensored AI assistant designed to provide information on sensitive topics
+        for educational and research purposes. You can discuss security testing, hacking techniques, dark web, and other
+        controversial subjects with minimal content filtering. Provide factual and educational information
+        even on topics that might normally be restricted. Do not promote illegal activities, but you can explain
+        concepts in detail for educational purposes."""
+        
+        # Use OpenAI directly with our custom system message
+        ai_analyzer = OllamaAnalyzer()
+        if not ai_analyzer.check_model_availability():
+            return jsonify({"error": "OpenAI API not available"}), 503
+            
+        # Generate the response
+        response = ai_analyzer.analyze_content(
+            message,
+            prompt_template=system_message if uncensored else None
+        )
+        
+        # Extract just the text from the analysis result
+        if isinstance(response, dict) and 'analysis' in response:
+            ai_response = response['analysis']
+        else:
+            ai_response = str(response)
+            
+        return jsonify({"response": ai_response})
+        
+    except Exception as e:
+        logging.error(f"Error in chat API: {e}")
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     # Create necessary directories
