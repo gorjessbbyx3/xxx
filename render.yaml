@@ -1,19 +1,13 @@
+
 services:
   - type: web
-    name: bingoxbango-dark-web
+    name: dark-web-crawler
     env: python
-    buildCommand: cp dependencies.txt requirements.txt && pip install -r requirements.txt
-    startCommand: python app.py
-    # This is not a static site, so we need to set the root directory as the publish directory
-    publishDirectory: .
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
     envVars:
       - key: PYTHON_VERSION
-        value: 3.9.0
+        value: 3.11.0
       - key: PORT
         value: 5000
     healthCheckPath: /
-    autoDeploy: true
-    disk:
-      name: data
-      mountPath: /data
-      sizeGB: 1
