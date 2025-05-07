@@ -225,19 +225,19 @@
             align-items: center;
         }
         
-        .bot-tasks {
+        .bot-results {
             background-color: #1a1a2e;
             border-radius: 4px;
             padding: 10px;
             margin-top: 10px;
         }
         
-        .bot-task {
+        .bot-output {
             padding: 8px;
             border-bottom: 1px solid #333;
         }
         
-        .bot-task:last-child {
+        .bot-output:last-child {
             border-bottom: none;
         }
     </style>
@@ -616,7 +616,7 @@
                         <div class="tab-container">
                             <div class="tab active" data-tab="active-bots">Active Bots</div>
                             <div class="tab" data-tab="create-bot">Create Bot</div>
-                            <div class="tab" data-tab="bot-tasks">Bot Tasks</div>
+                            <div class="tab" data-tab="bot-results">Bot Results</div>
                         </div>
                         
                         <!-- Active Bots Panel -->
@@ -642,12 +642,12 @@
                                         <p><strong>Status:</strong> Running (5 pages crawled)</p>
                                         <p><strong>Created:</strong> 5 minutes ago</p>
                                     </div>
-                                    <div class="bot-tasks">
-                                        <h5>Recent Tasks</h5>
-                                        <div class="bot-task">
+                                    <div class="bot-results">
+                                        <h5>Recent Results</h5>
+                                        <div class="bot-output">
                                             <p><strong>Search:</strong> Completed (3 matches found)</p>
                                         </div>
-                                        <div class="bot-task">
+                                        <div class="bot-output">
                                             <p><strong>Download:</strong> In progress...</p>
                                         </div>
                                     </div>
@@ -673,9 +673,9 @@
                                         <p><strong>Status:</strong> Idle</p>
                                         <p><strong>Created:</strong> 10 minutes ago</p>
                                     </div>
-                                    <div class="bot-tasks">
-                                        <h5>Recent Tasks</h5>
-                                        <div class="bot-task">
+                                    <div class="bot-results">
+                                        <h5>Recent Results</h5>
+                                        <div class="bot-output">
                                             <p><strong>Scan Target:</strong> Completed (3 open ports found)</p>
                                         </div>
                                     </div>
@@ -755,8 +755,8 @@ https://another-site.com"></textarea>
                             </form>
                         </div>
                         
-                        <!-- Bot Tasks Panel -->
-                        <div class="tab-panel" id="bot-tasks-panel">
+                        <!-- Bot Results Panel -->
+                        <div class="tab-panel" id="bot-results-panel">
                             <div class="input-group">
                                 <label for="selectBot">Select Bot</label>
                                 <select id="selectBot" name="selectBot">
