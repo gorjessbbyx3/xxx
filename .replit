@@ -1,0 +1,44 @@
+modules = ["python-3.11"]
+
+[nix]
+channel = "stable-24_05"
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Dark Web Crawler Server"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "darkweb_crawler"
+
+[[workflows.workflow]]
+name = "Dark Web Crawler Server"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python attached_assets/run.py"
+waitForPort = 5000
+
+[[workflows.workflow]]
+name = "darkweb_crawler"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python cli.py status"
+
+[deployment]
+run = ["sh", "-c", "python attached_assets/run.py"]
+
+[[ports]]
+localPort = 5000
+externalPort = 80

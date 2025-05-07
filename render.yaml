@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: bingoxbango-dark-web
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app/routes.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.9.0
+      - key: PORT
+        value: 5000
+    healthCheckPath: /
+    autoDeploy: true
+    disk:
+      name: data
+      mountPath: /data
+      sizeGB: 1
