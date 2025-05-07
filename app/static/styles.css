@@ -8,6 +8,7 @@
     --bg-darker: #16213e;
     --text-light: #f0f0f0;
     --text-dark: #222222;
+    --text-muted: #9ca3af;
     --accent-color: #533483;
     --success-color: #4ade80;
     --warning-color: #fbbf24;
@@ -562,6 +563,21 @@ textarea.form-control {
 .tool-list-icon {
     margin-right: 0.5rem;
     color: var(--primary-color);
+}
+
+.tool-command-example {
+    display: block;
+    font-family: monospace;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    background: rgba(0, 0, 0, 0.2);
+    padding: 3px 5px;
+    border-radius: 3px;
+    margin-top: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }
 
 /* Activity log */
