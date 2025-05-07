@@ -160,11 +160,31 @@
             </div>
             
             <div id="result-message" style="display: none; margin-top: 1rem; padding: 1rem; border-radius: 8px;"></div>
+            
+            <!-- Terminal Section -->
+            <div class="terminal-section" style="margin-top: 2rem;">
+                <h3>Terminal Output</h3>
+                <div class="terminal" id="terminal-window" style="background-color: #0f0f0f; color: #f0f0f0; border-radius: 8px; padding: 1rem; font-family: monospace; height: 300px; overflow-y: auto;">
+                    <div class="terminal-header" style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; border-bottom: 1px solid #333; padding-bottom: 0.5rem;">
+                        <span>BINGOxBANGO Terminal</span>
+                        <div class="terminal-controls">
+                            <button class="terminal-btn" onclick="clearTerminal()" style="background: none; border: none; color: #f0f0f0; cursor: pointer;">Clear</button>
+                        </div>
+                    </div>
+                    <div class="terminal-content" id="terminal-content">
+                        <div class="terminal-line"><span style="color: #0f0;">BINGOxBANGO@security-terminal:~$</span> Tool terminal ready...</div>
+                    </div>
+                </div>
+                <div class="terminal-input-container" style="display: flex; margin-top: 0.5rem;">
+                    <input type="text" id="terminal-input" style="flex-grow: 1; background-color: #1a1a1a; border: 1px solid #333; color: #f0f0f0; padding: 0.5rem; border-radius: 4px;" placeholder="Enter command...">
+                    <button onclick="executeCommand()" style="background-color: #333; border: none; color: #f0f0f0; padding: 0 1rem; border-radius: 0 4px 4px 0; cursor: pointer;">Run</button>
+                </div>
+            </div>
         </section>
     </main>
 
     <footer>
-        <p>GhostTrace Dark Web Crawler &copy; 2025 | <a href="https://github.com/Z4nzu/hackingtool" target="_blank">GitHub</a></p>
+        <p>BINGOxBANGO Dark Web Crawler &copy; 2025 | <a href="https://github.com/Z4nzu/hackingtool" target="_blank">GitHub</a></p>
     </footer>
 
     <script>
@@ -188,13 +208,140 @@
                 
                 if (action === 'install') {
                     resultMessage.innerHTML = `<i data-feather="check-circle"></i> Tool "${toolName}" installation initiated. Check the terminal for progress.`;
+                    addToTerminal(`Installing ${toolName}...`);
+                    
+                    // Simulate installation progress
+                    setTimeout(() => {
+                        addToTerminal(`Downloading ${toolName} dependencies...`);
+                    }, 1500);
+                    
+                    setTimeout(() => {
+                        addToTerminal(`Setting up ${toolName}...`);
+                    }, 3000);
+                    
+                    setTimeout(() => {
+                        addToTerminal(`Installation of ${toolName} completed successfully.`);
+                    }, 4500);
+                    
                 } else if (action === 'run') {
                     resultMessage.innerHTML = `<i data-feather="check-circle"></i> Tool "${toolName}" execution initiated. Check the terminal for output.`;
+                    addToTerminal(`Running ${toolName}...`);
+                    
+                    // Simulate tool execution output
+                    setTimeout(() => {
+                        addToTerminal(`${toolName} started successfully.`);
+                    }, 1000);
+                    
+                    setTimeout(() => {
+                        addToTerminal(`${toolName} is now running. You can interact with it via the terminal.`);
+                    }, 2000);
                 }
                 
                 feather.replace();
             }, 1000);
         }
+        
+        // Terminal functionality
+        let commandHistory = [];
+        let historyIndex = -1;
+        
+        // Function to add a line to the terminal
+        function addToTerminal(text, isCommand = false) {
+            const terminal = document.getElementById('terminal-content');
+            const line = document.createElement('div');
+            line.className = 'terminal-line';
+            
+            if (isCommand) {
+                line.innerHTML = `<span style="color: #0f0;">BINGOxBANGO@security-terminal:~$</span> ${text}`;
+                // Add to command history
+                commandHistory.push(text);
+                historyIndex = commandHistory.length;
+            } else {
+                line.innerHTML = text;
+            }
+            
+            terminal.appendChild(line);
+            
+            // Auto-scroll to bottom
+            const terminalWindow = document.getElementById('terminal-window');
+            terminalWindow.scrollTop = terminalWindow.scrollHeight;
+        }
+        
+        // Function to clear the terminal
+        function clearTerminal() {
+            const terminal = document.getElementById('terminal-content');
+            terminal.innerHTML = '';
+            addToTerminal('Terminal cleared.', false);
+        }
+        
+        // Function to execute a command entered in the terminal
+        function executeCommand() {
+            const input = document.getElementById('terminal-input');
+            const command = input.value.trim();
+            
+            if (command) {
+                addToTerminal(command, true);
+                
+                // Process the command
+                processCommand(command);
+                
+                // Clear the input
+                input.value = '';
+            }
+        }
+        
+        // Function to process terminal commands
+        function processCommand(command) {
+            // Simple command processing
+            if (command === 'help') {
+                addToTerminal('Available commands:');
+                addToTerminal('  help - Show this help message');
+                addToTerminal('  clear - Clear the terminal');
+                addToTerminal('  about - Show information about BINGOxBANGO');
+                addToTerminal('  whoami - Show current user');
+                addToTerminal('  date - Show current date');
+                addToTerminal('  echo [text] - Display text');
+            } else if (command === 'clear') {
+                clearTerminal();
+            } else if (command === 'about') {
+                addToTerminal('BINGOxBANGO - Advanced Dark Web Crawler and Security Tool Suite');
+                addToTerminal('Version: 1.0.0');
+                addToTerminal('© 2025 BINGOxBANGO Team');
+            } else if (command === 'whoami') {
+                addToTerminal('security-user');
+            } else if (command === 'date') {
+                addToTerminal(new Date().toString());
+            } else if (command.startsWith('echo ')) {
+                const text = command.substring(5);
+                addToTerminal(text);
+            } else {
+                addToTerminal(`Command not found: ${command}. Type 'help' for available commands.`);
+            }
+        }
+        
+        // Event listener for the terminal input
+        document.getElementById('terminal-input').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                executeCommand();
+            } else if (e.key === 'ArrowUp') {
+                // Navigate command history up
+                if (historyIndex > 0) {
+                    historyIndex--;
+                    this.value = commandHistory[historyIndex];
+                }
+                e.preventDefault();
+            } else if (e.key === 'ArrowDown') {
+                // Navigate command history down
+                if (historyIndex < commandHistory.length - 1) {
+                    historyIndex++;
+                    this.value = commandHistory[historyIndex];
+                } else {
+                    historyIndex = commandHistory.length;
+                    this.value = '';
+                }
+                e.preventDefault();
+            }
+        });
     </script>
 </body>
 </html>
