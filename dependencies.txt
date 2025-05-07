@@ -1,0 +1,8 @@
+beautifulsoup4>=4.13.4
+flask>=3.1.0
+openai>=1.77.0
+requests>=2.32.3
+stem>=1.8.2
+trafilatura>=2.0.0
+python-dotenv>=1.0.0
+Werkzeug>=2.3.7
