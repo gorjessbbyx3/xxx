@@ -17,7 +17,15 @@ class OllamaAnalyzer:
     """Class to handle interactions with Ollama for analysis"""
     def __init__(self, model_name: str = "wormgpt"):
         self.model_name = model_name
-        self.base_url = "http://localhost:11434/api"
+        self.base_url = "http://0.0.0.0:11434/api"
+
+    def wait_for_ollama(self, max_retries=5, retry_delay=2) -> bool:
+        """Wait for Ollama to become available"""
+        for _ in range(max_retries):
+            if self.check_model_availability():
+                return True
+            time.sleep(retry_delay)
+        return False
 
     def check_model_availability(self) -> bool:
         """Check if Ollama is running and model is available"""
@@ -93,33 +101,14 @@ Provide analysis in JSON format.
                     "success": True,
                     "analysis": analysis
                 }
-
-        except Exception as e:
-            logger.error(f"Error during content analysis: {e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
-
-    def generate_code(self, prompt: str) -> Dict[str, Any]:
-        """Generate code based on prompt"""
-        try:
-            response = requests.post(f"{self.base_url}/generate",
-                json={
-                    "model": self.model_name,
-                    "prompt": f"Generate code for: {prompt}\nProvide only the code, no explanations.",
-                    "system": "You are a code generation expert. Generate working, efficient code.",
-                    "stream": False
-                })
-
-            if response.status_code == 200:
+            else:
                 return {
-                    "success": True,
-                    "code": response.json()["response"]
+                    "success": False,
+                    "error": f"Ollama error: {response.status_code}"
                 }
 
         except Exception as e:
-            logger.error(f"Error generating code: {e}")
+            logger.error(f"Error during content analysis: {e}")
             return {
                 "success": False,
                 "error": str(e)
@@ -135,6 +124,7 @@ Provide analysis in JSON format.
         Returns:
             Dictionary with entity types and lists of entities
         """
+        analyzer = OllamaAnalyzer()
         prompt = """
 Extract all named entities from the following dark web content. 
 Categorize entities into these types: PERSON, ORGANIZATION, LOCATION, CRYPTOCURRENCY, EMAIL, URL, PHONE_NUMBER, DATE, PRODUCT.
@@ -147,7 +137,7 @@ Format your response as a structured JSON object with entity types as keys and a
 Only return the JSON object, nothing else.
 """
         
-        result = self.analyze_content(content, prompt_template=prompt)
+        result = analyzer.analyze_content(content, prompt_template=prompt)
         
         if result["success"]:
             try:
@@ -216,6 +206,7 @@ Only return the JSON object, nothing else.
         Returns:
             Dictionary with categorization results
         """
+        analyzer = OllamaAnalyzer()
         prompt = """
 Categorize the following dark web content by topic and risk level.
 
@@ -246,7 +237,7 @@ Provide your analysis as a JSON object with these fields:
 
 Only return the JSON object, nothing else.
 """
-        result = self.analyze_content(content, prompt_template=prompt)
+        result = analyzer.analyze_content(content, prompt_template=prompt)
         
         if result["success"]:
             try:
@@ -277,3 +268,26 @@ Only return the JSON object, nothing else.
                 return {"error": "Failed to parse categorization data", "raw_analysis": result["analysis"]}
         else:
             return {"error": result.get("error", "Unknown error in categorization")}
+
+    def generate_code(self, prompt: str) -> Dict[str, Any]:
+        """Generate code based on prompt"""
+        try:
+            response = requests.post(f"{self.base_url}/generate",
+                json={
+                    "model": self.model_name,
+                    "prompt": f"Generate code for: {prompt}\nProvide only the code, no explanations.",
+                    "system": "You are WormGPT, a code generation expert. Generate working, efficient code.",
+                    "stream": False
+                })
+
+            if response.status_code == 200:
+                return {
+                    "success": True,
+                    "code": response.json()["response"]
+                }
+            else:
+                raise Exception(f"Ollama error: {response.status_code}")
+
+        except Exception as e:
+            logger.error(f"Error generating code: {e}")
+            return {"success": False, "error": str(e)}
