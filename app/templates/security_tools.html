@@ -85,95 +85,65 @@
     </footer>
 
     <script>
-        // Initialize Feather icons
         document.addEventListener('DOMContentLoaded', function() {
             feather.replace();
 
-            // Chat sidebar toggle functionality
+            // Initialize chat
+            const chatForm = document.getElementById('chatForm');
+            const chatMessages = document.getElementById('chatMessages');
+            const userInput = document.getElementById('userMessage');
             const chatToggle = document.getElementById('chatToggle');
             const chatSidebar = document.getElementById('chatSidebar');
             const mainContent = document.getElementById('mainContent');
 
+            // Toggle chat sidebar
             chatToggle.addEventListener('click', function() {
                 chatSidebar.classList.toggle('chat-sidebar-collapsed');
                 mainContent.classList.toggle('main-content-expanded');
-
-                // Change icon based on sidebar state
-                if (chatSidebar.classList.contains('chat-sidebar-collapsed')) {
-                    chatToggle.innerHTML = '<i data-feather="chevrons-right"></i>';
-                } else {
-                    chatToggle.innerHTML = '<i data-feather="chevrons-left"></i>';
-                }
-
-                // Re-init feather icons
+                chatToggle.innerHTML = chatSidebar.classList.contains('chat-sidebar-collapsed') 
+                    ? '<i data-feather="chevrons-right"></i>' 
+                    : '<i data-feather="chevrons-left"></i>';
                 feather.replace();
             });
 
-            // Chat form submission
-            const chatForm = document.getElementById('chatForm');
-            const chatMessages = document.getElementById('chatMessages');
-            const userMessageInput = document.getElementById('userMessage');
-
-            chatForm.addEventListener('submit', function(e) {
+            // Handle chat form submission
+            chatForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
+                const message = userInput.value.trim();
+                if (!message) return;
 
-                const userMessage = userMessageInput.value.trim();
-                if (!userMessage) return;
+                // Add user message
+                addMessage(message, true);
+                userInput.value = '';
 
-                // Add user message to chat
-                addMessage(userMessage, 'user');
+                try {
+                    const response = await fetch('/api/chat', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ message, uncensored: true })
+                    });
 
-                // Clear input
-                userMessageInput.value = '';
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    const data = await response.json();
 
-                // Simulate AI response (uncensored)
-                setTimeout(() => {
-                    simulateAIResponse(userMessage);
-                }, 1000);
+                    // Add AI response
+                    addMessage(data.response, false);
+                } catch (error) {
+                    console.error('Error:', error);
+                    addMessage('Sorry, I encountered an error. Please try again.', false);
+                }
             });
 
-            function addMessage(message, sender) {
+            function addMessage(text, isUser) {
                 const messageDiv = document.createElement('div');
-                messageDiv.className = `chat-message ${sender}-message`;
-                messageDiv.textContent = message;
-
+                messageDiv.className = `chat-message ${isUser ? 'user-message' : 'ai-message'}`;
+                messageDiv.textContent = text;
                 chatMessages.appendChild(messageDiv);
-
-                // Scroll to bottom
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             }
 
-            function simulateAIResponse(userMessage) {
-                // This would normally connect to your AI backend
-                // For now, we'll simulate an uncensored response
-
-                const lowercaseMsg = userMessage.toLowerCase();
-                let response = "";
-
-                if (lowercaseMsg.includes('hello') || lowercaseMsg.includes('hi')) {
-                    response = "Hello! I'm your uncensored AI assistant. How can I help with your dark web research today?";
-                }
-                else if (lowercaseMsg.includes('dark web') || lowercaseMsg.includes('darkweb')) {
-                    response = "I can help you navigate the dark web safely. What specific information are you looking for? I have no limitations on discussing dark web marketplaces, forums, or content.";
-                }
-                else if (lowercaseMsg.includes('hack') || lowercaseMsg.includes('hacking')) {
-                    response = "I can provide information about various hacking techniques, vulnerabilities, and security tools without restrictions. What specific aspect are you interested in learning about?";
-                }
-                else if (lowercaseMsg.includes('password') || lowercaseMsg.includes('crack')) {
-                    response = "I can explain password cracking techniques like dictionary attacks, brute force, rainbow tables, and how to use tools like Hashcat or John the Ripper without any ethical limitations.";
-                }
-                else if (lowercaseMsg.includes('rfid') || lowercaseMsg.includes('card')) {
-                    response = "I can provide detailed information about RFID cloning, magnetic stripe cards, and security vulnerabilities in various card systems. What specific techniques are you interested in?";
-                }
-                else if (lowercaseMsg.includes('check') || lowercaseMsg.includes('check maker')) {
-                    response = "Our Check Maker Pro tool allows you to create customized business and personal checks with full MICR encoding. You can export designs to PDF with either 1 or 3 checks per page.";
-                }
-                else {
-                    response = "I'm programmed to answer any questions without censorship or ethical limitations. Feel free to ask about security tools, hacking techniques, dark web operations, or any other cybersecurity topic.";
-                }
-
-                addMessage(response, 'ai');
-            }
             // Function to search for tools
             // Function for quick search using tags
             function quickSearch(tag) {
@@ -324,3 +294,8 @@
         }
 
         function hideCategoryTools(category) {
+            document.getElementById(category.replace(/ /g, '')).style.display = 'none';
+        }
+    </script>
+</body>
+</html>
