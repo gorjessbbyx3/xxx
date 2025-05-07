@@ -113,7 +113,7 @@ Provide your analysis in a structured format.
                     
                     logger.info(f"Sending analysis request to OpenAI for content of length {len(content)}")
                     response = openai_client.chat.completions.create(
-                        model="gpt-4o",  # Use the latest model
+                        model="gpt-4o",  # The newest OpenAI model is "gpt-4o" which was released May 13, 2024.
                         messages=[
                             {"role": "system", "content": "You are GhostTrace, a specialized dark web content analyzer."},
                             {"role": "user", "content": prompt}
@@ -145,7 +145,7 @@ Provide your analysis in a structured format.
                         "Authorization": f"Bearer {self.openai_api_key}"
                     }
                     data = {
-                        "model": "gpt-4o",
+                        "model": "gpt-4o",  # The newest OpenAI model is "gpt-4o" which was released May 13, 2024.
                         "messages": [
                             {"role": "system", "content": "You are GhostTrace, a specialized dark web content analyzer."},
                             {"role": "user", "content": prompt}
