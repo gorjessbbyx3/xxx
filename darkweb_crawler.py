@@ -75,7 +75,7 @@ class DarkWebCrawler:
         if capture_screenshots:
             self.init_selenium()
 
-      def init_selenium(self):
+    def init_selenium(self):
         """Initialize Selenium WebDriver for screenshots"""
         # Selenium is no longer used, this function is now a stub.
         logger.warning("Screenshot capture is disabled because Selenium is not installed.")
