@@ -35,27 +35,42 @@
                     </div>
                 </div>
 
-                <!-- Ollama Status -->
-                <div class="status-card {% if service_status.ollama.running %}status-ok{% else %}status-error{% endif %}">
+                <!-- OpenAI API Status -->
+                <div class="status-card {% if service_status.openai.available %}status-ok{% else %}status-error{% endif %}">
                     <div class="status-icon">
                         <i data-feather="cpu"></i>
                     </div>
                     <div class="status-details">
-                        <h3>Ollama</h3>
-                        {% if service_status.ollama.running %}
-                            <p class="status-text">Running</p>
+                        <h3>OpenAI API</h3>
+                        {% if service_status.openai.available %}
+                            <p class="status-text">Available</p>
                             <p class="status-info">
-                                Model: {{ service_status.ollama.model }}
-                                {% if service_status.ollama.model_available %}
-                                (Available)
-                                {% else %}
-                                (Not Available)
-                                {% endif %}
+                                Model: {{ service_status.openai.model }}
                             </p>
                         {% else %}
-                            <p class="status-text">Not Running</p>
-                            <p class="status-info">Ollama service must be started for AI analysis</p>
+                            <p class="status-text">Not Available</p>
+                            <p class="status-info">OpenAI API key must be set for AI analysis</p>
                         {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Current Location Status -->
+                <div class="status-card {% if service_status.tor.running %}status-ok{% else %}status-info{% endif %}">
+                    <div class="status-icon">
+                        <i data-feather="map-pin"></i>
+                    </div>
+                    <div class="status-details">
+                        <h3>Current Location</h3>
+                        <p class="status-text">
+                            {% if service_status.tor.running %}
+                                Tor Exit Node
+                            {% else %}
+                                Direct Connection
+                            {% endif %}
+                        </p>
+                        <p class="status-info">
+                            IP: {{ service_status.public_ip if service_status.public_ip else "Unknown" }}
+                        </p>
                     </div>
                 </div>
             </div>
