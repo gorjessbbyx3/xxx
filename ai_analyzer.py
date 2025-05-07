@@ -21,58 +21,34 @@ class OllamaAnalyzer:
     Class to handle interactions with AI models for analysis
     Supports Ollama locally and OpenAI API for deployment
     """
-    def __init__(self, base_url: str = "http://localhost:11434", model_name: str = "ghosttrace"):
+    def __init__(self, model_name: str = "gpt-4o"):
         """
-        Initialize the AI Analyzer with the appropriate configuration
+        Initialize the AI Analyzer with OpenAI integration
         """
-        self.base_url = base_url
+        # Default to using OpenAI
         self.model_name = model_name
-        self.api_url = f"{base_url}/api"
-        self.use_openai = False
+        self.use_openai = True
         self.openai_api_key = os.environ.get("OPENAI_API_KEY")
         
-        # If OPENAI_API_KEY is set, use OpenAI instead of Ollama
         if self.openai_api_key:
-            self.use_openai = True
-            logger.info("Using OpenAI API for analysis")
+            logger.info(f"Using OpenAI API for analysis with model: {model_name}")
         else:
-            logger.info(f"Ollama Analyzer initialized with model: {model_name}")
+            logger.warning("OpenAI API key not found. Please set OPENAI_API_KEY environment variable.")
         
     def check_model_availability(self) -> bool:
         """
-        Check if the specified model is available in Ollama or if OpenAI is configured
+        Check if OpenAI API is properly configured
         """
-        # If using OpenAI, just check if API key is present
-        if self.use_openai:
-            if self.openai_api_key:
-                logger.info("OpenAI API key found, ready to use OpenAI models")
-                return True
-            else:
-                logger.error("OpenAI API key not found but use_openai is set")
-                return False
-        
-        # Otherwise check Ollama
-        try:
-            response = requests.get(f"{self.api_url}/tags")
-            if response.status_code == 200:
-                models = response.json().get("models", [])
-                for model in models:
-                    if model.get("name") == self.model_name:
-                        logger.info(f"Model {self.model_name} is available")
-                        return True
-                logger.warning(f"Model {self.model_name} not found, falling back to mistral:7b-instruct")
-                self.model_name = "mistral:7b-instruct"
-                return self.check_model_availability()
-            else:
-                logger.error(f"Failed to get model list: {response.status_code}")
-                return False
-        except Exception as e:
-            logger.error(f"Error checking model availability: {e}")
+        if self.openai_api_key:
+            logger.info("OpenAI API key found, ready to use OpenAI models")
+            return True
+        else:
+            logger.error("OpenAI API key not found. Please set the OPENAI_API_KEY environment variable.")
             return False
     
     def analyze_content(self, content: str, prompt_template: Optional[str] = None) -> Dict[str, Any]:
         """
-        Analyze the provided content using Ollama or OpenAI
+        Analyze the provided content using OpenAI
         
         Args:
             content: The dark web content to analyze
@@ -101,120 +77,89 @@ Provide your analysis in a structured format.
         
         prompt = prompt_template.format(content=content)
         
-        # Check if we should use OpenAI
-        if self.use_openai:
+        if not self.openai_api_key:
+            error_msg = "OpenAI API key not found. Please set the OPENAI_API_KEY environment variable."
+            logger.error(error_msg)
+            return {
+                "success": False,
+                "error": error_msg
+            }
+        
+        try:
+            # Try using the OpenAI package if installed
             try:
-                # If OpenAI package is installed
-                try:
-                    import openai
+                import openai
+                
+                # Initialize OpenAI client
+                openai_client = openai.OpenAI(api_key=self.openai_api_key)
+                
+                logger.info(f"Sending analysis request to OpenAI for content of length {len(content)}")
+                response = openai_client.chat.completions.create(
+                    model="gpt-4o",  # The newest OpenAI model is "gpt-4o" which was released May 13, 2024.
+                    messages=[
+                        {"role": "system", "content": "You are GhostTrace, a specialized dark web content analyzer."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    max_tokens=1000
+                )
+                
+                # Extract response
+                result = response.choices[0].message.content
+                
+                logger.info("OpenAI analysis completed successfully")
+                return {
+                    "success": True,
+                    "analysis": result,
+                    "metrics": {
+                        "tokens": response.usage.total_tokens,
+                        "model": "gpt-4o"
+                    }
+                }
+            
+            except ImportError:
+                # OpenAI package not installed, use direct API call
+                import json
+                
+                logger.info("OpenAI package not installed, using direct API call")
+                api_url = "https://api.openai.com/v1/chat/completions"
+                headers = {
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {self.openai_api_key}"
+                }
+                data = {
+                    "model": "gpt-4o",  # The newest OpenAI model is "gpt-4o" which was released May 13, 2024.
+                    "messages": [
+                        {"role": "system", "content": "You are GhostTrace, a specialized dark web content analyzer."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    "max_tokens": 1000
+                }
+                
+                response = requests.post(api_url, headers=headers, json=data)
+                
+                if response.status_code == 200:
+                    result = response.json()
+                    analysis = result["choices"][0]["message"]["content"]
                     
-                    # Initialize OpenAI client
-                    openai_client = openai.OpenAI(api_key=self.openai_api_key)
-                    
-                    logger.info(f"Sending analysis request to OpenAI for content of length {len(content)}")
-                    response = openai_client.chat.completions.create(
-                        model="gpt-4o",  # The newest OpenAI model is "gpt-4o" which was released May 13, 2024.
-                        messages=[
-                            {"role": "system", "content": "You are GhostTrace, a specialized dark web content analyzer."},
-                            {"role": "user", "content": prompt}
-                        ],
-                        max_tokens=1000
-                    )
-                    
-                    # Extract response
-                    result = response.choices[0].message.content
-                    
-                    logger.info("OpenAI analysis completed successfully")
+                    logger.info("OpenAI direct API analysis completed successfully")
                     return {
                         "success": True,
-                        "analysis": result,
+                        "analysis": analysis,
                         "metrics": {
-                            "tokens": response.usage.total_tokens,
+                            "tokens": result["usage"]["total_tokens"],
                             "model": "gpt-4o"
                         }
                     }
-                
-                except ImportError:
-                    # OpenAI package not installed, use direct API call
-                    import json
-                    
-                    logger.info("OpenAI package not installed, using direct API call")
-                    api_url = "https://api.openai.com/v1/chat/completions"
-                    headers = {
-                        "Content-Type": "application/json",
-                        "Authorization": f"Bearer {self.openai_api_key}"
-                    }
-                    data = {
-                        "model": "gpt-4o",  # The newest OpenAI model is "gpt-4o" which was released May 13, 2024.
-                        "messages": [
-                            {"role": "system", "content": "You are GhostTrace, a specialized dark web content analyzer."},
-                            {"role": "user", "content": prompt}
-                        ],
-                        "max_tokens": 1000
+                else:
+                    error_msg = f"Failed to analyze with OpenAI API: {response.status_code} - {response.text}"
+                    logger.error(error_msg)
+                    return {
+                        "success": False,
+                        "error": error_msg
                     }
                     
-                    response = requests.post(api_url, headers=headers, json=data)
-                    
-                    if response.status_code == 200:
-                        result = response.json()
-                        analysis = result["choices"][0]["message"]["content"]
-                        
-                        logger.info("OpenAI direct API analysis completed successfully")
-                        return {
-                            "success": True,
-                            "analysis": analysis,
-                            "metrics": {
-                                "tokens": result["usage"]["total_tokens"],
-                                "model": "gpt-4o"
-                            }
-                        }
-                    else:
-                        error_msg = f"Failed to analyze with OpenAI API: {response.status_code} - {response.text}"
-                        logger.error(error_msg)
-                        return {
-                            "success": False,
-                            "error": error_msg
-                        }
-                        
-            except Exception as e:
-                error_msg = f"Error during OpenAI content analysis: {str(e)}"
-                logger.error(error_msg)
-                return {
-                    "success": False,
-                    "error": error_msg
-                }
-        
-        # Otherwise use Ollama
-        try:
-            data = {
-                "model": self.model_name,
-                "prompt": prompt,
-                "stream": False
-            }
-            
-            logger.info(f"Sending analysis request to Ollama for content of length {len(content)}")
-            response = requests.post(f"{self.api_url}/generate", json=data)
-            
-            if response.status_code == 200:
-                result = response.json()
-                logger.info("Analysis completed successfully")
-                return {
-                    "success": True,
-                    "analysis": result.get("response", ""),
-                    "metrics": {
-                        "eval_count": result.get("eval_count", 0),
-                        "eval_duration": result.get("eval_duration", 0)
-                    }
-                }
-            else:
-                error_msg = f"Failed to analyze content: {response.status_code} - {response.text}"
-                logger.error(error_msg)
-                return {
-                    "success": False,
-                    "error": error_msg
-                }
         except Exception as e:
-            error_msg = f"Error during content analysis: {str(e)}"
+            error_msg = f"Error during OpenAI content analysis: {str(e)}"
             logger.error(error_msg)
             return {
                 "success": False,
@@ -374,31 +319,4 @@ Only return the JSON object, nothing else.
         else:
             return {"error": result.get("error", "Unknown error in categorization")}
 
-    def wait_for_ollama(self, max_retries=10, retry_delay=5):
-        """
-        Wait for Ollama service to be available
-        
-        Args:
-            max_retries: Maximum number of retry attempts
-            retry_delay: Delay between retries in seconds
-            
-        Returns:
-            Boolean indicating if Ollama is available
-        """
-        logger.info(f"Waiting for Ollama service to be available at {self.api_url}")
-        
-        for attempt in range(max_retries):
-            try:
-                response = requests.get(f"{self.api_url}/tags")
-                if response.status_code == 200:
-                    logger.info("Ollama service is available")
-                    return True
-                else:
-                    logger.warning(f"Attempt {attempt + 1}/{max_retries}: Ollama service returned status {response.status_code}")
-            except requests.exceptions.RequestException as e:
-                logger.warning(f"Attempt {attempt + 1}/{max_retries}: Ollama service not available yet. Error: {e}")
-                
-            time.sleep(retry_delay)
-        
-        logger.error(f"Failed to connect to Ollama service after {max_retries} attempts")
-        return False
+
