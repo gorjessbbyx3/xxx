@@ -15,7 +15,7 @@ from datetime import datetime
 from urllib.parse import urljoin, urlparse
 from bs4 import BeautifulSoup
 from requests.exceptions import RequestException
-from selenium import webdriver
+from selenium_utils import SeleniumCrawler
 from selenium.webdriver.firefox.options import Options
 import pdfkit
 import requests
