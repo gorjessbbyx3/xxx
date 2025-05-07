@@ -75,6 +75,82 @@
             background: var(--bg-color);
             border-radius: 4px;
         }
+
+        .preview-container {
+            position: relative;
+            perspective: 1000px;
+            margin: 20px auto;
+            max-width: 800px;
+        }
+
+        .preview-container img {
+            max-width: 100%;
+            height: auto;
+            transition: transform 0.5s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .preview-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+        }
+
+        .preview-animation {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .preview-rotate {
+            width: 100%;
+            height: 100%;
+            transition: transform 0.5s;
+        }
+
+        .preview-shine {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0) 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .preview-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .preview-controls button {
+            padding: 8px 16px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .preview-controls button:hover {
+            background: var(--primary-dark);
+        }
+
+        .uv-mode .preview-container {
+            background: #1a1a4f;
+        }
+
+        .uv-mode .preview-shine {
+            opacity: 1;
+            background: linear-gradient(45deg, rgba(100,100,255,0) 0%, rgba(100,100,255,0.3) 50%, rgba(100,100,255,0) 100%);
+        }
     </style>
 </head>
 <body>
@@ -179,12 +255,45 @@
             <a href="{{ url_for('view_tool_details', tool_name=tool.title) }}" class="btn btn-small">Details</a>
             <button onclick="executeTool('{{ tool.title }}')" class="btn btn-primary">Execute Tool</button>
         </div>
+
+        <div class="check-preview">
+                <h3>Check Preview</h3>
+                <div class="preview-container">
+                    <img id="check-preview-img" src="" alt="Check Preview">
+                    <div class="preview-overlay">
+                        <div class="preview-animation">
+                            <div class="preview-rotate"></div>
+                            <div class="preview-shine"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="preview-controls">
+                    <button onclick="rotatePreview()">Rotate View</button>
+                    <button onclick="toggleUVLight()">Toggle UV Light</button>
+                </div>
+            </div>
+
     </main>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             feather.replace();
         });
+
+        let isRotated = false;
+        let uvMode = false;
+
+        function rotatePreview() {
+            const preview = document.querySelector('.preview-rotate');
+            isRotated = !isRotated;
+            preview.style.transform = isRotated ? 'rotateY(30deg)' : 'rotateY(0)';
+        }
+
+        function toggleUVLight() {
+            const container = document.querySelector('.preview-container');
+            uvMode = !uvMode;
+            container.classList.toggle('uv-mode', uvMode);
+        }
 
         function handleCommand(event) {
             if (event.key === 'Enter') {
