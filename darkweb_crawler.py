@@ -75,18 +75,11 @@ class DarkWebCrawler:
         if capture_screenshots:
             self.init_selenium()
 
-    def init_selenium(self):
+      def init_selenium(self):
         """Initialize Selenium WebDriver for screenshots"""
-        options = Options()
-        options.add_argument('--headless')
-        options.add_argument('--no-sandbox')
-        options.add_argument('--disable-dev-shm-usage')
-        try:
-            self.driver = SeleniumCrawler().get_driver() # Modification here to use SeleniumCrawler
-            logger.info("Selenium WebDriver initialized successfully")
-        except Exception as e:
-            logger.error(f"Failed to initialize Selenium: {e}")
-            self.capture_screenshots = False
+        # Selenium is no longer used, this function is now a stub.
+        logger.warning("Screenshot capture is disabled because Selenium is not installed.")
+        self.capture_screenshots = False
 
     def parse_robots_txt(self, url, session):
         """Parse robots.txt file for a domain"""
