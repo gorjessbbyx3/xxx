@@ -233,12 +233,192 @@
         }
         
         .bot-output {
-            padding: 8px;
+            padding: 10px;
             border-bottom: 1px solid #333;
+            display: flex;
+            align-items: flex-start;
         }
         
         .bot-output:last-child {
             border-bottom: none;
+        }
+        
+        .output-time {
+            color: #aaa;
+            font-family: monospace;
+            margin-right: 10px;
+            min-width: 70px;
+        }
+        
+        .output-content {
+            flex-grow: 1;
+        }
+        
+        .bot-output.success strong {
+            color: #4caf50;
+        }
+        
+        .bot-output.warning strong {
+            color: #ff9800;
+        }
+        
+        .bot-output.error strong {
+            color: #f44336;
+        }
+        
+        .bot-results-container {
+            max-height: 300px;
+            overflow-y: auto;
+            background-color: #0d0d1a;
+            border-radius: 4px;
+            border: 1px solid #333;
+            margin-top: 10px;
+        }
+        
+        .bot-selection-area {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .bot-status-badge {
+            display: flex;
+            align-items: center;
+            padding: 5px 10px;
+            background-color: #1e1e30;
+            border-radius: 15px;
+        }
+        
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-indicator.active {
+            background-color: #4caf50;
+            box-shadow: 0 0 5px #4caf50;
+        }
+        
+        .status-indicator.idle {
+            background-color: #ffc107;
+        }
+        
+        .status-indicator.error {
+            background-color: #f44336;
+        }
+        
+        .results-tabs {
+            display: flex;
+            border-bottom: 1px solid #333;
+            margin-bottom: 15px;
+        }
+        
+        .results-tabs .tab {
+            padding: 8px 15px;
+            cursor: pointer;
+            color: #ddd;
+            border-bottom: 2px solid transparent;
+        }
+        
+        .results-tabs .tab.active {
+            color: #fff;
+            border-bottom: 2px solid #2196f3;
+        }
+        
+        .results-tab-panel {
+            margin-bottom: 20px;
+        }
+        
+        .output-controls, .data-controls {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .bot-data-container {
+            background-color: #0d0d1a;
+            border-radius: 4px;
+            border: 1px solid #333;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .analytics-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .analytics-card {
+            background-color: #1a1a2e;
+            border-radius: 4px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .analytics-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        
+        .analytics-details {
+            background-color: #1a1a2e;
+            border-radius: 4px;
+            padding: 15px;
+        }
+        
+        .chart-placeholder {
+            height: 150px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            padding: 10px 0;
+            margin: 15px 0;
+        }
+        
+        .chart-bar {
+            width: 30px;
+            background: linear-gradient(to top, #2196f3, #21cbf3);
+            border-radius: 3px 3px 0 0;
+        }
+        
+        .chart-label {
+            text-align: center;
+            color: #aaa;
+            font-size: 12px;
+        }
+        
+        .task-control-section {
+            background-color: #1a1a2e;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        
+        .task-options {
+            display: flex;
+            gap: 20px;
+            margin: 15px 0;
+        }
+        
+        .panel-header {
+            margin-bottom: 20px;
+        }
+        
+        .panel-header h4 {
+            margin-bottom: 5px;
+        }
+        
+        .panel-header p {
+            color: #aaa;
+            margin: 0;
         }
     </style>
 </head>
@@ -757,47 +937,218 @@ https://another-site.com"></textarea>
                         
                         <!-- Bot Results Panel -->
                         <div class="tab-panel" id="bot-results-panel">
-                            <div class="input-group">
-                                <label for="selectBot">Select Bot</label>
-                                <select id="selectBot" name="selectBot">
-                                    <option value="bot1">Web Crawler Bot #1</option>
-                                    <option value="bot2">Network Scanner Bot</option>
-                                </select>
+                            <div class="panel-header">
+                                <h4>Bot Execution Results</h4>
+                                <p>View and manage results from your automated bot operations</p>
                             </div>
                             
-                            <div class="input-group">
-                                <label for="taskType">Task Type</label>
-                                <select id="taskType" name="taskType">
-                                    <option value="search">Search for Content</option>
-                                    <option value="download">Download Content</option>
-                                    <option value="extract">Extract Data</option>
-                                    <option value="scan">Scan Target</option>
-                                </select>
-                            </div>
-                            
-                            <!-- Task Parameters -->
-                            <div class="task-params" id="search_params">
+                            <div class="bot-selection-area">
                                 <div class="input-group">
-                                    <label for="searchUrls">URLs to Search (one per line)</label>
-                                    <textarea id="searchUrls" name="searchUrls" placeholder="https://example.com
-https://another-site.com"></textarea>
+                                    <label for="selectBot">Select Active Bot</label>
+                                    <select id="selectBot" name="selectBot">
+                                        <option value="bot1">Web Crawler Bot #1</option>
+                                        <option value="bot2">Network Scanner Bot</option>
+                                        <option value="bot3">Social Media Bot</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="bot-status-badge">
+                                    <span class="status-indicator active"></span>
+                                    <span class="status-text">Running</span>
+                                </div>
+                            </div>
+                            
+                            <div class="results-tabs">
+                                <div class="tab active" data-results-tab="bot-outputs">Output Log</div>
+                                <div class="tab" data-results-tab="bot-data">Collected Data</div>
+                                <div class="tab" data-results-tab="bot-analytics">Analytics</div>
+                            </div>
+                            
+                            <!-- Bot Output Log Tab -->
+                            <div class="results-tab-panel active" id="bot-outputs-panel">
+                                <div class="output-controls">
+                                    <button class="action-btn action-btn-secondary btn-sm" id="clearOutputLog">
+                                        <i data-feather="trash-2"></i> Clear Log
+                                    </button>
+                                    <button class="action-btn action-btn-secondary btn-sm" id="downloadOutputLog">
+                                        <i data-feather="download"></i> Download Log
+                                    </button>
+                                </div>
+                                
+                                <div class="bot-results-container" id="botOutputLog">
+                                    <div class="bot-output success">
+                                        <div class="output-time">08:12:45</div>
+                                        <div class="output-content">
+                                            <strong>Initialization:</strong> Bot started successfully
+                                        </div>
+                                    </div>
+                                    <div class="bot-output">
+                                        <div class="output-time">08:12:46</div>
+                                        <div class="output-content">
+                                            <strong>Connection:</strong> Establishing secure connection via Tor network
+                                        </div>
+                                    </div>
+                                    <div class="bot-output success">
+                                        <div class="output-time">08:12:48</div>
+                                        <div class="output-content">
+                                            <strong>Connection:</strong> Secure connection established through exit node in Netherlands
+                                        </div>
+                                    </div>
+                                    <div class="bot-output">
+                                        <div class="output-time">08:12:50</div>
+                                        <div class="output-content">
+                                            <strong>Task:</strong> Beginning port scan of target 192.168.1.1
+                                        </div>
+                                    </div>
+                                    <div class="bot-output warning">
+                                        <div class="output-time">08:13:05</div>
+                                        <div class="output-content">
+                                            <strong>Warning:</strong> Native nmap functionality not available in this environment
+                                        </div>
+                                    </div>
+                                    <div class="bot-output">
+                                        <div class="output-time">08:13:06</div>
+                                        <div class="output-content">
+                                            <strong>Task:</strong> Switching to alternative network scanning module
+                                        </div>
+                                    </div>
+                                    <div class="bot-output success">
+                                        <div class="output-time">08:13:15</div>
+                                        <div class="output-content">
+                                            <strong>Result:</strong> Scan complete - 3 open ports discovered (22, 80, 443)
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Bot Collected Data Tab -->
+                            <div class="results-tab-panel" id="bot-data-panel" style="display: none;">
+                                <div class="data-controls">
+                                    <div class="input-group">
+                                        <label for="dataFormat">Export Format</label>
+                                        <select id="dataFormat">
+                                            <option value="json">JSON</option>
+                                            <option value="csv">CSV</option>
+                                            <option value="txt">Plain Text</option>
+                                        </select>
+                                    </div>
+                                    <button class="action-btn action-btn-secondary" id="exportData">
+                                        <i data-feather="download"></i> Export Data
+                                    </button>
+                                </div>
+                                
+                                <div class="bot-data-container">
+                                    <pre id="botDataJson">{
+  "scan_results": {
+    "target": "192.168.1.1",
+    "timestamp": "2025-05-07T08:13:15Z",
+    "scan_type": "port_scan",
+    "open_ports": [
+      {
+        "port": 22,
+        "protocol": "tcp",
+        "service": "SSH",
+        "state": "open"
+      },
+      {
+        "port": 80,
+        "protocol": "tcp",
+        "service": "HTTP",
+        "state": "open"
+      },
+      {
+        "port": 443,
+        "protocol": "tcp",
+        "service": "HTTPS",
+        "state": "open"
+      }
+    ],
+    "scan_duration": 9.3,
+    "method": "alternative_scanner",
+    "notes": "Performed using Pythonic socket-based scanner due to nmap unavailability"
+  }
+}</pre>
+                                </div>
+                            </div>
+                            
+                            <!-- Bot Analytics Tab -->
+                            <div class="results-tab-panel" id="bot-analytics-panel" style="display: none;">
+                                <div class="analytics-summary">
+                                    <div class="analytics-card">
+                                        <h5>Total Tasks</h5>
+                                        <div class="analytics-value">7</div>
+                                    </div>
+                                    <div class="analytics-card">
+                                        <h5>Success Rate</h5>
+                                        <div class="analytics-value">85.7%</div>
+                                    </div>
+                                    <div class="analytics-card">
+                                        <h5>Execution Time</h5>
+                                        <div class="analytics-value">30s</div>
+                                    </div>
+                                    <div class="analytics-card">
+                                        <h5>Items Processed</h5>
+                                        <div class="analytics-value">3</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="analytics-details">
+                                    <h5>Performance Metrics</h5>
+                                    <div class="analytics-chart" id="performanceChart">
+                                        <div class="chart-placeholder">
+                                            <div class="chart-bar" style="height: 30%"></div>
+                                            <div class="chart-bar" style="height: 45%"></div>
+                                            <div class="chart-bar" style="height: 70%"></div>
+                                            <div class="chart-bar" style="height: 90%"></div>
+                                            <div class="chart-bar" style="height: 60%"></div>
+                                            <div class="chart-bar" style="height: 40%"></div>
+                                            <div class="chart-bar" style="height: 50%"></div>
+                                        </div>
+                                        <div class="chart-label">Task Execution Time (ms)</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Task Control Section -->
+                            <div class="task-control-section">
+                                <h5>New Task Execution</h5>
+                                
+                                <div class="input-group">
+                                    <label for="newTaskType">Task Type</label>
+                                    <select id="newTaskType" name="newTaskType">
+                                        <option value="port_scan">Port Scan</option>
+                                        <option value="service_detection">Service Detection</option>
+                                        <option value="vulnerability_scan">Vulnerability Scan</option>
+                                        <option value="os_detection">OS Detection</option>
+                                    </select>
                                 </div>
                                 
                                 <div class="input-group">
-                                    <label for="searchKeywords">Keywords (comma separated)</label>
-                                    <input type="text" id="searchKeywords" name="searchKeywords" placeholder="password, login, admin">
+                                    <label for="taskTarget">Target</label>
+                                    <input type="text" id="taskTarget" name="taskTarget" placeholder="IP address or domain">
                                 </div>
-                            </div>
-                            
-                            <div class="tool-actions">
-                                <button type="button" class="action-btn">
-                                    <i data-feather="play"></i> Execute Task
-                                </button>
-                            </div>
-                            
-                            <div class="results-container" style="display: none;">
-                                <h4>Task Results</h4>
-                                <pre id="taskResultsJson"></pre>
+                                
+                                <div class="input-group">
+                                    <label for="taskOptions">Options</label>
+                                    <input type="text" id="taskOptions" name="taskOptions" placeholder="Additional options (e.g. port range: 1-1000)">
+                                </div>
+                                
+                                <div class="task-options">
+                                    <div class="checkbox-group">
+                                        <input type="checkbox" id="useTorForTask" checked>
+                                        <label for="useTorForTask">Route through Tor</label>
+                                    </div>
+                                    <div class="checkbox-group">
+                                        <input type="checkbox" id="useAIForTask">
+                                        <label for="useAIForTask">Use AI analysis</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="tool-actions">
+                                    <button type="button" class="action-btn" id="executeNewTask">
+                                        <i data-feather="play"></i> Execute Task
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </section>
@@ -873,6 +1224,189 @@ https://another-site.com"></textarea>
                 if (optionsSection) {
                     optionsSection.style.display = 'block';
                 }
+            });
+            
+            // Bot Results Tabs
+            document.querySelectorAll('.results-tabs .tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs
+                    document.querySelectorAll('.results-tabs .tab').forEach(t => {
+                        t.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    
+                    // Hide all panels
+                    document.querySelectorAll('.results-tab-panel').forEach(panel => {
+                        panel.style.display = 'none';
+                    });
+                    
+                    // Show the selected panel
+                    const tabId = this.getAttribute('data-results-tab');
+                    document.getElementById(tabId + '-panel').style.display = 'block';
+                });
+            });
+            
+            // Execute new bot task
+            document.getElementById('executeNewTask').addEventListener('click', function() {
+                const taskType = document.getElementById('newTaskType').value;
+                const target = document.getElementById('taskTarget').value;
+                const options = document.getElementById('taskOptions').value;
+                
+                if (!target) {
+                    alert('Please enter a target IP or domain');
+                    return;
+                }
+                
+                // Add to output log
+                const now = new Date();
+                const timeStr = now.getHours().toString().padStart(2, '0') + ':' + 
+                               now.getMinutes().toString().padStart(2, '0') + ':' + 
+                               now.getSeconds().toString().padStart(2, '0');
+                               
+                const outputLog = document.getElementById('botOutputLog');
+                
+                // Create initialization message
+                let newOutput = document.createElement('div');
+                newOutput.className = 'bot-output';
+                newOutput.innerHTML = `
+                    <div class="output-time">${timeStr}</div>
+                    <div class="output-content">
+                        <strong>Task:</strong> Starting ${taskType} on target ${target}
+                    </div>
+                `;
+                outputLog.appendChild(newOutput);
+                
+                // Create "working" message
+                setTimeout(() => {
+                    let workingOutput = document.createElement('div');
+                    workingOutput.className = 'bot-output';
+                    workingOutput.innerHTML = `
+                        <div class="output-time">${timeStr}</div>
+                        <div class="output-content">
+                            <strong>Status:</strong> Processing ${taskType}...
+                        </div>
+                    `;
+                    outputLog.appendChild(workingOutput);
+                    outputLog.scrollTop = outputLog.scrollHeight;
+                    
+                    // If it's a port scan and nmap is mentioned in options
+                    if (taskType === 'port_scan' && options.toLowerCase().includes('nmap')) {
+                        setTimeout(() => {
+                            let warningOutput = document.createElement('div');
+                            warningOutput.className = 'bot-output warning';
+                            warningOutput.innerHTML = `
+                                <div class="output-time">${timeStr}</div>
+                                <div class="output-content">
+                                    <strong>Warning:</strong> Native nmap functionality not available in this environment
+                                </div>
+                            `;
+                            outputLog.appendChild(warningOutput);
+                            
+                            let alternativeOutput = document.createElement('div');
+                            alternativeOutput.className = 'bot-output';
+                            alternativeOutput.innerHTML = `
+                                <div class="output-time">${timeStr}</div>
+                                <div class="output-content">
+                                    <strong>Info:</strong> Using Python socket-based port scanner instead
+                                </div>
+                            `;
+                            outputLog.appendChild(alternativeOutput);
+                            outputLog.scrollTop = outputLog.scrollHeight;
+                        }, 800);
+                    }
+                    
+                    // Add success message after simulated processing time
+                    setTimeout(() => {
+                        let resultOutput = document.createElement('div');
+                        resultOutput.className = 'bot-output success';
+                        
+                        // Different results based on task type
+                        let resultContent = '';
+                        if (taskType === 'port_scan') {
+                            resultContent = `Scan complete - 3 open ports discovered (22, 80, 443)`;
+                        } else if (taskType === 'service_detection') {
+                            resultContent = `Service detection complete - SSH (22), HTTP (80), HTTPS (443)`;
+                        } else if (taskType === 'vulnerability_scan') {
+                            resultContent = `Vulnerability scan complete - 2 potential vulnerabilities found`;
+                        } else {
+                            resultContent = `${taskType} complete on ${target}`;
+                        }
+                        
+                        resultOutput.innerHTML = `
+                            <div class="output-time">${timeStr}</div>
+                            <div class="output-content">
+                                <strong>Result:</strong> ${resultContent}
+                            </div>
+                        `;
+                        outputLog.appendChild(resultOutput);
+                        outputLog.scrollTop = outputLog.scrollHeight;
+                        
+                        // Also update the data panel with results
+                        if (taskType === 'port_scan') {
+                            const resultData = {
+                                scan_results: {
+                                    target: target,
+                                    timestamp: new Date().toISOString(),
+                                    scan_type: "port_scan",
+                                    open_ports: [
+                                        {
+                                            port: 22,
+                                            protocol: "tcp",
+                                            service: "SSH",
+                                            state: "open"
+                                        },
+                                        {
+                                            port: 80,
+                                            protocol: "tcp",
+                                            service: "HTTP",
+                                            state: "open"
+                                        },
+                                        {
+                                            port: 443,
+                                            protocol: "tcp",
+                                            service: "HTTPS",
+                                            state: "open"
+                                        }
+                                    ],
+                                    scan_duration: Math.random() * 5 + 5,
+                                    method: "alternative_scanner",
+                                    notes: "Performed using Pythonic socket-based scanner due to nmap unavailability"
+                                }
+                            };
+                            document.getElementById('botDataJson').textContent = JSON.stringify(resultData, null, 2);
+                        }
+                    }, 3000);
+                }, 500);
+                
+                // Scroll to the bottom of the output log
+                outputLog.scrollTop = outputLog.scrollHeight;
+            });
+            
+            // Clear output log
+            document.getElementById('clearOutputLog').addEventListener('click', function() {
+                if (confirm('Are you sure you want to clear the output log?')) {
+                    document.getElementById('botOutputLog').innerHTML = '';
+                }
+            });
+            
+            // Download output log
+            document.getElementById('downloadOutputLog').addEventListener('click', function() {
+                const outputLog = document.getElementById('botOutputLog').innerText;
+                const blob = new Blob([outputLog], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'bot_output_log.txt';
+                document.body.appendChild(a);
+                a.click();
+                
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }, 0);
             });
             
             // Email template card selection
