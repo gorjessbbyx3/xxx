@@ -14,11 +14,9 @@ from datetime import datetime
 from urllib.parse import urljoin, urlparse
 from bs4 import BeautifulSoup
 from requests.exceptions import RequestException
-from selenium.webdriver.firefox.options import Options
-from selenium_utils import SeleniumCrawler
+import pdfkit
 import requests
 from difflib import SequenceMatcher
-from collections import defaultdict
 
 from tor_manager import TorManager, tor_session_context
 from ai_analyzer import OllamaAnalyzer
