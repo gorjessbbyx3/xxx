@@ -43,16 +43,4 @@ try:
         app.run(host='0.0.0.0', port=port, debug=True)
 except Exception as e:
     print(f"Error importing app: {e}")
-  sys.exit(1)
-from flask import Flask, render_template
-from app.routes import init_routes
-
-app = Flask(__name__, 
-    template_folder='app/templates',
-    static_folder='app/static')
-
-init_routes(app)
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
-
+    sys.exit(1)
