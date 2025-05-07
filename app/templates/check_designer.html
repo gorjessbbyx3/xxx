@@ -22,7 +22,7 @@
             gap: 20px;
             margin-top: 20px;
         }
-        
+
         .canvas-container {
             flex: 1;
             background-color: #1a1a2e;
@@ -30,20 +30,20 @@
             padding: 20px;
             text-align: center;
         }
-        
+
         .toolbox {
             width: 300px;
             background-color: #1a1a2e;
             border-radius: 8px;
             padding: 20px;
         }
-        
+
         #check-canvas {
             background-color: #fff;
             margin: 0 auto;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
-        
+
         .check-preview {
             width: 100%;
             margin-top: 20px;
@@ -52,27 +52,27 @@
             padding: 10px;
             background-color: #0f3460;
         }
-        
+
         .check-preview img {
             max-width: 100%;
             height: auto;
         }
-        
+
         .toolbox-section {
             margin-bottom: 20px;
             border-bottom: 1px solid #333;
             padding-bottom: 15px;
         }
-        
+
         .toolbox-section:last-child {
             border-bottom: none;
         }
-        
+
         .toolbox-section h3 {
             color: #e94560;
             margin-bottom: 10px;
         }
-        
+
         .tool-button {
             background-color: #16213e;
             color: #fff;
@@ -85,11 +85,11 @@
             align-items: center;
             gap: 5px;
         }
-        
+
         .tool-button:hover {
             background-color: #e94560;
         }
-        
+
         .font-option {
             display: inline-block;
             margin: 5px;
@@ -98,15 +98,15 @@
             border-radius: 4px;
             cursor: pointer;
         }
-        
+
         .font-option:hover {
             background-color: #273b69;
         }
-        
+
         .font-option.active {
             background-color: #e94560;
         }
-        
+
         .color-picker {
             width: 30px;
             height: 30px;
@@ -115,7 +115,7 @@
             border-radius: 4px;
             cursor: pointer;
         }
-        
+
         .background-option {
             width: 60px;
             height: 40px;
@@ -127,26 +127,26 @@
             background-size: cover;
             background-position: center;
         }
-        
+
         .background-option:hover {
             transform: scale(1.1);
             box-shadow: 0 0 5px rgba(233, 69, 96, 0.5);
         }
-        
+
         .background-option.active {
             border: 2px solid #e94560;
         }
-        
+
         .input-group {
             margin-bottom: 15px;
         }
-        
+
         .input-group label {
             display: block;
             margin-bottom: 5px;
             color: #ddd;
         }
-        
+
         .input-group input, .input-group select {
             width: 100%;
             padding: 8px;
@@ -155,14 +155,14 @@
             border-radius: 4px;
             color: #fff;
         }
-        
+
         .element-library {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
             margin-top: 10px;
         }
-        
+
         .element-item {
             background-color: #16213e;
             padding: 5px 10px;
@@ -170,17 +170,17 @@
             cursor: move;
             font-size: 0.9rem;
         }
-        
+
         .element-item:hover {
             background-color: #273b69;
         }
-        
+
         .action-buttons {
             display: flex;
             justify-content: space-between;
             margin-top: 20px;
         }
-        
+
         #template-select {
             margin-bottom: 15px;
         }
@@ -210,7 +210,7 @@
                 </form>
             </div>
         </div>
-        
+
         <!-- Main Content -->
         <div class="main-content" id="mainContent">
             <header>
@@ -229,18 +229,36 @@
                 <section class="status-panel">
                     <h2>Check Designer</h2>
                     <p>Create custom bank checks with complete control over design, layout, and security features</p>
-                    
+
                     <div class="designer-container">
                         <div class="toolbox">
                             <div class="toolbox-section">
                                 <h3>Check Templates</h3>
                                 <select id="template-select" class="form-control">
-                                    <option value="personal">Personal Check</option>
-                                    <option value="business">Business Check</option>
-                                    <option value="voucher">Voucher Check</option>
-                                    <option value="blank">Blank Template</option>
+                                    <option value="business">Business Check (8.5" x 3.5")</option>
+                                    <option value="personal">Personal Check (6.0" x 2.75")</option>
+                                    <option value="voucher">Voucher Check (8.5" x 3.67")</option>
+                                    <option value="custom">Custom Size</option>
                                 </select>
-                                
+
+                                <div id="check-size-warning" class="mt-2 text-warning" style="display: none;">
+                                    Note: Check dimensions must follow Federal Reserve guidelines:
+                                    <ul>
+                                        <li>Width: 6.0" to 8.75"</li>
+                                        <li>Height: 2.75" to 3.67"</li>
+                                    </ul>
+                                </div>
+
+                                <div id="micr-guidelines" class="mt-3">
+                                    <h4>MICR Line Guidelines</h4>
+                                    <ul>
+                                        <li>Clear band height: 0.625"</li>
+                                        <li>MICR font: E-13B</li>
+                                        <li>Character height: 0.117"</li>
+                                        <li>Minimum side margins: 0.315"</li>
+                                    </ul>
+                                </div>
+
                                 <div class="input-group">
                                     <label for="check-size">Check Size</label>
                                     <select id="check-size">
@@ -250,7 +268,7 @@
                                         <option value="custom">Custom Size</option>
                                     </select>
                                 </div>
-                                
+
                                 <div id="custom-size" style="display: none;">
                                     <div class="input-group">
                                         <label for="custom-width">Width (inches)</label>
@@ -262,7 +280,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="toolbox-section">
                                 <h3>Default Text</h3>
                                 <div class="input-group">
@@ -283,7 +301,7 @@
                                     </button>
                                 </div>
                             </div>
-                            
+
                             <div class="toolbox-section">
                                 <h3>Background</h3>
                                 <div class="background-options">
@@ -292,7 +310,7 @@
                                     <div class="background-option" style="background-color: #e6f7ff;" data-bg="solid-light-blue"></div>
                                 </div>
                             </div>
-                            
+
                             <div class="toolbox-section">
                                 <h3>Add Elements</h3>
                                 <div class="element-library">
@@ -305,7 +323,7 @@
                                     <div class="element-item" data-element="security-pattern">Security Pattern</div>
                                 </div>
                             </div>
-                            
+
                             <div class="toolbox-section">
                                 <h3>Text Formatting</h3>
                                 <div>
@@ -335,7 +353,7 @@
                                     <span id="font-size-value">14px</span>
                                 </div>
                             </div>
-                            
+
                             <div class="toolbox-section">
                                 <h3>Security Features</h3>
                                 <div class="input-group">
@@ -369,7 +387,7 @@
                                     </label>
                                 </div>
                             </div>
-                            
+
                             <div class="toolbox-section">
                                 <h3>MICR Line</h3>
                                 <div class="input-group">
@@ -386,10 +404,10 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="canvas-container">
                             <canvas id="check-canvas" width="850" height="350"></canvas>
-                            
+
                             <div class="action-buttons">
                                 <button class="tool-button action-btn-secondary" id="reset-design">
                                     <i data-feather="refresh-cw"></i> Reset Design
@@ -403,7 +421,7 @@
                                     </button>
                                 </div>
                             </div>
-                            
+
                             <div class="check-preview" style="display: none;">
                                 <h3>Check Preview</h3>
                                 <img id="check-preview-img" src="" alt="Check Preview">
@@ -423,39 +441,39 @@
         // Initialize Feather icons
         document.addEventListener('DOMContentLoaded', function() {
             feather.replace();
-            
+
             // Chat sidebar toggle functionality
             const chatToggle = document.getElementById('chatToggle');
             const chatSidebar = document.getElementById('chatSidebar');
             const mainContent = document.getElementById('mainContent');
-            
+
             chatToggle.addEventListener('click', function() {
                 chatSidebar.classList.toggle('chat-sidebar-collapsed');
                 mainContent.classList.toggle('main-content-expanded');
-                
+
                 // Change icon based on sidebar state
                 if (chatSidebar.classList.contains('chat-sidebar-collapsed')) {
                     chatToggle.innerHTML = '<i data-feather="chevrons-right"></i>';
                 } else {
                     chatToggle.innerHTML = '<i data-feather="chevrons-left"></i>';
                 }
-                
+
                 // Re-init feather icons
                 feather.replace();
             });
-            
+
             // Initialize Fabric.js canvas
             const canvas = new fabric.Canvas('check-canvas');
-            
+
             // Set check canvas background
             canvas.setBackgroundColor('#ffffff', canvas.renderAll.bind(canvas));
-            
+
             // Handle template selection
             document.getElementById('template-select').addEventListener('change', function(e) {
                 const template = e.target.value;
                 loadTemplate(template);
             });
-            
+
             // Handle background selection
             document.querySelectorAll('.background-option').forEach(option => {
                 option.addEventListener('click', function() {
@@ -463,28 +481,30 @@
                     document.querySelectorAll('.background-option').forEach(opt => {
                         opt.classList.remove('active');
                     });
-                    
+
                     // Add active class to clicked option
                     this.classList.add('active');
-                    
+
                     // Get background type
                     const bgType = this.getAttribute('data-bg');
-                    
+
                     // Set background color
                     canvas.setBackgroundColor(this.style.backgroundColor, canvas.renderAll.bind(canvas));
                 });
             });
-            
+
             // Background handling is simplified
-            
+
             // Handle check size changes
             document.getElementById('check-size').addEventListener('change', function(e) {
                 const size = e.target.value;
                 if (size === 'custom') {
                     document.getElementById('custom-size').style.display = 'block';
+                    document.getElementById('check-size-warning').style.display = 'block';
                 } else {
                     document.getElementById('custom-size').style.display = 'none';
-                    
+                    document.getElementById('check-size-warning').style.display = 'none';
+
                     // Set canvas size based on selection
                     let width, height;
                     switch (size) {
@@ -501,36 +521,36 @@
                             height = 275;
                             break;
                     }
-                    
+
                     canvas.setWidth(width);
                     canvas.setHeight(height);
                     canvas.renderAll();
                 }
             });
-            
+
             // Handle custom size inputs
             document.getElementById('custom-width').addEventListener('change', function(e) {
                 const width = parseFloat(e.target.value) * 100;
                 canvas.setWidth(width);
                 canvas.renderAll();
             });
-            
+
             document.getElementById('custom-height').addEventListener('change', function(e) {
                 const height = parseFloat(e.target.value) * 100;
                 canvas.setHeight(height);
                 canvas.renderAll();
             });
-            
+
             // Handle drag-and-drop elements
             const elementItems = document.querySelectorAll('.element-item');
-            
+
             elementItems.forEach(item => {
                 item.addEventListener('click', function() {
                     const elementType = this.getAttribute('data-element');
                     addElement(elementType);
                 });
             });
-            
+
             // Handle font selection
             document.querySelectorAll('.font-option').forEach(option => {
                 option.addEventListener('click', function() {
@@ -538,10 +558,10 @@
                     document.querySelectorAll('.font-option').forEach(opt => {
                         opt.classList.remove('active');
                     });
-                    
+
                     // Add active class to clicked option
                     this.classList.add('active');
-                    
+
                     // Apply font to selected object
                     const activeObject = canvas.getActiveObject();
                     if (activeObject && activeObject.type === 'text') {
@@ -550,7 +570,7 @@
                     }
                 });
             });
-            
+
             // Handle text formatting buttons
             document.getElementById('text-bold').addEventListener('click', function() {
                 const activeObject = canvas.getActiveObject();
@@ -559,7 +579,7 @@
                     canvas.renderAll();
                 }
             });
-            
+
             document.getElementById('text-italic').addEventListener('click', function() {
                 const activeObject = canvas.getActiveObject();
                 if (activeObject && activeObject.type === 'text') {
@@ -567,7 +587,7 @@
                     canvas.renderAll();
                 }
             });
-            
+
             document.getElementById('text-underline').addEventListener('click', function() {
                 const activeObject = canvas.getActiveObject();
                 if (activeObject && activeObject.type === 'text') {
@@ -575,7 +595,7 @@
                     canvas.renderAll();
                 }
             });
-            
+
             document.getElementById('text-color').addEventListener('input', function(e) {
                 const activeObject = canvas.getActiveObject();
                 if (activeObject && activeObject.type === 'text') {
@@ -583,24 +603,24 @@
                     canvas.renderAll();
                 }
             });
-            
+
             document.getElementById('font-size').addEventListener('input', function(e) {
                 const size = parseInt(e.target.value);
                 document.getElementById('font-size-value').textContent = size + 'px';
-                
+
                 const activeObject = canvas.getActiveObject();
                 if (activeObject && activeObject.type === 'text') {
                     activeObject.set('fontSize', size);
                     canvas.renderAll();
                 }
             });
-            
+
             // Handle MICR line generation
             const updateMICRLine = function() {
                 const routingNumber = document.getElementById('routing-number').value;
                 const accountNumber = document.getElementById('account-number').value;
                 const checkNumber = document.getElementById('check-number').value;
-                
+
                 // Find MICR line object in canvas
                 const micrObjects = canvas.getObjects().filter(obj => obj.micrLine === true);
                 if (micrObjects.length > 0) {
@@ -609,11 +629,11 @@
                     canvas.renderAll();
                 }
             };
-            
+
             document.getElementById('routing-number').addEventListener('input', updateMICRLine);
             document.getElementById('account-number').addEventListener('input', updateMICRLine);
             document.getElementById('check-number').addEventListener('input', updateMICRLine);
-            
+
             // Handle security feature toggles
             document.getElementById('enable-microprint').addEventListener('change', function(e) {
                 const checked = e.target.checked;
@@ -624,7 +644,7 @@
                 });
                 canvas.renderAll();
             });
-            
+
             document.getElementById('enable-watermark').addEventListener('change', function(e) {
                 const checked = e.target.checked;
                 // Find watermark objects
@@ -634,7 +654,7 @@
                 });
                 canvas.renderAll();
             });
-            
+
             document.getElementById('enable-void').addEventListener('change', function(e) {
                 const checked = e.target.checked;
                 // Find void pantograph objects
@@ -644,7 +664,7 @@
                 });
                 canvas.renderAll();
             });
-            
+
             document.getElementById('enable-uv').addEventListener('change', function(e) {
                 const checked = e.target.checked;
                 // Find UV feature objects
@@ -654,33 +674,33 @@
                 });
                 canvas.renderAll();
             });
-            
+
             // Initialize show lines variable with the checkbox value
             showLines = document.getElementById('show-lines').checked;
-            
+
             // Handle show lines checkbox
             document.getElementById('show-lines').addEventListener('change', function(e) {
                 showLines = e.target.checked;
-                
+
                 // Find all line objects (not microprint or UV features)
                 const lineObjects = canvas.getObjects().filter(obj => {
                     // Include all Line objects that aren't special features
                     return obj instanceof fabric.Line && !obj.microprint && !obj.uvFeature;
                 });
-                
+
                 // Update visibility for all lines
                 lineObjects.forEach(obj => {
                     obj.set('visible', showLines);
                 });
-                
+
                 canvas.renderAll();
             });
-            
+
             // Add event listener for update default text button
             document.getElementById('update-default-text').addEventListener('click', function() {
                 updateDefaultTexts();
             });
-            
+
             // Reset design button
             document.getElementById('reset-design').addEventListener('click', function() {
                 if (confirm('Are you sure you want to reset the design? All changes will be lost.')) {
@@ -688,12 +708,12 @@
                     loadTemplate(document.getElementById('template-select').value);
                 }
             });
-            
+
             // Save template button
             document.getElementById('save-template').addEventListener('click', function() {
                 // Generate JSON of the canvas
                 const json = JSON.stringify(canvas);
-                
+
                 // Create a json file and trigger download
                 const filename = 'check_template_' + new Date().getTime() + '.json';
                 const blob = new Blob([json], {type: 'application/json'});
@@ -704,7 +724,7 @@
                 link.click();
                 document.body.removeChild(link);
             });
-            
+
             // Export PDF button
             document.getElementById('export-pdf').addEventListener('click', function() {
                 // Get canvas data URL
@@ -712,18 +732,18 @@
                     format: 'jpeg',
                     quality: 1.0
                 });
-                
+
                 // Show preview
                 document.getElementById('check-preview-img').src = dataURL;
                 document.querySelector('.check-preview').style.display = 'block';
-                
+
                 // In a real implementation, we would send this to server for PDF generation
                 // For now, we'll just simulate a download
                 setTimeout(() => {
                     alert('In a production environment, this would generate a PDF file with the check design. For now, right-click the preview image and select "Save image as..." to save your design.');
                 }, 500);
             });
-            
+
             // Function to add elements to canvas
             function addElement(elementType) {
                 switch (elementType) {
@@ -740,13 +760,13 @@
                         canvas.add(text);
                         canvas.setActiveObject(text);
                         break;
-                        
+
                     case 'micr':
                         // Get values from form
                         const routingNumber = document.getElementById('routing-number').value || '123456789';
                         const accountNumber = document.getElementById('account-number').value || '01234567890';
                         const checkNumber = document.getElementById('check-number').value || '0001';
-                        
+
                         // Create MICR line with special MICR font
                         const micrLine = new fabric.Text(`⑆${routingNumber}⑆ ⑈${accountNumber}⑈ ${checkNumber}`, {
                             left: 50,
@@ -758,11 +778,11 @@
                             editable: false,
                             micrLine: true  // Custom property to identify MICR lines
                         });
-                        
+
                         canvas.add(micrLine);
                         canvas.setActiveObject(micrLine);
                         break;
-                        
+
                     case 'signature-line':
                         const sigLine = new fabric.Group([
                             new fabric.Line([0, 0, 200, 0], {
@@ -785,7 +805,7 @@
                         });
                         canvas.add(sigLine);
                         break;
-                        
+
                     case 'date':
                         const today = new Date().toLocaleDateString();
                         const dateField = new fabric.Group([
@@ -813,7 +833,7 @@
                         });
                         canvas.add(dateField);
                         break;
-                        
+
                     case 'logo':
                         // Open file dialog
                         const input = document.createElement('input');
@@ -841,9 +861,9 @@
                         };
                         input.click();
                         break;
-                        
+
                     // MICR case is handled above
-                        
+
                     case 'amount-box':
                         const amountBox = new fabric.Group([
                             new fabric.Rect({
@@ -881,7 +901,7 @@
                         });
                         canvas.add(amountBox);
                         break;
-                        
+
                     case 'security-pattern':
                         // Add a repeating security pattern
                         const pattern = new fabric.Text('BINGOxBANGO', {
@@ -900,10 +920,10 @@
                         canvas.add(pattern);
                         break;
                 }
-                
+
                 canvas.renderAll();
             }
-            
+
             // Function to load templates
             // Global variables to store current template and lines
             let currentTemplate = 'personal';
@@ -914,32 +934,32 @@
                 bankAddress: '123 Secure Street, Cryptoville, CS 12345',
                 payToText: 'PAY TO THE ORDER OF'
             };
-            
+
             // Function to update default texts in the canvas
             function updateDefaultTexts() {
                 // Get text values from inputs
                 defaultTexts.bankName = document.getElementById('bank-name').value;
                 defaultTexts.bankAddress = document.getElementById('bank-address').value;
                 defaultTexts.payToText = document.getElementById('pay-to-text').value;
-                
+
                 // Reload current template to apply changes
                 loadTemplate(currentTemplate);
             }
-            
+
             function loadTemplate(templateName) {
                 // Store current template
                 currentTemplate = templateName;
-                
+
                 canvas.clear();
                 checkLines = [];
-                
+
                 // Set default size
                 canvas.setWidth(850);
                 canvas.setHeight(350);
-                
+
                 // Set white background
                 canvas.setBackgroundColor('#ffffff', canvas.renderAll.bind(canvas));
-                
+
                 // Add basic elements based on template
                 switch (templateName) {
                     case 'personal':
@@ -952,7 +972,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         // Add bank address
                         canvas.add(new fabric.Text(defaultTexts.bankAddress, {
                             left: 50,
@@ -961,7 +981,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         // Add date field
                         const today = new Date().toLocaleDateString();
                         canvas.add(new fabric.Text('Date: ' + today, {
@@ -971,7 +991,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         // Add check number
                         canvas.add(new fabric.Text('Check No. 1001', {
                             left: 650,
@@ -980,7 +1000,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         // Add pay to the order of
                         canvas.add(new fabric.Text('PAY TO THE ORDER OF', {
                             left: 50,
@@ -989,13 +1009,13 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         // Add payee line
                         canvas.add(new fabric.Line([50, 130, 500, 130], {
                             stroke: '#000000',
                             strokeWidth: 1
                         }));
-                        
+
                         // Add dollar sign and amount box
                         canvas.add(new fabric.Text('$', {
                             left: 600,
@@ -1005,7 +1025,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         canvas.add(new fabric.Rect({
                             left: 620,
                             top: 100,
@@ -1017,7 +1037,7 @@
                             rx: 5,
                             ry: 5
                         }));
-                        
+
                         // Add amount in words
                         canvas.add(new fabric.Text('DOLLARS', {
                             left: 700,
@@ -1026,12 +1046,12 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         canvas.add(new fabric.Line([50, 160, 650, 160], {
                             stroke: '#000000',
                             strokeWidth: 1
                         }));
-                        
+
                         // Add memo field
                         canvas.add(new fabric.Text('MEMO', {
                             left: 50,
@@ -1040,12 +1060,12 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         canvas.add(new fabric.Line([90, 200, 300, 200], {
                             stroke: '#000000',
                             strokeWidth: 1
                         }));
-                        
+
                         // Add signature line
                         canvas.add(new fabric.Text('X', {
                             left: 500,
@@ -1054,12 +1074,12 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         canvas.add(new fabric.Line([520, 200, 750, 200], {
                             stroke: '#000000',
                             strokeWidth: 1
                         }));
-                        
+
                         canvas.add(new fabric.Text('AUTHORIZED SIGNATURE', {
                             left: 580,
                             top: 210,
@@ -1067,12 +1087,12 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         // Add MICR line
                         const routingNumber = '123456789';
                         const accountNumber = '12345678901';
                         const checkNumber = '1001';
-                        
+
                         const micrLine = new fabric.Text(`⑆${routingNumber}⑆ ⑈${accountNumber}⑈ ${checkNumber}`, {
                             left: 50,
                             top: 300,
@@ -1085,12 +1105,12 @@
                             micrLine: true  // Custom property to identify this object
                         });
                         canvas.add(micrLine);
-                        
+
                         // Update MICR field inputs
                         document.getElementById('routing-number').value = routingNumber;
                         document.getElementById('account-number').value = accountNumber;
                         document.getElementById('check-number').value = checkNumber;
-                        
+
                         // Add security features
                         for (let i = 0; i < 10; i++) {
                             const microprint = new fabric.Text('BINGOBANKO', {
@@ -1104,7 +1124,7 @@
                             });
                             canvas.add(microprint);
                         }
-                        
+
                         // Add watermark
                         const watermark = new fabric.Text('ORIGINAL DOCUMENT', {
                             left: 300,
@@ -1118,9 +1138,9 @@
                             watermark: true
                         });
                         canvas.add(watermark);
-                        
+
                         break;
-                        
+
                     case 'business':
                         // Add company name
                         canvas.add(new fabric.Text('BINGO ENTERPRISES INC.', {
@@ -1131,7 +1151,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         // Add company address
                         canvas.add(new fabric.Text('456 Corporate Plaza, Suite 789, Business Town, BT 67890', {
                             left: 50,
@@ -1140,7 +1160,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         canvas.add(new fabric.Text('Tel: (555) 123-4567 | Email: info@bingoenterprises.com', {
                             left: 50,
                             top: 70,
@@ -1148,7 +1168,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         // Add date field
                         const businessToday = new Date().toLocaleDateString();
                         canvas.add(new fabric.Text('Date: ' + businessToday, {
@@ -1158,7 +1178,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         // Add check number
                         canvas.add(new fabric.Text('Check No. 5001', {
                             left: 650,
@@ -1167,7 +1187,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         // Add pay to the order of
                         canvas.add(new fabric.Text('PAY TO THE ORDER OF', {
                             left: 50,
@@ -1176,13 +1196,13 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         // Add payee line
                         canvas.add(new fabric.Line([50, 130, 500, 130], {
                             stroke: '#000000',
                             strokeWidth: 1
                         }));
-                        
+
                         // Add dollar sign and amount box
                         canvas.add(new fabric.Text('$', {
                             left: 600,
@@ -1192,7 +1212,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         canvas.add(new fabric.Rect({
                             left: 620,
                             top: 100,
@@ -1204,7 +1224,7 @@
                             rx: 5,
                             ry: 5
                         }));
-                        
+
                         // Add amount in words
                         canvas.add(new fabric.Text('DOLLARS', {
                             left: 700,
@@ -1213,12 +1233,12 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         canvas.add(new fabric.Line([50, 160, 650, 160], {
                             stroke: '#000000',
                             strokeWidth: 1
                         }));
-                        
+
                         // Add memo field
                         canvas.add(new fabric.Text('MEMO', {
                             left: 50,
@@ -1227,12 +1247,12 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         canvas.add(new fabric.Line([90, 200, 300, 200], {
                             stroke: '#000000',
                             strokeWidth: 1
                         }));
-                        
+
                         // Add signature line
                         canvas.add(new fabric.Text('X', {
                             left: 500,
@@ -1241,12 +1261,12 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         canvas.add(new fabric.Line([520, 200, 750, 200], {
                             stroke: '#000000',
                             strokeWidth: 1
                         }));
-                        
+
                         canvas.add(new fabric.Text('AUTHORIZED SIGNATURE', {
                             left: 580,
                             top: 210,
@@ -1254,7 +1274,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         // Add bank information
                         canvas.add(new fabric.Text('BANK OF BUSINESS', {
                             left: 50,
@@ -1263,12 +1283,12 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         // Add MICR line
                         const businessRoutingNumber = '987654321';
                         const businessAccountNumber = '98765432101';
                         const businessCheckNumber = '5001';
-                        
+
                         const businessMicrLine = new fabric.Text(`⑆${businessRoutingNumber}⑆ ⑈${businessAccountNumber}⑈ ${businessCheckNumber}`, {
                             left: 50,
                             top: 300,
@@ -1281,12 +1301,12 @@
                             micrLine: true  // Custom property to identify this object
                         });
                         canvas.add(businessMicrLine);
-                        
+
                         // Update MICR field inputs
                         document.getElementById('routing-number').value = businessRoutingNumber;
                         document.getElementById('account-number').value = businessAccountNumber;
                         document.getElementById('check-number').value = businessCheckNumber;
-                        
+
                         // Add security features
                         const voidPattern = new fabric.Text('VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID', {
                             left: 200,
@@ -1300,14 +1320,14 @@
                             voidPantograph: true
                         });
                         canvas.add(voidPattern);
-                        
+
                         break;
-                        
+
                     case 'voucher':
                         // Larger canvas for voucher check
                         canvas.setWidth(850);
                         canvas.setHeight(550);
-                        
+
                         // Add top section - Business info
                         canvas.add(new fabric.Text('BINGO PAYROLL SERVICES', {
                             left: 50,
@@ -1317,7 +1337,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         canvas.add(new fabric.Text('789 Payroll Ave, Finance District, FD 12345', {
                             left: 50,
                             top: 55,
@@ -1325,14 +1345,14 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         // Add separator line
                         canvas.add(new fabric.Line([0, 80, 850, 80], {
                             stroke: '#000000',
                             strokeWidth: 1,
                             strokeDashArray: [5, 5]
                         }));
-                        
+
                         // Add middle section - Check details
                         // Date and Check number
                         const voucherDate = new Date().toLocaleDateString();
@@ -1343,7 +1363,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         canvas.add(new fabric.Text('Check No. 8001', {
                             left: 650,
                             top: 120,
@@ -1351,7 +1371,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         // Pay to information
                         canvas.add(new fabric.Text('PAY TO THE ORDER OF', {
                             left: 50,
@@ -1360,12 +1380,12 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         canvas.add(new fabric.Line([50, 150, 500, 150], {
                             stroke: '#000000',
                             strokeWidth: 1
                         }));
-                        
+
                         // Amount
                         canvas.add(new fabric.Text('$', {
                             left: 600,
@@ -1375,7 +1395,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         canvas.add(new fabric.Rect({
                             left: 620,
                             top: 120,
@@ -1387,13 +1407,13 @@
                             rx: 5,
                             ry: 5
                         }));
-                        
+
                         // Amount in words
                         canvas.add(new fabric.Line([50, 180, 650, 180], {
                             stroke: '#000000',
                             strokeWidth: 1
                         }));
-                        
+
                         canvas.add(new fabric.Text('DOLLARS', {
                             left: 700,
                             top: 170,
@@ -1401,7 +1421,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         // Signature
                         canvas.add(new fabric.Text('X', {
                             left: 500,
@@ -1410,12 +1430,12 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         canvas.add(new fabric.Line([520, 220, 750, 220], {
                             stroke: '#000000',
                             strokeWidth: 1
                         }));
-                        
+
                         canvas.add(new fabric.Text('AUTHORIZED SIGNATURE', {
                             left: 580,
                             top: 230,
@@ -1423,7 +1443,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         // Bank information
                         canvas.add(new fabric.Text('PAYROLL TRUST BANK', {
                             left: 50,
@@ -1432,14 +1452,14 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         // Add separator line
                         canvas.add(new fabric.Line([0, 250, 850, 250], {
                             stroke: '#000000',
                             strokeWidth: 1,
                             strokeDashArray: [5, 5]
                         }));
-                        
+
                         // Add bottom section - Earnings information
                         canvas.add(new fabric.Text('EARNINGS STATEMENT', {
                             left: 350,
@@ -1449,7 +1469,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         // Employee information
                         canvas.add(new fabric.Text('Employee: JOHN DOE', {
                             left: 50,
@@ -1458,7 +1478,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         canvas.add(new fabric.Text('ID: EMP12345', {
                             left: 50,
                             top: 320,
@@ -1466,7 +1486,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         canvas.add(new fabric.Text('Pay Period: 05/01/2025 - 05/15/2025', {
                             left: 500,
                             top: 300,
@@ -1474,7 +1494,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         // Add earnings table headers
                         canvas.add(new fabric.Text('EARNINGS', {
                             left: 50,
@@ -1484,7 +1504,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         canvas.add(new fabric.Text('HOURS', {
                             left: 200,
                             top: 350,
@@ -1493,7 +1513,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         canvas.add(new fabric.Text('RATE', {
                             left: 300,
                             top: 350,
@@ -1502,7 +1522,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         canvas.add(new fabric.Text('AMOUNT', {
                             left: 400,
                             top: 350,
@@ -1511,7 +1531,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         canvas.add(new fabric.Text('DEDUCTIONS', {
                             left: 500,
                             top: 350,
@@ -1520,7 +1540,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         canvas.add(new fabric.Text('AMOUNT', {
                             left: 700,
                             top: 350,
@@ -1529,13 +1549,13 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         // Draw horizontal line below headers
                         canvas.add(new fabric.Line([50, 365, 800, 365], {
                             stroke: '#000000',
                             strokeWidth: 1
                         }));
-                        
+
                         // Add sample earnings data
                         canvas.add(new fabric.Text('Regular', {
                             left: 50,
@@ -1544,7 +1564,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         canvas.add(new fabric.Text('80.0', {
                             left: 200,
                             top: 380,
@@ -1552,7 +1572,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         canvas.add(new fabric.Text('$25.00', {
                             left: 300,
                             top: 380,
@@ -1560,7 +1580,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         canvas.add(new fabric.Text('$2,000.00', {
                             left: 400,
                             top: 380,
@@ -1568,7 +1588,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         canvas.add(new fabric.Text('Federal Tax', {
                             left: 500,
                             top: 380,
@@ -1576,7 +1596,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         canvas.add(new fabric.Text('$300.00', {
                             left: 700,
                             top: 380,
@@ -1584,7 +1604,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         // Add overtime row
                         canvas.add(new fabric.Text('Overtime', {
                             left: 50,
@@ -1593,7 +1613,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         canvas.add(new fabric.Text('5.0', {
                             left: 200,
                             top: 400,
@@ -1601,7 +1621,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         canvas.add(new fabric.Text('$37.50', {
                             left: 300,
                             top: 400,
@@ -1609,7 +1629,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         canvas.add(new fabric.Text('$187.50', {
                             left: 400,
                             top: 400,
@@ -1617,7 +1637,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         canvas.add(new fabric.Text('Social Security', {
                             left: 500,
                             top: 400,
@@ -1625,7 +1645,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         canvas.add(new fabric.Text('$150.00', {
                             left: 700,
                             top: 400,
@@ -1633,13 +1653,13 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         // Add horizontal line above total
                         canvas.add(new fabric.Line([50, 440, 800, 440], {
                             stroke: '#000000',
                             strokeWidth: 1
                         }));
-                        
+
                         // Add totals
                         canvas.add(new fabric.Text('TOTAL EARNINGS', {
                             left: 300,
@@ -1649,7 +1669,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         canvas.add(new fabric.Text('$2,187.50', {
                             left: 400,
                             top: 460,
@@ -1658,7 +1678,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         canvas.add(new fabric.Text('TOTAL DEDUCTIONS', {
                             left: 600,
                             top: 460,
@@ -1667,7 +1687,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         canvas.add(new fabric.Text('$450.00', {
                             left: 700,
                             top: 460,
@@ -1676,7 +1696,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         canvas.add(new fabric.Text('NET PAY', {
                             left: 400,
                             top: 480,
@@ -1685,7 +1705,7 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         canvas.add(new fabric.Text('$1,737.50', {
                             left: 700,
                             top: 480,
@@ -1694,12 +1714,12 @@
                             fontFamily: 'Arial',
                             fill: '#000000'
                         }));
-                        
+
                         // Add MICR line
                         const voucherRoutingNumber = '456789123';
                         const voucherAccountNumber = '77777777111';
                         const voucherCheckNumber = '8001';
-                        
+
                         const voucherMicrLine = new fabric.Text(`⑆${voucherRoutingNumber}⑆ ⑈${voucherAccountNumber}⑈ ${voucherCheckNumber}`, {
                             left: 50,
                             top: 220,
@@ -1713,63 +1733,63 @@
                             micrLine: true  // Custom property to identify this object
                         });
                         canvas.add(voucherMicrLine);
-                        
+
                         // Update MICR field inputs
                         document.getElementById('routing-number').value = voucherRoutingNumber;
                         document.getElementById('account-number').value = voucherAccountNumber;
                         document.getElementById('check-number').value = voucherCheckNumber;
-                        
+
                         break;
-                        
+
                     case 'blank':
                         // Just set up a blank canvas
                         break;
                 }
-                
+
                 canvas.renderAll();
             }
-            
+
             // Load default template on page load
             loadTemplate('personal');
-            
+
             // Chat form handling
             const chatForm = document.getElementById('chatForm');
             const chatMessages = document.getElementById('chatMessages');
             const userMessageInput = document.getElementById('userMessage');
-            
+
             chatForm.addEventListener('submit', function(e) {
                 e.preventDefault();
-                
+
                 const userMessage = userMessageInput.value.trim();
                 if (!userMessage) return;
-                
+
                 // Add user message to chat
                 addMessage(userMessage, 'user');
-                
+
                 // Clear input
                 userMessageInput.value = '';
-                
+
                 // Simulate AI response
                 setTimeout(() => {
                     simulateAIResponse(userMessage);
                 }, 1000);
             });
-            
+
             function addMessage(message, sender) {
                 const messageDiv = document.createElement('div');
                 messageDiv.className = `chat-message ${sender}-message`;
                 messageDiv.textContent = message;
-                
+
                 chatMessages.appendChild(messageDiv);
-                
+
                 // Scroll to bottom
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             }
-            
+
             function simulateAIResponse(userMessage) {
                 const lowercaseMsg = userMessage.toLowerCase();
                 let response = "";
-                
+
                 if (lowercaseMsg.includes('check') && (lowercaseMsg.includes('how') || lowercaseMsg.includes('help'))) {
                     response = "To create a custom check, select a template on the left panel, then customize it with the tools provided. You can add text, signature lines, and security features.";
                 } 
@@ -1785,7 +1805,7 @@
                 else {
                     response = "I'm your Check Designer assistant. I can help you customize personal, business, or voucher checks with various security features. What specific aspect of check design would you like help with?";
                 }
-                
+
                 addMessage(response, 'ai');
             }
         });
