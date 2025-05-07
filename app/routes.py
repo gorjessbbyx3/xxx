@@ -356,10 +356,43 @@ def view_tool_details(tool_name):
     
     if not tool:
         return redirect(url_for('security_tools'))
+
+    # Get tool directory
+    tool_dir = f"security_tools/tools/{tool_name.lower().replace(' ', '_')}"
     
     return render_template('tool_details.html', 
                           tool=tool,
+                          tool_dir=tool_dir,
                           service_status=check_services())
+
+@app.route('/execute_tool/<tool_name>', methods=['POST'])
+def execute_tool(tool_name):
+    """Execute a security tool"""
+    from security_tools.api import SecurityToolsAPI
+    
+    security_api = SecurityToolsAPI()
+    tool = security_api.get_tool_details(tool_name)
+    
+    if not tool:
+        return jsonify({"error": "Tool not found"}), 404
+        
+    # Get tool directory and commands
+    tool_dir = f"security_tools/tools/{tool_name.lower().replace(' ', '_')}"
+    build_cmd = tool.get('BUILD_COMMAND', '')
+    run_cmd = tool.get('RUN_COMMAND', 'python tool.py --help')
+    
+    # Create a new workflow for this tool
+    workflow_name = f"Run {tool_name}"
+    commands = []
+    if build_cmd:
+        commands.append(f"cd {tool_dir} && {build_cmd}")
+    commands.append(f"cd {tool_dir} && {run_cmd}")
+    
+    return jsonify({
+        "success": True,
+        "workflow": workflow_name,
+        "commands": commands
+    })
                           
 @app.route('/custom-tool-generator')
 def custom_tool_generator():
