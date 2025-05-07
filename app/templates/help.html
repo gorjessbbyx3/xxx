@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Help & Documentation - GhostTrace</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        .help-section {
+            margin-bottom: 2rem;
+        }
+        
+        .help-section h3 {
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .help-section ul, .help-section ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .help-section pre {
+            background-color: #1a1a1a;
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        
+        .help-section code {
+            font-family: monospace;
+            background-color: #1a1a1a;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+        }
+        
+        .help-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .help-nav a {
+            background-color: var(--card-background);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        
+        .help-nav a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            text-decoration: none;
+        }
+        
+        .warning-box {
+            background-color: rgba(231, 76, 60, 0.1);
+            border-left: 4px solid var(--error-color);
+            padding: 1rem;
+            margin: 1rem 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .warning-box i {
+            color: var(--error-color);
+            margin-right: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1><i data-feather="eye"></i> GhostTrace</h1>
+        </div>
+        <nav>
+            <a href="{{ url_for('index') }}" class="nav-link"><i data-feather="home"></i> Home</a>
+            <a href="{{ url_for('security_tools') }}" class="nav-link"><i data-feather="shield"></i> Security Tools</a>
+        </nav>
+    </header>
+
+    <main>
+        <section>
+            <h2>Help & Documentation</h2>
+            
+            <div class="help-nav">
+                <a href="#overview">Overview</a>
+                <a href="#requirements">Requirements</a>
+                <a href="#crawling">Dark Web Crawling</a>
+                <a href="#analysis">AI Analysis</a>
+                <a href="#security">Security Tools</a>
+                <a href="#api">API Reference</a>
+            </div>
+            
+            <div class="help-section" id="overview">
+                <h3>Overview</h3>
+                <p>GhostTrace Dark Web Crawler is a powerful tool designed for exploring, crawling, and analyzing content from the dark web (.onion sites) with advanced AI-powered analysis capabilities.</p>
+                
+                <div class="warning-box">
+                    <i data-feather="alert-triangle"></i>
+                    <div>
+                        <strong>Important:</strong> This tool should only be used for legitimate security research, threat intelligence gathering, and educational purposes. Always ensure compliance with applicable laws and regulations in your jurisdiction.
+                    </div>
+                </div>
+                
+                <p>The main features of GhostTrace include:</p>
+                <ul>
+                    <li><strong>Dark Web Crawling:</strong> Safely crawl .onion sites via the Tor network</li>
+                    <li><strong>AI Analysis:</strong> Analyze content using the Ollama LLM for entities, topics, and risk assessment</li>
+                    <li><strong>Security Tools:</strong> Integration with various security and penetration testing tools</li>
+                    <li><strong>Anonymity:</strong> All traffic routed through Tor for privacy and access to .onion sites</li>
+                </ul>
+            </div>
+            
+            <div class="help-section" id="requirements">
+                <h3>Requirements</h3>
+                <p>For GhostTrace to function properly, you need the following services running:</p>
+                
+                <h4>Tor Service</h4>
+                <p>The Tor service is required to access .onion sites. To start Tor:</p>
+                <pre><code>sudo service tor start</code></pre>
+                
+                <h4>Ollama Service</h4>
+                <p>Ollama provides the AI analysis capabilities. To start Ollama:</p>
+                <pre><code>ollama serve</code></pre>
+                <p>Then pull the necessary model (if not already available):</p>
+                <pre><code>ollama pull mistral:7b-instruct</code></pre>
+            </div>
+            
+            <div class="help-section" id="crawling">
+                <h3>Dark Web Crawling</h3>
+                <p>To start a new crawl:</p>
+                <ol>
+                    <li>Navigate to the main dashboard</li>
+                    <li>Enter one or more .onion URLs in the crawl form</li>
+                    <li>Set the crawl depth (how many links deep to follow)</li>
+                    <li>Set the maximum number of pages to crawl</li>
+                    <li>Enable or disable AI analysis</li>
+                    <li>Click "Start Crawling"</li>
+                </ol>
+                
+                <h4>Crawl Parameters</h4>
+                <ul>
+                    <li><strong>Depth:</strong> How many links deep to follow from the starting URLs. A depth of 0 means only the initial URLs will be processed.</li>
+                    <li><strong>Max Pages:</strong> Maximum number of pages to crawl in total</li>
+                    <li><strong>Delay Range:</strong> Time range (in seconds) to wait between requests to avoid detection</li>
+                </ul>
+                
+                <h4>Viewing Results</h4>
+                <p>Results are stored in the <code>crawl_results</code> directory, organized by job ID and domain. Each crawled page has:</p>
+                <ul>
+                    <li>The original HTML content</li>
+                    <li>Extracted text content</li>
+                    <li>AI analysis results (if enabled)</li>
+                </ul>
+            </div>
+            
+            <div class="help-section" id="analysis">
+                <h3>AI Analysis</h3>
+                <p>When AI analysis is enabled, GhostTrace uses the Ollama LLM to perform the following analyses:</p>
+                
+                <ul>
+                    <li><strong>Content Categorization:</strong> Identifies the primary topics and themes in the content</li>
+                    <li><strong>Entity Extraction:</strong> Identifies people, organizations, locations, cryptocurrencies, emails, etc.</li>
+                    <li><strong>Risk Assessment:</strong> Evaluates the content for potential risks and illegal activities</li>
+                </ul>
+                
+                <h4>Single URL Analysis</h4>
+                <p>To analyze a single URL without crawling its links:</p>
+                <ol>
+                    <li>Go to the "Analyze Single URL" section</li>
+                    <li>Enter a valid .onion URL</li>
+                    <li>Click "Analyze URL"</li>
+                </ol>
+                <p>This will fetch the URL content and perform AI analysis without following any links.</p>
+            </div>
+            
+            <div class="help-section" id="security">
+                <h3>Security Tools</h3>
+                <p>GhostTrace integrates with a wide range of security tools for comprehensive dark web research and security testing.</p>
+                
+                <h4>Tool Categories</h4>
+                <ul>
+                    <li><strong>Information Gathering:</strong> Tools for reconnaissance and information collection</li>
+                    <li><strong>Wireless Attack Tools:</strong> Tools for testing and auditing wireless networks</li>
+                    <li><strong>Web Attack Tools:</strong> Tools for testing web application security</li>
+                    <li><strong>Phishing Tools:</strong> Social engineering and phishing simulation tools</li>
+                    <li><strong>Exploitation Tools:</strong> Frameworks for testing vulnerabilities</li>
+                    <li><strong>Post Exploitation:</strong> Tools for post-compromise assessment</li>
+                    <li><strong>Forensic Tools:</strong> Digital forensics and analysis tools</li>
+                </ul>
+                
+                <p>Visit the <a href="{{ url_for('security_tools') }}">Security Tools</a> section to access these capabilities.</p>
+            </div>
+            
+            <div class="help-section" id="api">
+                <h3>API Reference</h3>
+                <p>GhostTrace provides a REST API for programmatic access:</p>
+                
+                <h4>Endpoints</h4>
+                <ul>
+                    <li><code>GET /api/status</code> - Check service status (Tor, Ollama)</li>
+                    <li><code>GET /api/jobs</code> - List all crawler jobs</li>
+                    <li><code>GET /api/jobs/{job_id}</code> - Get status of a specific job</li>
+                    <li><code>POST /api/crawl</code> - Start a new crawling job</li>
+                    <li><code>POST /api/analyze</code> - Analyze a single URL</li>
+                </ul>
+                
+                <h4>Example: Starting a Crawl via API</h4>
+                <pre><code>
+curl -X POST http://localhost:5000/api/crawl \
+  -H "Content-Type: application/json" \
+  -d '{
+    "urls": ["http://example.onion"],
+    "depth": 1,
+    "max_pages": 10,
+    "analyze": true
+  }'
+                </code></pre>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>GhostTrace Dark Web Crawler &copy; 2025 | <a href="https://github.com/Z4nzu/hackingtool" target="_blank">GitHub</a></p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            feather.replace();
+        });
+    </script>
+</body>
+</html>

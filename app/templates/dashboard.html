@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BINGOxBANGO Dark Web Explorer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1><i data-feather="eye"></i> BINGOxBANGO</h1>
+        </div>
+        <nav>
+            <a href="{{ url_for('index') }}" class="nav-link"><i data-feather="home"></i> Home</a>
+            <a href="{{ url_for('security_tools') }}" class="nav-link"><i data-feather="shield"></i> Security Tools</a>
+            <a href="{{ url_for('interactive_tools') }}" class="nav-link"><i data-feather="cpu"></i> Interactive Tools</a>
+            <a href="{{ url_for('check_designer') }}" class="nav-link"><i data-feather="file-text"></i> Check Designer</a>
+            <a href="#" class="nav-link"><i data-feather="settings"></i> Settings</a>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Status Overview -->
+        <section class="status-panel">
+            <h2>System Status</h2>
+            <div class="status-cards">
+                <!-- Tor Status -->
+                <div class="status-card {% if service_status.tor.running %}status-ok{% else %}status-error{% endif %}">
+                    <div class="status-icon">
+                        <i data-feather="wifi"></i>
+                    </div>
+                    <div class="status-details">
+                        <h3>Tor</h3>
+                        {% if service_status.tor.running %}
+                            <p class="status-text">Running</p>
+                            <p class="status-info">Current IP: {{ service_status.tor.ip }}</p>
+                        {% else %}
+                            <p class="status-text">Not Running</p>
+                            <p class="status-info">Tor service must be started for crawler to function</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Ollama Status -->
+                <div class="status-card {% if service_status.ollama.running %}status-ok{% else %}status-error{% endif %}">
+                    <div class="status-icon">
+                        <i data-feather="cpu"></i>
+                    </div>
+                    <div class="status-details">
+                        <h3>Ollama</h3>
+                        {% if service_status.ollama.running %}
+                            <p class="status-text">Running</p>
+                            <p class="status-info">
+                                Model: {{ service_status.ollama.model }}
+                                {% if service_status.ollama.model_available %}
+                                (Available)
+                                {% else %}
+                                (Not Available)
+                                {% endif %}
+                            </p>
+                        {% else %}
+                            <p class="status-text">Not Running</p>
+                            <p class="status-info">Ollama service must be started for AI analysis</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Job Status -->
+                <div class="status-card status-ok">
+                    <div class="status-icon">
+                        <i data-feather="activity"></i>
+                    </div>
+                    <div class="status-details">
+                        <h3>Jobs</h3>
+                        <p class="status-text">{{ jobs|length }} jobs</p>
+                        <p class="status-info">
+                            {{ jobs|selectattr('status', 'equalto', 'running')|list|length }} running, 
+                            {{ jobs|selectattr('status', 'equalto', 'completed')|list|length }} completed
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Access -->
+        <section>
+            <h2>Quick Access</h2>
+            <div class="search-container">
+                <div class="search-box">
+                    <i data-feather="search"></i>
+                    <input type="text" placeholder="Search for tools, jobs, or URLs...">
+                </div>
+            </div>
+            <div class="quick-access">
+                <a href="{{ url_for('start_crawl') }}" class="quick-access-item">
+                    <div class="quick-access-icon">
+                        <i data-feather="globe"></i>
+                    </div>
+                    <div class="quick-access-details">
+                        <h3>Start Crawl</h3>
+                        <p>Begin a new dark web crawling job</p>
+                    </div>
+                </a>
+                <a href="{{ url_for('analyze_single') }}" class="quick-access-item">
+                    <div class="quick-access-icon">
+                        <i data-feather="search"></i>
+                    </div>
+                    <div class="quick-access-details">
+                        <h3>Analyze URL</h3>
+                        <p>Analyze a single URL without crawling</p>
+                    </div>
+                </a>
+                <a href="#" class="quick-access-item">
+                    <div class="quick-access-icon">
+                        <i data-feather="bar-chart-2"></i>
+                    </div>
+                    <div class="quick-access-details">
+                        <h3>View Reports</h3>
+                        <p>See analysis reports and insights</p>
+                    </div>
+                </a>
+                <a href="#" class="quick-access-item">
+                    <div class="quick-access-icon">
+                        <i data-feather="database"></i>
+                    </div>
+                    <div class="quick-access-details">
+                        <h3>Data Management</h3>
+                        <p>Export, backup, or delete data</p>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <!-- Main Dashboard -->
+        <section>
+            <h2>Dashboard</h2>
+            <div class="dashboard-grid">
+                <!-- Crawling Tools Card -->
+                <div class="dashboard-card tools">
+                    <div class="dashboard-card-header">
+                        <div class="dashboard-card-icon">
+                            <i data-feather="navigation"></i>
+                        </div>
+                        <h3 class="dashboard-card-title">Dark Web Crawler</h3>
+                    </div>
+                    <div class="dashboard-card-content">
+                        <div class="dashboard-stats">{{ jobs|selectattr('status', 'equalto', 'completed')|list|length }}</div>
+                        <div class="dashboard-stats-label">Completed Crawls</div>
+                        <ul class="tool-list">
+                            <li>
+                                <i class="tool-list-icon" data-feather="chevron-right"></i>
+                                <div class="tool-list-text">Deep Crawl (Multi-level traversal)</div>
+                            </li>
+                            <li>
+                                <i class="tool-list-icon" data-feather="chevron-right"></i>
+                                <div class="tool-list-text">Focused Crawl (Topic-specific)</div>
+                            </li>
+                            <li>
+                                <i class="tool-list-icon" data-feather="chevron-right"></i>
+                                <div class="tool-list-text">Dark Web Indexing</div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="dashboard-card-footer">
+                        <a href="{{ url_for('start_crawl') }}" class="btn btn-primary">Start New Crawl</a>
+                    </div>
+                </div>
+
+                <!-- AI Analysis Card -->
+                <div class="dashboard-card analysis">
+                    <div class="dashboard-card-header">
+                        <div class="dashboard-card-icon">
+                            <i data-feather="cpu"></i>
+                        </div>
+                        <h3 class="dashboard-card-title">AI Analysis</h3>
+                    </div>
+                    <div class="dashboard-card-content">
+                        <div class="dashboard-stats">{{ jobs|selectattr('analyze_content', 'equalto', true)|list|length }}</div>
+                        <div class="dashboard-stats-label">AI-Analyzed Jobs</div>
+                        <ul class="tool-list">
+                            <li>
+                                <i class="tool-list-icon" data-feather="chevron-right"></i>
+                                <div class="tool-list-text">Content Categorization</div>
+                            </li>
+                            <li>
+                                <i class="tool-list-icon" data-feather="chevron-right"></i>
+                                <div class="tool-list-text">Entity Extraction</div>
+                            </li>
+                            <li>
+                                <i class="tool-list-icon" data-feather="chevron-right"></i>
+                                <div class="tool-list-text">Risk Assessment</div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="dashboard-card-footer">
+                        <a href="{{ url_for('analyze_single') }}" class="btn btn-primary">Analyze URL</a>
+                    </div>
+                </div>
+
+                <!-- Recent Jobs Card -->
+                <div class="dashboard-card crawl">
+                    <div class="dashboard-card-header">
+                        <div class="dashboard-card-icon">
+                            <i data-feather="clock"></i>
+                        </div>
+                        <h3 class="dashboard-card-title">Recent Jobs</h3>
+                    </div>
+                    <div class="dashboard-card-content">
+                        {% if jobs %}
+                        <ul class="activity-log">
+                            {% for job_id, job in jobs.items() %}
+                            {% if loop.index <= 3 %}
+                            <li class="activity-item {% if job.status == 'completed' %}success{% elif job.status == 'running' %}warning{% elif job.status == 'failed' %}error{% endif %}">
+                                <div class="activity-item-header">
+                                    <h4 class="activity-item-title">{{ job.id }}</h4>
+                                    <span class="activity-item-time">{{ job.start_time }}</span>
+                                </div>
+                                <div class="activity-item-content">
+                                    {{ job.urls|length }} URL(s), Depth: {{ job.depth }}
+                                </div>
+                            </li>
+                            {% endif %}
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <p class="empty-state">No jobs have been started yet.</p>
+                        {% endif %}
+                    </div>
+                    <div class="dashboard-card-footer">
+                        <a href="#" class="btn btn-secondary">View All Jobs</a>
+                    </div>
+                </div>
+
+                <!-- Security Tools Card -->
+                <div class="dashboard-card security">
+                    <div class="dashboard-card-header">
+                        <div class="dashboard-card-icon">
+                            <i data-feather="shield"></i>
+                        </div>
+                        <h3 class="dashboard-card-title">Security Tools</h3>
+                    </div>
+                    <div class="dashboard-card-content">
+                        <ul class="tool-list">
+                            <li>
+                                <i class="tool-list-icon" data-feather="chevron-right"></i>
+                                <div class="tool-list-text">Cybersecurity Analysis</div>
+                            </li>
+                            <li>
+                                <i class="tool-list-icon" data-feather="chevron-right"></i>
+                                <div class="tool-list-text">Threat Intelligence</div>
+                            </li>
+                            <li>
+                                <i class="tool-list-icon" data-feather="chevron-right"></i>
+                                <div class="tool-list-text">Anonymity Check</div>
+                            </li>
+                            <li>
+                                <i class="tool-list-icon" data-feather="chevron-right"></i>
+                                <div class="tool-list-text">Network Security Scan</div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="dashboard-card-footer">
+                        <a href="{{ url_for('security_tools') }}" class="btn btn-primary">Launch Tools</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recent Activity -->
+        <section>
+            <h2>Recent Activity</h2>
+            <ul class="activity-log">
+                <li class="activity-item success">
+                    <div class="activity-item-header">
+                        <h4 class="activity-item-title">System Started</h4>
+                        <span class="activity-item-time">{{ now }}</span>
+                    </div>
+                    <div class="activity-item-content">
+                        GhostTrace Dark Web Crawler initialized successfully
+                    </div>
+                </li>
+                <li class="activity-item warning">
+                    <div class="activity-item-header">
+                        <h4 class="activity-item-title">Service Check</h4>
+                        <span class="activity-item-time">{{ now }}</span>
+                    </div>
+                    <div class="activity-item-content">
+                        {% if not service_status.tor.running %}Tor service not running. {% endif %}
+                        {% if not service_status.ollama.running %}Ollama service not running. {% endif %}
+                        {% if service_status.tor.running and service_status.ollama.running %}All services running correctly.{% endif %}
+                    </div>
+                </li>
+                {% if jobs %}
+                {% for job_id, job in jobs.items() %}
+                {% if loop.index <= 2 %}
+                <li class="activity-item {% if job.status == 'completed' %}success{% elif job.status == 'running' %}warning{% elif job.status == 'failed' %}error{% endif %}">
+                    <div class="activity-item-header">
+                        <h4 class="activity-item-title">Job {{ job.status|title }}</h4>
+                        <span class="activity-item-time">{{ job.start_time }}</span>
+                    </div>
+                    <div class="activity-item-content">
+                        Job ID: {{ job.id }} - {{ job.urls|length }} URL(s), Depth: {{ job.depth }}
+                    </div>
+                </li>
+                {% endif %}
+                {% endfor %}
+                {% endif %}
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <p>GhostTrace Dark Web Crawler &copy; 2025 | <a href="https://github.com/Z4nzu/hackingtool" target="_blank">GitHub</a></p>
+    </footer>
+
+    <script>
+        // Initialize Feather icons
+        document.addEventListener('DOMContentLoaded', function() {
+            feather.replace();
+            
+            // Auto-refresh if there are running jobs
+            {% if jobs and jobs|selectattr('status', 'equalto', 'running')|list|length > 0 %}
+            setTimeout(function() {
+                window.location.reload();
+            }, 30000); // Refresh every 30 seconds
+            {% endif %}
+        });
+    </script>
+</body>
+</html>

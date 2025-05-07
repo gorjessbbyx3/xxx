@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Tool Generator - GhostTrace</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        .tool-generator {
+            background-color: #1e1e2e;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tool-generator h3 {
+            margin-top: 0;
+            color: var(--accent-color);
+        }
+        
+        .tool-generator-form {
+            margin-top: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        
+        .form-group textarea {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #2c2c3e;
+            background-color: #272736;
+            color: white;
+            font-family: inherit;
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .examples {
+            background-color: #272736;
+            padding: A1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .examples h4 {
+            margin-top: 0;
+            margin-bottom: 0.75rem;
+        }
+        
+        .examples ul {
+            margin: 0;
+            padding-left: 1.5rem;
+        }
+        
+        .examples li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .tool-output {
+            background-color: #272736;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 2rem;
+            border-left: 4px solid var(--accent-color);
+            display: none;
+        }
+        
+        .tool-output h4 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            color: var(--accent-color);
+        }
+        
+        .tool-code {
+            background-color: #1a1a2a;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-top: 1rem;
+            font-family: monospace;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .tool-library {
+            margin-top: 3rem;
+        }
+        
+        .tool-list-card {
+            background-color: #272736;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .tool-list-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .tool-list-icon {
+            width: 50px;
+            height: 50px;
+            background-color: #1a1a2a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+        }
+        
+        .tool-list-info {
+            flex-grow: 1;
+        }
+        
+        .tool-list-title {
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+        
+        .tool-list-meta {
+            font-size: 0.85rem;
+            color: #aaa;
+        }
+        
+        .tool-list-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .ai-thinking {
+            display: none;
+            margin-top: 1.5rem;
+            text-align: center;
+            color: var(--secondary-color);
+        }
+        
+        .loading-dots {
+            display: inline-block;
+        }
+        
+        .loading-dots::after {
+            content: '...';
+            animation: loading 1.5s infinite;
+        }
+        
+        @keyframes loading {
+            0% { content: '.'; }
+            33% { content: '..'; }
+            66% { content: '...'; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1><i data-feather="eye"></i> GhostTrace</h1>
+        </div>
+        <nav>
+            <a href="{{ url_for('index') }}" class="nav-link"><i data-feather="home"></i> Home</a>
+            <a href="{{ url_for('security_tools') }}" class="nav-link"><i data-feather="shield"></i> Security Tools</a>
+        </nav>
+    </header>
+
+    <main>
+        <section>
+            <h2>Custom Security Tool Generator</h2>
+            
+            <div class="tool-generator">
+                <h3><i data-feather="cpu"></i> AI-Powered Tool Creator</h3>
+                <p>Describe the security tool you need, and our AI will generate a custom tool based on your requirements.</p>
+                
+                <div class="examples">
+                    <h4>Example requests:</h4>
+                    <ul>
+                        <li>A port scanner that identifies common vulnerabilities in open services</li>
+                        <li>A password strength analyzer that provides improvement recommendations</li>
+                        <li>A tool to detect SQL injection vulnerabilities in a website</li>
+                        <li>A network traffic analyzer that identifies suspicious patterns</li>
+                        <li>A metadata extractor for images and documents</li>
+                    </ul>
+                </div>
+                
+                <div class="tool-generator-form">
+                    <div class="form-group">
+                        <label for="toolDescription">Describe your tool:</label>
+                        <textarea id="toolDescription" placeholder="Describe the security tool you need in detail. Include what it should do, what inputs it should accept, and what outputs you expect..."></textarea>
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="generateTool()">
+                        <i data-feather="code"></i> Generate Tool
+                    </button>
+                </div>
+                
+                <div class="ai-thinking" id="aiThinking">
+                    <i data-feather="cpu"></i> AI is generating your custom tool <span class="loading-dots"></span>
+                </div>
+                
+                <div class="tool-output" id="toolOutput">
+                    <h4>Your Custom Tool</h4>
+                    <div id="toolOutputContent">
+                        <p><strong>Tool Name:</strong> <span id="toolName">Custom Port Scanner</span></p>
+                        <p><strong>Status:</strong> <span class="badge success">Generated Successfully</span></p>
+                        
+                        <div class="tool-code" id="toolCode">
+                            # Code will appear here
+                        </div>
+                        
+                        <div style="margin-top: 1.5rem;">
+                            <button class="btn btn-secondary" onclick="copyToolCode()">
+                                <i data-feather="copy"></i> Copy Code
+                            </button>
+                            <button class="btn btn-primary" onclick="saveToolCode()">
+                                <i data-feather="save"></i> Save Tool
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tool-library">
+                <h3><i data-feather="folder"></i> Your Custom Tools Library</h3>
+                <p>Access your previously generated security tools</p>
+                
+                <div id="toolLibrary">
+                    <!-- Tool 1 -->
+                    <div class="tool-list-card">
+                        <div class="tool-list-icon">
+                            <i data-feather="code"></i>
+                        </div>
+                        <div class="tool-list-info">
+                            <div class="tool-list-title">Advanced Port Scanner</div>
+                            <div class="tool-list-meta">Created: May 7, 2025 &bull; Size: 4.3 KB</div>
+                        </div>
+                        <div class="tool-list-actions">
+                            <button class="btn btn-small btn-secondary">
+                                <i data-feather="eye"></i> View
+                            </button>
+                            <button class="btn btn-small btn-primary">
+                                <i data-feather="play"></i> Run
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Tool 2 -->
+                    <div class="tool-list-card">
+                        <div class="tool-list-icon">
+                            <i data-feather="code"></i>
+                        </div>
+                        <div class="tool-list-info">
+                            <div class="tool-list-title">SQL Injection Tester</div>
+                            <div class="tool-list-meta">Created: May 6, 2025 &bull; Size: 8.1 KB</div>
+                        </div>
+                        <div class="tool-list-actions">
+                            <button class="btn btn-small btn-secondary">
+                                <i data-feather="eye"></i> View
+                            </button>
+                            <button class="btn btn-small btn-primary">
+                                <i data-feather="play"></i> Run
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>GhostTrace Dark Web Crawler &copy; 2025 | <a href="https://github.com/Z4nzu/hackingtool" target="_blank">GitHub</a></p>
+    </footer>
+
+    <script>
+        // Initialize Feather icons
+        document.addEventListener('DOMContentLoaded', function() {
+            feather.replace();
+            
+            // For demo, hide the library if empty
+            // In a real app, this would show actual saved tools
+            const toolLibrary = document.getElementById('toolLibrary');
+            if (toolLibrary.children.length === 0) {
+                document.querySelector('.tool-library').innerHTML += 
+                    '<p style="text-align:center;color:#aaa;">You haven\'t created any custom tools yet.</p>';
+            }
+        });
+        
+        function generateTool() {
+            const description = document.getElementById('toolDescription').value.trim();
+            
+            if (!description) {
+                alert('Please describe the tool you want to generate');
+                return;
+            }
+            
+            // Show "thinking" animation
+            document.getElementById('aiThinking').style.display = 'block';
+            document.getElementById('toolOutput').style.display = 'none';
+            
+            // In a real implementation, this would make an API call to the server
+            // For demo purposes, we'll simulate a delay and then show a fake result
+            setTimeout(() => {
+                const toolName = generateToolName(description);
+                const toolCode = generateSampleCode(toolName, description);
+                
+                document.getElementById('toolName').textContent = toolName;
+                document.getElementById('toolCode').textContent = toolCode;
+                
+                document.getElementById('aiThinking').style.display = 'none';
+                document.getElementById('toolOutput').style.display = 'block';
+                
+                // Smooth scroll to output
+                document.getElementById('toolOutput').scrollIntoView({ behavior: 'smooth' });
+                
+            }, 3000); // Simulate 3 second delay for AI "thinking"
+        }
+        
+        function generateToolName(description) {
+            // Simple function to generate a name from the description
+            const words = description.split(' ');
+            let nameWords = [];
+            
+            // Try to extract meaningful words
+            for (const word of words) {
+                if (word.length > 3 && !['tool', 'that', 'with', 'and', 'for'].includes(word.toLowerCase())) {
+                    nameWords.push(word);
+                    if (nameWords.length === 2) break;
+                }
+            }
+            
+            // If we couldn't find good words, use some defaults
+            if (nameWords.length === 0) {
+                nameWords = ['Custom', 'Security'];
+            }
+            
+            // Add a generic term if we only got one word
+            if (nameWords.length === 1) {
+                const suffixes = ['Scanner', 'Analyzer', 'Tool', 'Checker', 'Detector'];
+                nameWords.push(suffixes[Math.floor(Math.random() * suffixes.length)]);
+            }
+            
+            // Capitalize first letters
+            nameWords = nameWords.map(word => word.charAt(0).toUpperCase() + word.slice(1));
+            
+            return nameWords.join(' ');
+        }
+        
+        function generateSampleCode(toolName, description) {
+            // This is just a placeholder - in a real implementation this would be generated by the AI
+            return `#!/usr/bin/env python3
+"""
+${toolName} - Generated by GhostTrace AI
+
+Description:
+${description}
+"""
+
+import argparse
+import sys
+import socket
+import random
+import time
+from datetime import datetime
+
+def print_banner():
+    """Print the tool banner"""
+    banner = """
+    ╔═══════════════════════════════════════════════╗
+    ║ ${toolName.padEnd(43)} ║
+    ║ Generated by GhostTrace AI                     ║
+    ╚═══════════════════════════════════════════════╝
+    """
+    print(banner)
+
+def main():
+    """Main function for the ${toolName} tool"""
+    print_banner()
+    
+    parser = argparse.ArgumentParser(description="${description}")
+    parser.add_argument('-t', '--target', help='Target host or IP address')
+    parser.add_argument('-p', '--port', type=int, help='Target port')
+    parser.add_argument('-v', '--verbose', action='store_true', help='Enable verbose output')
+    
+    args = parser.parse_args()
+    
+    if not args.target:
+        parser.print_help()
+        sys.exit(1)
+    
+    print(f"\\n[*] Starting scan at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"[*] Target: {args.target}")
+    
+    # Tool implementation would be here
+    # This is just a placeholder for demonstration purposes
+    print("\\n[*] Running security analysis...")
+    for i in range(5):
+        time.sleep(0.5)
+        print(f"[+] Completed step {i+1}/5...")
+    
+    print("\\n[+] Scan completed!")
+    print("[+] Results:")
+    print("    - Finding 1: Example vulnerability detected")
+    print("    - Finding 2: Example security issue found")
+    print("    - Finding 3: Example recommendation")
+
+if __name__ == "__main__":
+    main()`;
+        }
+        
+        function copyToolCode() {
+            const code = document.getElementById('toolCode').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                alert('Code copied to clipboard!');
+            });
+        }
+        
+        function saveToolCode() {
+            // In a real implementation, this would save the tool to the server
+            alert('Tool saved to your library!');
+            
+            // For demo purposes, we'll add the tool to the library
+            const toolName = document.getElementById('toolName').textContent;
+            const now = new Date();
+            const dateString = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            
+            const toolCard = document.createElement('div');
+            toolCard.className = 'tool-list-card';
+            toolCard.innerHTML = `
+                <div class="tool-list-icon">
+                    <i data-feather="code"></i>
+                </div>
+                <div class="tool-list-info">
+                    <div class="tool-list-title">${toolName}</div>
+                    <div class="tool-list-meta">Created: ${dateString} &bull; Size: 3.7 KB</div>
+                </div>
+                <div class="tool-list-actions">
+                    <button class="btn btn-small btn-secondary">
+                        <i data-feather="eye"></i> View
+                    </button>
+                    <button class="btn btn-small btn-primary">
+                        <i data-feather="play"></i> Run
+                    </button>
+                </div>
+            `;
+            
+            document.getElementById('toolLibrary').prepend(toolCard);
+            feather.replace();
+            
+            // Hide the "no tools" message if it exists
+            const noToolsMessage = document.querySelector('.tool-library p[style*="text-align:center"]');
+            if (noToolsMessage) {
+                noToolsMessage.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

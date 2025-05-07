@@ -41,7 +41,7 @@ cd BINGOxBANGO
 
 2. Install dependencies:
 ```
-cp dependencies.txt requirements.txt && pip install -r requirements.txt
+pip install -r requirements.txt
 ```
 
 3. Install and configure Tor:
@@ -55,7 +55,6 @@ sudo systemctl start tor
 ```
 # Follow instructions at https://ollama.ai/
 ollama pull mistral:7b
-ollama run llama2-uncensored
 ```
 
 ## Usage
@@ -78,5 +77,4 @@ This tool is intended for legal security research and testing only. Always obtai
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.# BINGOxBANGO
-# BINGOxBANGO
+This project is licensed under the MIT License - see the LICENSE file for details.
