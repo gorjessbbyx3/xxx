@@ -6,6 +6,60 @@
     <title>BINGOxBANGO Dark Web Explorer</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        /* Tor Browser Card Styles */
+        .tor-browser-card {
+            background: linear-gradient(135deg, #2b2c3b, #1a1c2d);
+            border: 1px solid #343851;
+            transition: all 0.3s ease;
+        }
+        
+        .tor-browser-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .tor-browser-actions {
+            display: flex;
+            margin-top: 10px;
+            gap: 10px;
+        }
+        
+        .button {
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .primary-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+        }
+        
+        .primary-button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .secondary-button {
+            background-color: transparent;
+            color: var(--text-light);
+            border: 1px solid var(--border-color);
+        }
+        
+        .secondary-button:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-color: var(--text-muted);
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -26,20 +80,22 @@
         <section class="status-panel">
             <h2>System Status</h2>
             <div class="status-cards">
-                <!-- Tor Status -->
-                <div class="status-card {% if service_status.tor.running %}status-ok{% else %}status-error{% endif %}">
+                <!-- Tor Browser -->
+                <div class="status-card tor-browser-card">
                     <div class="status-icon">
-                        <i data-feather="wifi"></i>
+                        <i data-feather="globe"></i>
                     </div>
                     <div class="status-details">
-                        <h3>Tor</h3>
-                        {% if service_status.tor.running %}
-                            <p class="status-text">Running</p>
-                            <p class="status-info">Current IP: {{ service_status.tor.ip }}</p>
-                        {% else %}
-                            <p class="status-text">Not Running</p>
-                            <p class="status-info">Tor service must be started for crawler to function</p>
-                        {% endif %}
+                        <h3>Tor Browser</h3>
+                        <p class="status-text">Anonymous Browsing</p>
+                        <div class="tor-browser-actions">
+                            <button id="launch-tor-browser" class="button primary-button">
+                                <i data-feather="eye"></i> Launch Browser
+                            </button>
+                            <button id="configure-tor" class="button secondary-button">
+                                <i data-feather="settings"></i> Settings
+                            </button>
+                        </div>
                     </div>
                 </div>
 
