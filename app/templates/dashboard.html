@@ -127,13 +127,13 @@
                         <p>Analyze a single URL without crawling</p>
                     </div>
                 </a>
-                <a href="#" class="quick-access-item">
+                <a href="{{ url_for('uncensored_chat') }}" class="quick-access-item">
                     <div class="quick-access-icon">
-                        <i data-feather="bar-chart-2"></i>
+                        <i data-feather="message-circle"></i>
                     </div>
                     <div class="quick-access-details">
-                        <h3>View Reports</h3>
-                        <p>See analysis reports and insights</p>
+                        <h3>Uncensored AI Chat</h3>
+                        <p>Chat with AI without content filters</p>
                     </div>
                 </a>
                 <a href="#" class="quick-access-item">
@@ -211,6 +211,7 @@
                     </div>
                     <div class="dashboard-card-footer">
                         <a href="{{ url_for('analyze_single') }}" class="btn btn-primary">Analyze URL</a>
+                        <a href="{{ url_for('uncensored_chat') }}" class="btn btn-secondary">AI Chat</a>
                     </div>
                 </div>
 
