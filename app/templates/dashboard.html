@@ -142,9 +142,51 @@
             <div class="search-container">
                 <div class="search-box">
                     <i data-feather="search"></i>
-                    <input type="text" placeholder="Search for tools, jobs, or URLs...">
+                    <input type="text" id="quickSearch" placeholder="Search for tools, jobs, or URLs..." onkeyup="quickSearch()">
                 </div>
+                <div id="searchResults" class="search-results" style="display: none;"></div>
             </div>
+
+            <script>
+                function quickSearch() {
+                    const searchInput = document.getElementById('quickSearch');
+                    const searchResults = document.getElementById('searchResults');
+                    const query = searchInput.value.toLowerCase();
+
+                    if (query.length < 2) {
+                        searchResults.style.display = 'none';
+                        return;
+                    }
+
+                    // Search through tools, jobs, and content
+                    const results = [];
+                    document.querySelectorAll('.tool-card').forEach(tool => {
+                        const title = tool.querySelector('h3').textContent.toLowerCase();
+                        if (title.includes(query)) {
+                            results.push({
+                                type: 'Tool',
+                                title: tool.querySelector('h3').textContent,
+                                link: '#' + title.replace(/\s+/g, '-')
+                            });
+                        }
+                    });
+
+                    // Display results
+                    if (results.length > 0) {
+                        searchResults.innerHTML = results.map(result => `
+                            <div class="search-result-item">
+                                <i data-feather="${result.type === 'Tool' ? 'tool' : 'file'}"></i>
+                                <a href="${result.link}">${result.title}</a>
+                                <span class="result-type">${result.type}</span>
+                            </div>
+                        `).join('');
+                        searchResults.style.display = 'block';
+                        feather.replace();
+                    } else {
+                        searchResults.style.display = 'none';
+                    }
+                }
+            </script>
             <div class="quick-access">
                 <a href="{{ url_for('start_crawl') }}" class="quick-access-item">
                     <div class="quick-access-icon">
