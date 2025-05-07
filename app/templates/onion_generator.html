@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Onion Site Generator - GhostTrace</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .template-card {
+            background: #1e1e2e;
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: transform 0.2s;
+        }
+        
+        .template-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .template-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--accent-color);
+        }
+        
+        .template-features {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+        }
+        
+        .generator-form {
+            background: #272736;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-top: 2rem;
+            display: none;
+        }
+        
+        .success-message {
+            background: #1a472a;
+            color: #fff;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1><i data-feather="eye"></i> GhostTrace</h1>
+        </div>
+        <nav>
+            <a href="{{ url_for('index') }}" class="nav-link"><i data-feather="home"></i> Home</a>
+            <a href="{{ url_for('security_tools') }}" class="nav-link"><i data-feather="shield"></i> Security Tools</a>
+        </nav>
+    </header>
+
+    <main>
+        <section>
+            <h2><i data-feather="globe"></i> Onion Site Generator</h2>
+            <p>Generate customizable .onion website templates for various purposes.</p>
+            
+            <div class="template-grid">
+                {% for template_id, template in templates.items() %}
+                <div class="template-card">
+                    <div class="template-icon">
+                        <i data-feather="{% if template_id == 'marketplace' %}shopping-cart{% elif template_id == 'blog' %}edit{% else %}users{% endif %}"></i>
+                    </div>
+                    <h3>{{ template.name }}</h3>
+                    <p>{{ template.description }}</p>
+                    <ul class="template-features">
+                        {% for feature in template.features %}
+                        <li>{{ feature }}</li>
+                        {% endfor %}
+                    </ul>
+                    <button class="btn btn-primary" onclick="selectTemplate('{{ template_id }}')">
+                        <i data-feather="code"></i> Use Template
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="generator-form" id="generatorForm">
+                <h3>Configure Your Site</h3>
+                <div class="form-group">
+                    <label for="siteName">Site Name:</label>
+                    <input type="text" id="siteName" placeholder="Enter a name for your site">
+                </div>
+                
+                <div class="form-group">
+                    <label for="siteDescription">Description:</label>
+                    <textarea id="siteDescription" placeholder="Describe your site's purpose"></textarea>
+                </div>
+                
+                <button class="btn btn-primary" onclick="generateSite()">
+                    <i data-feather="play"></i> Generate Site
+                </button>
+            </div>
+            
+            <div class="success-message" id="successMessage">
+                <h4><i data-feather="check-circle"></i> Site Generated Successfully!</h4>
+                <p>Your site has been generated at: <code id="sitePath"></code></p>
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="viewFiles()">
+                        <i data-feather="folder"></i> View Files
+                    </button>
+                    <button class="btn btn-primary" onclick="startServer()">
+                        <i data-feather="play"></i> Start Server
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>GhostTrace Dark Web Crawler &copy; 2025</p>
+    </footer>
+
+    <script>
+        // Initialize Feather icons
+        document.addEventListener('DOMContentLoaded', function() {
+            feather.replace();
+        });
+        
+        let selectedTemplate = null;
+        
+        function selectTemplate(templateId) {
+            selectedTemplate = templateId;
+            document.getElementById('generatorForm').style.display = 'block';
+            document.getElementById('successMessage').style.display = 'none';
+            
+            // Smooth scroll to form
+            document.getElementById('generatorForm').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        async function generateSite() {
+            const siteName = document.getElementById('siteName').value.trim();
+            const description = document.getElementById('siteDescription').value.trim();
+            
+            if (!siteName) {
+                alert('Please enter a site name');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/onion-site/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        template: selectedTemplate,
+                        name: siteName,
+                        options: {
+                            description: description
+                        }
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.error) {
+                    alert(result.error);
+                    return;
+                }
+                
+                // Show success message
+                document.getElementById('successMessage').style.display = 'block';
+                document.getElementById('sitePath').textContent = result.path;
+                
+                // Smooth scroll to success message
+                document.getElementById('successMessage').scrollIntoView({ behavior: 'smooth' });
+                
+            } catch (error) {
+                alert('Error generating site: ' + error.message);
+            }
+        }
+        
+        function viewFiles() {
+            const path = document.getElementById('sitePath').textContent;
+            // Open file explorer or equivalent
+            alert('File viewing not implemented in demo');
+        }
+        
+        function startServer() {
+            const path = document.getElementById('sitePath').textContent;
+            // Start the Flask server
+            alert('Server starting not implemented in demo');
+        }
+    </script>
+</body>
+</html>
