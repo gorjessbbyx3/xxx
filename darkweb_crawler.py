@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 """
 Dark Web Crawler - A tool for crawling and analyzing dark web content with enhanced features
@@ -35,7 +34,7 @@ logger = logging.getLogger('darkweb_crawler')
 
 class DarkWebCrawler:
     """Enhanced crawler with new security and analysis features"""
-    
+
     USER_AGENTS = [
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
         'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36',
@@ -86,7 +85,7 @@ class DarkWebCrawler:
         options.add_argument('--no-sandbox')
         options.add_argument('--disable-dev-shm-usage')
         try:
-            self.driver = webdriver.Firefox(options=options)
+            self.driver = SeleniumCrawler().get_driver() # Modification here to use SeleniumCrawler
             logger.info("Selenium WebDriver initialized successfully")
         except Exception as e:
             logger.error(f"Failed to initialize Selenium: {e}")
@@ -122,7 +121,7 @@ class DarkWebCrawler:
                 return rules
         except Exception as e:
             logger.debug(f"Error fetching robots.txt for {domain}: {e}")
-        
+
         self.robots_cache[domain] = None
         return None
 
@@ -132,24 +131,24 @@ class DarkWebCrawler:
             return True
 
         path = urlparse(url).path
-        
+
         # Check allow rules first
         for allow in rules['allow']:
             if path.startswith(allow):
                 return True
-                
+
         # Then check disallow rules
         for disallow in rules['disallow']:
             if path.startswith(disallow):
                 return False
-                
+
         return True
 
     def capture_screenshot(self, url, output_path):
         """Capture screenshot of a webpage using Selenium"""
         if not self.capture_screenshots:
             return False
-            
+
         try:
             self.driver.get(url)
             time.sleep(5)  # Wait for page to load
@@ -204,7 +203,7 @@ class DarkWebCrawler:
                     return []
                 if robots_rules and robots_rules['crawl_delay']:
                     time.sleep(robots_rules['crawl_delay'])
-            
+
             # Add random delay
             delay = random.uniform(self.delay_range[0], self.delay_range[1])
             time.sleep(delay)
@@ -281,7 +280,7 @@ class DarkWebCrawler:
             if current_depth < self.depth:
                 links = self.extract_links(soup, url)
                 logger.info(f"Found {len(links)} links on {url}")
-                
+
                 for link in links:
                     if link not in self.visited_urls and self.page_count < self.max_pages:
                         self.crawl_url(tor_session, link, current_depth + 1)
@@ -294,7 +293,7 @@ class DarkWebCrawler:
         except Exception as e:
             logger.error(f"Unexpected error crawling {url}: {e}")
             return []
-        
+
     def extract_links(self, soup, base_url):
         """Extract and normalize links from page"""
         links = []
@@ -372,13 +371,13 @@ class DarkWebCrawler:
             'ethereum': r'0x[a-fA-F0-9]{40}',
             'monero': r'4[0-9AB][1-9A-HJ-NP-Za-km-z]{93}'
         }
-        
+
         addresses = {}
         for currency, pattern in patterns.items():
             matches = re.findall(pattern, text)
             if matches:
                 addresses[currency] = matches
-                
+
         return addresses
 
     def extract_contact_info(self, text):
@@ -388,23 +387,23 @@ class DarkWebCrawler:
             'telegram': r'@[a-zA-Z0-9_]{5,}',
             'discord': r'[a-zA-Z0-9_]{3,32}#[0-9]{4}'
         }
-        
+
         contact_info = {}
         for contact_type, pattern in patterns.items():
             matches = re.findall(pattern, text)
             if matches:
                 contact_info[contact_type] = matches
-                
+
         return contact_info
 
     def similarity_check(self, url1, url2):
         """Compare similarity between two pages"""
         text1 = self.text_content_cache.get(url1)
         text2 = self.text_content_cache.get(url2)
-        
+
         if not text1 or not text2:
             return None
-            
+
         return SequenceMatcher(None, text1, text2).ratio()
 
     def start_crawl(self, start_urls):
@@ -425,7 +424,7 @@ class DarkWebCrawler:
         try:
             with tor_session_context() as tor:
                 logger.info(f"Starting crawl with {len(start_urls)} seed URLs")
-                
+
                 for url in start_urls:
                     if is_valid_onion_url(url):
                         self.crawl_url(tor, url)
