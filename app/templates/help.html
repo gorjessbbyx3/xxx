@@ -121,11 +121,10 @@
                 <p>The Tor service is required to access .onion sites. To start Tor:</p>
                 <pre><code>sudo service tor start</code></pre>
                 
-                <h4>Ollama Service</h4>
-                <p>Ollama provides the AI analysis capabilities. To start Ollama:</p>
-                <pre><code>ollama serve</code></pre>
-                <p>Then pull the necessary model (if not already available):</p>
-                <pre><code>ollama pull mistral:7b-instruct</code></pre>
+                <h4>OpenAI API Key</h4>
+                <p>GhostTrace uses OpenAI's API for AI analysis capabilities. You need to set your OpenAI API key as an environment variable:</p>
+                <pre><code>export OPENAI_API_KEY=your_api_key_here</code></pre>
+                <p>You can obtain an API key by signing up at <a href="https://platform.openai.com/" target="_blank">OpenAI's platform</a>.</p>
             </div>
             
             <div class="help-section" id="crawling">
@@ -158,7 +157,7 @@
             
             <div class="help-section" id="analysis">
                 <h3>AI Analysis</h3>
-                <p>When AI analysis is enabled, GhostTrace uses the Ollama LLM to perform the following analyses:</p>
+                <p>When AI analysis is enabled, GhostTrace uses OpenAI's GPT-4o model to perform the following analyses:</p>
                 
                 <ul>
                     <li><strong>Content Categorization:</strong> Identifies the primary topics and themes in the content</li>
@@ -200,7 +199,7 @@
                 
                 <h4>Endpoints</h4>
                 <ul>
-                    <li><code>GET /api/status</code> - Check service status (Tor, Ollama)</li>
+                    <li><code>GET /api/status</code> - Check service status (Tor, OpenAI API)</li>
                     <li><code>GET /api/jobs</code> - List all crawler jobs</li>
                     <li><code>GET /api/jobs/{job_id}</code> - Get status of a specific job</li>
                     <li><code>POST /api/crawl</code> - Start a new crawling job</li>
