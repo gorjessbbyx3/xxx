@@ -153,10 +153,26 @@ class SqlmapAdvancedTool(HackingTool):
 
 
 class PasswordToolsCollection(HackingToolsCollection):
-    TITLE = "Password & Authentication Tools"
-    DESCRIPTION = "Tools for password cracking, auditing and SQL injection"
+    TITLE = "Advanced Password & Authentication Tools"
+    DESCRIPTION = "Enhanced tools for password analysis, auditing and authentication testing"
     
     TOOLS = [
+        HashcatTool(),
+        JohnTheRipperTool(),
+        HydraFtpTool(),
+        HydraSshTool(),
+        XHydraGUITool(),
+        CredentialHarvesterTool(),
+        CudaHashcatTool(),
+        OphcrackTool(),
+        SqlmapAdvancedTool(),
+        PasswordStrengthAnalyzerTool(),
+        PassphraseGeneratorTool(),
+        HashIdentifierTool(),
+        RainbowTableTool(),
+        PasswordPolicyAuditorTool(),
+        MFABypassCheckerTool()
+    ]
         HashcatTool(),
         JohnTheRipperTool(),
         HydraFtpTool(),
