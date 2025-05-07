@@ -97,9 +97,31 @@ def crawler_thread(job_id, urls, depth, output_dir, analyze_content, max_pages, 
 @app.route('/')
 def index():
     """Home page with crawler interface"""
-    service_status = check_services()
+    try:
+        service_status = check_services()
+    except Exception as e:
+        logger.warning(f"Error checking services: {e}")
+        service_status = {
+            "tor": {"running": False, "ip": None},
+            "openai": {"available": False, "model": None},
+            "public_ip": "Unknown"
+        }
     return render_template('dashboard.html', service_status=service_status, jobs=job_statuses, 
                           now=datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+
+@app.route('/chat')
+def uncensored_chat():
+    """Uncensored chat interface"""
+    try:
+        service_status = check_services()
+    except Exception as e:
+        logger.warning(f"Error checking services: {e}")
+        service_status = {
+            "tor": {"running": False, "ip": None},
+            "openai": {"available": False, "model": None},
+            "public_ip": "Unknown"
+        }
+    return render_template('uncensored_chat.html', service_status=service_status)
 
 @app.route('/old')
 def old_interface():
