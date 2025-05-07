@@ -3,11 +3,24 @@ services:
   - type: web
     name: dark-web-crawler
     env: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app
+    buildCommand: |
+      pip install -r requirements.txt
+      curl -fsSL https://ollama.com/install.sh | sh
+      ollama serve &
+      sleep 5
+      ollama pull mistral:7b
+      ollama create wormgpt -f Modelfile
+    startCommand: |
+      ollama serve &
+      sleep 5 
+      python app.py
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
       - key: PORT
         value: 5000
+      - key: OLLAMA_HOST
+        value: "0.0.0.0"
+      - key: OLLAMA_PORT  
+        value: 11434
     healthCheckPath: /
