@@ -14,6 +14,9 @@ from datetime import datetime
 from urllib.parse import urljoin, urlparse
 from bs4 import BeautifulSoup
 from requests.exceptions import RequestException
+from selenium import webdriver
+from selenium.webdriver.firefox.options import Options
+import pdfkit
 import requests
 from difflib import SequenceMatcher
 from collections import defaultdict
@@ -39,7 +42,9 @@ class DarkWebCrawler:
         depth=1, 
         delay_range=(2, 5),
         analyze_content=True,
-        max_pages=50
+        max_pages=50,
+        capture_screenshots=False,
+        export_pdf=False
     ):
         """
         Initialize the dark web crawler with specified parameters
@@ -91,7 +96,7 @@ class DarkWebCrawler:
                     links.append(absolute_url)
         return links
 
-    def save_page(self, url, content, soup=None, analysis=None):
+    def save_page(self, url, content, soup=None, analysis=None, capture_screenshot=False, export_pdf=False):
         """
         Save the crawled page and its analysis
 
@@ -118,6 +123,16 @@ class DarkWebCrawler:
         html_path = os.path.join(domain_dir, f"{filename_base}.html")
         with open(html_path, 'w', encoding='utf-8') as f:
             f.write(content)
+            
+        # Capture screenshot if enabled
+        if capture_screenshot:
+            screenshot_path = os.path.join(domain_dir, f"{filename_base}.png")
+            self.capture_screenshot(url, screenshot_path)
+            
+        # Export to PDF if enabled
+        if export_pdf:
+            pdf_path = os.path.join(domain_dir, f"{filename_base}.pdf")
+            self.export_to_pdf(url, content, pdf_path)
 
         # Extract and save the text content
         if soup is not None:
@@ -171,6 +186,46 @@ class DarkWebCrawler:
         """
         if not self.analyze_content:
             return None
+
+
+    def capture_screenshot(self, url, output_path):
+        """Capture screenshot of a webpage"""
+        try:
+            options = Options()
+            options.add_argument('--headless')
+            options.add_argument('--no-sandbox')
+            options.add_argument('--disable-dev-shm-usage')
+            
+            driver = webdriver.Firefox(options=options)
+            driver.get(url)
+            driver.save_screenshot(output_path)
+            driver.quit()
+            
+            logger.info(f"Screenshot saved to {output_path}")
+            return True
+        except Exception as e:
+            logger.error(f"Error capturing screenshot of {url}: {e}")
+            return False
+            
+    def export_to_pdf(self, url, content, output_path):
+        """Export webpage to PDF"""
+        try:
+            options = {
+                'page-size': 'A4',
+                'margin-top': '0.75in',
+                'margin-right': '0.75in',
+                'margin-bottom': '0.75in',
+                'margin-left': '0.75in',
+                'encoding': "UTF-8",
+                'quiet': ''
+            }
+            pdfkit.from_string(content, output_path, options=options)
+            logger.info(f"PDF exported to {output_path}")
+            return True
+        except Exception as e:
+            logger.error(f"Error exporting {url} to PDF: {e}")
+            return False
+
 
         try:
             # Extract text content for analysis
@@ -254,7 +309,9 @@ class DarkWebCrawler:
             analysis = self.analyze_page(url, html_content, soup) if self.analyze_content else None
 
             # Save the page
-            self.save_page(url, html_content, soup, analysis)
+            self.save_page(url, html_content, soup, analysis, 
+                          capture_screenshot=hasattr(self, 'capture_screenshots') and self.capture_screenshots,
+                          export_pdf=hasattr(self, 'export_pdf') and self.export_pdf)
 
             # Extract links for further crawling
             links = self.extract_links(soup, url)
