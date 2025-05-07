@@ -61,6 +61,20 @@
         .download-btn:hover {
             background: var(--primary-dark);
         }
+
+        .setup-instructions {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .step {
+            margin: 10px 0;
+            padding: 10px;
+            background: var(--bg-color);
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
@@ -80,6 +94,41 @@
         <div class="page-header">
             <h2><i data-feather="tool"></i> {{ tool.TITLE }}</h2>
             <p class="subtitle">{{ tool.DESCRIPTION }}</p>
+        </div>
+
+        <div class="setup-instructions">
+            <h3>Setup Instructions</h3>
+            {% if "nmap" in tool.TITLE|lower %}
+            <div class="step">1. Click the "Download" button below to get the tool package</div>
+            <div class="step">2. Extract the downloaded zip file</div>
+            <div class="step">3. Open terminal and navigate to the extracted directory</div>
+            <div class="step">4. Run: sudo nmap --script-updatedb # Update script database</div>
+            <div class="step">5. Test with: nmap -sV localhost # Basic version detection scan</div>
+            {% elif "wireshark" in tool.TITLE|lower %}
+            <div class="step">1. Download the tool package using the button below</div>
+            <div class="step">2. Extract the package contents</div>
+            <div class="step">3. Install required dependencies: sudo apt-get install libpcap-dev</div>
+            <div class="step">4. Start capture: sudo tshark -i any -w capture.pcap</div>
+            <div class="step">5. Stop capture with Ctrl+C and analyze: tshark -r capture.pcap</div>
+            {% elif "hydra" in tool.TITLE|lower %}
+            <div class="step">1. Download the tool package</div>
+            <div class="step">2. Extract the contents</div>
+            <div class="step">3. Install dependencies: libssl-dev libssh-dev libidn11-dev libpcre3-dev</div>
+            <div class="step">4. Create a wordlist file named "passwords.txt"</div>
+            <div class="step">5. Test with: hydra -l admin -P passwords.txt localhost http-get /</div>
+            {% elif "sqlmap" in tool.TITLE|lower %}
+            <div class="step">1. Download the SQLMap package</div>
+            <div class="step">2. Extract the contents</div>
+            <div class="step">3. Install Python dependencies: pip install -r requirements.txt</div>
+            <div class="step">4. Test installation: python sqlmap.py --version</div>
+            <div class="step">5. Basic scan: python sqlmap.py -u "http://example.com/?id=1" --dbs</div>
+            {% else %}
+            <div class="step">1. Click the "Download" button below to get {{ tool.TITLE }}</div>
+            <div class="step">2. Extract the downloaded package</div>
+            <div class="step">3. Install dependencies: pip install -r requirements.txt</div>
+            <div class="step">4. Run the tool: python {{ tool.TITLE|lower|replace(' ', '_') }}.py --help</div>
+            <div class="step">5. Check the examples below for common usage patterns</div>
+            {% endif %}
         </div>
 
         <div class="tool-examples">
