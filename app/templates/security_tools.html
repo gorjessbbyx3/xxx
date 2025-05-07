@@ -7,16 +7,31 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
     <style>
-        /* Chat Box Styles */
+        /* Modern Layout Styles */
+        :root {
+            --primary-color: #4F46E5;
+            --primary-hover: #4338CA;
+            --secondary-color: #10B981;
+            --accent-color: #F59E0B;
+            --danger-color: #EF4444;
+            --dark-bg: #111827;
+            --card-bg: #1F2937;
+            --text-light: #F3F4F6;
+            --text-muted: #9CA3AF;
+            --border-color: #374151;
+        }
+        
         .page-container {
             display: flex;
             min-height: 100vh;
+            background-color: var(--dark-bg);
         }
         
+        /* Chat Sidebar Styles */
         .chat-sidebar {
             width: 320px;
-            background-color: #1a1a2e;
-            border-right: 1px solid #333;
+            background-color: var(--card-bg);
+            border-right: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
             transition: all 0.3s ease;
@@ -25,64 +40,98 @@
             top: 0;
             bottom: 0;
             z-index: 100;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
         }
         
         .chat-sidebar-collapsed {
-            width: 50px;
+            width: 60px;
         }
         
         .chat-header {
-            padding: 15px;
-            border-bottom: 1px solid #333;
+            padding: 18px;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            background-color: rgba(0,0,0,0.2);
         }
         
         .chat-title {
-            color: #fff;
+            color: var(--text-light);
             font-size: 1.2rem;
             margin: 0;
+            font-weight: 600;
         }
         
         .chat-toggle {
             background: none;
             border: none;
-            color: #fff;
+            color: var(--text-light);
             cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .chat-toggle:hover {
+            transform: scale(1.1);
         }
         
         .chat-messages {
             flex: 1;
             overflow-y: auto;
-            padding: 15px;
+            padding: 18px;
             display: flex;
             flex-direction: column;
             gap: 15px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border-color) transparent;
+        }
+        
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .chat-messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .chat-messages::-webkit-scrollbar-thumb {
+            background-color: var(--border-color);
+            border-radius: 10px;
         }
         
         .chat-message {
-            padding: 10px 15px;
-            border-radius: 10px;
+            padding: 12px 16px;
+            border-radius: 12px;
             max-width: 85%;
             word-break: break-word;
+            animation: fadeIn 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         .user-message {
             align-self: flex-end;
-            background-color: #16213e;
-            color: #fff;
+            background-color: var(--primary-color);
+            color: white;
+            border-bottom-right-radius: 4px;
         }
         
         .ai-message {
             align-self: flex-start;
-            background-color: #233554;
-            color: #fff;
+            background-color: var(--card-bg);
+            color: var(--text-light);
+            border: 1px solid var(--border-color);
+            border-bottom-left-radius: 4px;
         }
         
         .chat-input-container {
             padding: 15px;
-            border-top: 1px solid #333;
+            border-top: 1px solid var(--border-color);
+            background-color: rgba(0,0,0,0.2);
         }
         
         .chat-input-form {
@@ -92,22 +141,39 @@
         
         .chat-input {
             flex: 1;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #444;
-            background-color: #0f3460;
-            color: #fff;
+            padding: 12px 15px;
+            border-radius: 24px;
+            border: 1px solid var(--border-color);
+            background-color: rgba(0,0,0,0.2);
+            color: var(--text-light);
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        .chat-input:focus {
+            border-color: var(--primary-color);
         }
         
         .chat-send {
-            padding: 10px 15px;
-            background-color: #e94560;
-            color: #fff;
+            padding: 12px;
+            background-color: var(--primary-color);
+            color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 50%;
+            width: 42px;
+            height: 42px;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
         }
         
+        .chat-send:hover {
+            background-color: var(--primary-hover);
+        }
+        
+        /* Main Content Styles */
         .main-content {
             flex: 1;
             margin-left: 320px;
@@ -115,18 +181,453 @@
         }
         
         .main-content-expanded {
-            margin-left: 50px;
+            margin-left: 60px;
+        }
+        
+        /* Tool Cards and Grid Enhancements */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .dashboard-card {
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid var(--border-color);
+            background: linear-gradient(to bottom, rgba(255,255,255,0.05), rgba(255,255,255,0));
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .dashboard-card-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .dashboard-card-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            color: white;
+        }
+        
+        .tools .dashboard-card-icon {
+            background-color: var(--primary-color);
+        }
+        
+        .analysis .dashboard-card-icon {
+            background-color: var(--secondary-color);
+        }
+        
+        .security .dashboard-card-icon {
+            background-color: var(--accent-color);
+        }
+        
+        .crawl .dashboard-card-icon {
+            background-color: var(--danger-color);
+        }
+        
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .tool-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            transition: transform 0.3s;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .tool-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .tool-card-header {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+            background: linear-gradient(to right, var(--primary-color), var(--primary-hover));
+        }
+        
+        .tool-card-header h4 {
+            margin: 0;
+            color: white;
+        }
+        
+        .tool-card-content {
+            padding: 15px;
+            flex: 1;
+        }
+        
+        .tool-card-footer {
+            padding: 15px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        /* Search Box Styles */
+        .search-container {
+            margin-bottom: 1.5rem;
+        }
+        
+        .search-box {
+            display: flex;
+            align-items: center;
+            background-color: var(--card-bg);
+            border-radius: 24px;
+            padding: 0 15px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s;
+            margin-bottom: 15px;
+        }
+        
+        .search-box:focus-within {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+        }
+        
+        .search-box i {
+            color: var(--text-muted);
+            margin-right: 10px;
+        }
+        
+        .search-box input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 15px 0;
+            color: var(--text-light);
+            outline: none;
+            font-size: 1rem;
+        }
+        
+        .search-button {
+            background: var(--primary-color);
+            border: none;
+            height: 36px;
+            width: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: background-color 0.3s;
+        }
+        
+        .search-button:hover {
+            background-color: var(--primary-hover);
+        }
+        
+        .search-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .search-tag {
+            padding: 6px 12px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            color: var(--text-light);
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+        
+        .search-tag:hover {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .search-results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .results-count {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        
+        .highlight {
+            background-color: rgba(79, 70, 229, 0.2);
+            color: var(--primary-color);
+            padding: 0 2px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+        
+        .loading-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: var(--text-muted);
+            gap: 10px;
+        }
+        
+        .loading-indicator i {
+            animation: spin 2s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .no-results, .error-message {
+            text-align: center;
+            padding: 25px;
+            background-color: rgba(0,0,0,0.1);
+            border-radius: 8px;
+            color: var(--text-muted);
+        }
+        
+        /* Category Section Styles */
+        .category-section {
+            background-color: rgba(31, 41, 55, 0.5);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            animation: fadeIn 0.5s ease;
         }
         
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .chat-sidebar {
-                width: 250px;
+                width: 280px;
             }
             
             .main-content {
-                margin-left: 250px;
+                margin-left: 280px;
             }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .search-tags {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .search-tags {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        /* Tor Browser Card Styles */
+        .tor-browser-card {
+            background: linear-gradient(135deg, #2b2c3b, #1a1c2d);
+            border: 1px solid #343851;
+            transition: all 0.3s ease;
+        }
+        
+        .tor-browser-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .tor-browser-actions {
+            display: flex;
+            margin-top: 10px;
+            gap: 10px;
+        }
+        
+        .button {
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .primary-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+        }
+        
+        .primary-button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .secondary-button {
+            background-color: transparent;
+            color: var(--text-light);
+            border: 1px solid var(--border-color);
+        }
+        
+        .secondary-button:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-color: var(--text-muted);
+        }
+        
+        /* Tor Browser Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.7);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal.show {
+            display: block;
+            opacity: 1;
+        }
+        
+        .modal-content {
+            background-color: var(--card-bg);
+            margin: 10% auto;
+            padding: 25px;
+            border: 1px solid var(--border-color);
+            width: 80%;
+            max-width: 800px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+        }
+        
+        .modal.show .modal-content {
+            transform: translateY(0);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+        
+        .close-modal {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        
+        .close-modal:hover {
+            color: var(--text-light);
+        }
+        
+        .browser-container {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #0a0a0a;
+            height: 500px;
+        }
+        
+        .browser-toolbar {
+            background-color: #1b1b1b;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #2c2c2c;
+        }
+        
+        .browser-actions {
+            display: flex;
+            gap: 10px;
+            margin-right: 15px;
+        }
+        
+        .browser-action {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .action-close {
+            background-color: #ff5f57;
+        }
+        
+        .action-minimize {
+            background-color: #febc2e;
+        }
+        
+        .action-maximize {
+            background-color: #27c93f;
+        }
+        
+        .browser-address-bar {
+            flex: 1;
+            background-color: #0a0a0a;
+            border-radius: 5px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid #2c2c2c;
+        }
+        
+        .browser-address-bar i {
+            color: #5f6368;
+        }
+        
+        .browser-url {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-light);
+            font-size: 14px;
+            outline: none;
+        }
+        
+        .browser-content {
+            padding: 15px;
+            height: calc(100% - 60px);
+            overflow-y: auto;
+            color: var(--text-light);
         }
     </style>
 </head>
@@ -177,20 +678,22 @@
             </div>
             
             <div class="status-cards">
-                <!-- Tor Status -->
-                <div class="status-card {% if service_status.tor.running %}status-ok{% else %}status-error{% endif %}">
+                <!-- Tor Browser -->
+                <div class="status-card tor-browser-card">
                     <div class="status-icon">
-                        <i data-feather="wifi"></i>
+                        <i data-feather="globe"></i>
                     </div>
                     <div class="status-details">
-                        <h3>Tor</h3>
-                        {% if service_status.tor.running %}
-                            <p class="status-text">Running</p>
-                            <p class="status-info">Current IP: {{ service_status.tor.ip }}</p>
-                        {% else %}
-                            <p class="status-text">Not Running</p>
-                            <p class="status-info">Tor service must be started for security tools to function</p>
-                        {% endif %}
+                        <h3>Tor Browser</h3>
+                        <p class="status-text">Secure Anonymous Browsing</p>
+                        <div class="tor-browser-actions">
+                            <button id="launch-tor-browser" class="button primary-button">
+                                <i data-feather="eye"></i> Launch Browser
+                            </button>
+                            <button id="configure-tor" class="button secondary-button">
+                                <i data-feather="settings"></i> Settings
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -242,14 +745,27 @@
                 <div class="search-box">
                     <i data-feather="search"></i>
                     <input type="text" id="toolSearch" placeholder="Search for tools..." onkeyup="searchTools()">
+                    <button class="search-button" onclick="searchTools()">
+                        <i data-feather="search"></i>
+                    </button>
+                </div>
+                <div class="search-tags">
+                    <span class="search-tag" onclick="quickSearch('password')">Password</span>
+                    <span class="search-tag" onclick="quickSearch('network')">Network</span>
+                    <span class="search-tag" onclick="quickSearch('scanner')">Scanner</span>
+                    <span class="search-tag" onclick="quickSearch('forensic')">Forensic</span>
+                    <span class="search-tag" onclick="quickSearch('crypto')">Crypto</span>
                 </div>
             </div>
         
             <div id="searchResults" style="display: none; margin-bottom: 2rem;">
-                <h3>Search Results</h3>
-                <ul class="tool-list" id="searchResultsList">
+                <div class="search-results-header">
+                    <h3>Search Results</h3>
+                    <span class="results-count" id="resultsCount">0 tools found</span>
+                </div>
+                <div class="tool-grid" id="searchResultsGrid">
                     <!-- Search results will be inserted here -->
-                </ul>
+                </div>
             </div>
             
             <div class="dashboard-grid">
@@ -704,63 +1220,147 @@
         }
         
         // Function to search for tools
-        function searchTools() {
-            const searchQuery = document.getElementById('toolSearch').value.toLowerCase();
-            const searchResults = document.getElementById('searchResults');
-            const searchResultsList = document.getElementById('searchResultsList');
+        // Function for quick search using tags
+        function quickSearch(tag) {
+            const searchInput = document.getElementById('toolSearch');
+            searchInput.value = tag;
+            searchTools();
             
-            // Clear previous search results
-            searchResultsList.innerHTML = '';
+            // Highlight the clicked tag
+            document.querySelectorAll('.search-tag').forEach(tagEl => {
+                tagEl.style.backgroundColor = '';
+                tagEl.style.borderColor = '';
+                
+                if (tagEl.textContent.toLowerCase() === tag.toLowerCase()) {
+                    tagEl.style.backgroundColor = 'var(--primary-color)';
+                    tagEl.style.borderColor = 'var(--primary-color)';
+                }
+            });
+        }
+        
+        function searchTools() {
+            const searchInput = document.getElementById('toolSearch');
+            const searchQuery = searchInput.value.toLowerCase().trim();
+            const searchResults = document.getElementById('searchResults');
+            const searchResultsGrid = document.getElementById('searchResultsGrid');
+            const resultsCount = document.getElementById('resultsCount');
             
             if (searchQuery.length < 2) {
                 searchResults.style.display = 'none';
                 return;
             }
             
-            // Make AJAX request to search endpoint
-            fetch('/security-tools/search?q=' + encodeURIComponent(searchQuery))
+            // Show loading state
+            searchResults.style.display = 'block';
+            searchResultsGrid.innerHTML = '<div class="loading-indicator"><i data-feather="loader"></i> Searching...</div>';
+            feather.replace();
+            
+            fetch('/search_security_tools?query=' + encodeURIComponent(searchQuery))
                 .then(response => response.json())
                 .then(data => {
-                    if (data.length === 0) {
-                        searchResultsList.innerHTML = '<li>No tools found matching your search.</li>';
+                    searchResultsGrid.innerHTML = '';
+                    
+                    if (!data.results || data.results.length === 0) {
+                        searchResultsGrid.innerHTML = '<div class="no-results">No tools found matching your query. Try different keywords or check our <a href="#" onclick="showAllTools()">complete tools list</a>.</div>';
+                        resultsCount.textContent = '0 tools found';
                     } else {
-                        data.forEach(tool => {
-                            const listItem = document.createElement('li');
+                        // Update count
+                        const toolCount = data.results.length;
+                        resultsCount.textContent = `${toolCount} tool${toolCount === 1 ? '' : 's'} found`;
+                        
+                        // Create card for each tool
+                        data.results.forEach(tool => {
+                            const toolCard = document.createElement('div');
+                            toolCard.className = 'tool-card';
                             
-                            const icon = document.createElement('i');
-                            icon.setAttribute('data-feather', 'tool');
-                            icon.className = 'tool-list-icon';
+                            const toolHeader = document.createElement('div');
+                            toolHeader.className = 'tool-card-header';
                             
-                            const textDiv = document.createElement('div');
-                            textDiv.className = 'tool-list-text';
+                            const toolTitle = document.createElement('h4');
+                            toolTitle.textContent = tool.title;
                             
-                            const link = document.createElement('a');
-                            link.href = '/security-tools/' + encodeURIComponent(tool.title);
-                            link.textContent = tool.title;
+                            const toolContent = document.createElement('div');
+                            toolContent.className = 'tool-card-content';
                             
-                            const description = document.createElement('small');
-                            description.textContent = ' - ' + tool.description.substring(0, 80) + (tool.description.length > 80 ? '...' : '');
+                            const toolDescription = document.createElement('p');
+                            toolDescription.textContent = tool.description;
                             
-                            textDiv.appendChild(link);
-                            textDiv.appendChild(description);
+                            const toolFooter = document.createElement('div');
+                            toolFooter.className = 'tool-card-footer';
                             
-                            listItem.appendChild(icon);
-                            listItem.appendChild(textDiv);
+                            const toolLink = document.createElement('a');
+                            toolLink.href = `/tool/${encodeURIComponent(tool.title)}`;
+                            toolLink.className = 'btn btn-small';
+                            toolLink.textContent = 'Details';
                             
-                            searchResultsList.appendChild(listItem);
+                            // Build the card
+                            toolHeader.appendChild(toolTitle);
+                            toolContent.appendChild(toolDescription);
+                            toolFooter.appendChild(toolLink);
+                            
+                            toolCard.appendChild(toolHeader);
+                            toolCard.appendChild(toolContent);
+                            toolCard.appendChild(toolFooter);
+                            
+                            searchResultsGrid.appendChild(toolCard);
                         });
                         
                         // Re-initialize feather icons for the new content
                         feather.replace();
                     }
                     
+                    // Highlight matching text in results
+                    highlightSearchResults(searchQuery);
+                    
+                    // Ensure search results are visible
                     searchResults.style.display = 'block';
+                    
+                    // Smooth scroll to results
+                    const yOffset = -100;
+                    const y = searchResults.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                    window.scrollTo({top: y, behavior: 'smooth'});
                 })
                 .catch(error => {
-                    console.error('Error searching tools:', error);
-                    searchResultsList.innerHTML = '<li>An error occurred while searching.</li>';
-                    searchResults.style.display = 'block';
+                    console.error('Error:', error);
+                    searchResultsGrid.innerHTML = '<div class="error-message">An error occurred while searching. Please try again.</div>';
                 });
+        }
+        
+        // Function to highlight matching text in search results
+        function highlightSearchResults(query) {
+            if (!query || query.length < 2) return;
+            
+            const regex = new RegExp(`(${query})`, 'gi');
+            
+            document.querySelectorAll('#searchResultsGrid .tool-card-content p, #searchResultsGrid .tool-card-header h4').forEach(element => {
+                const originalText = element.textContent;
+                element.innerHTML = originalText.replace(regex, '<span class="highlight">$1</span>');
+            });
+        }
+        
+        // Function to show all tools
+        function showAllTools() {
+            const allCategories = [];
+            document.querySelectorAll('.dashboard-card-title').forEach(el => {
+                allCategories.push(el.textContent.trim());
+            });
+            
+            // Hide search results
+            document.getElementById('searchResults').style.display = 'none';
+            document.getElementById('toolSearch').value = '';
+            
+            // Clear highlighted tags
+            document.querySelectorAll('.search-tag').forEach(tagEl => {
+                tagEl.style.backgroundColor = '';
+                tagEl.style.borderColor = '';
+            });
+            
+            // Show all categories one after another
+            let delay = 0;
+            allCategories.forEach(category => {
+                setTimeout(() => showCategoryTools(category), delay);
+                delay += 300;
+            });
         }
     </script>
 </body>
