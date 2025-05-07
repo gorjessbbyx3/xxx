@@ -30,35 +30,28 @@ def check_tor_status():
         logger.error("❌ Tor is not running. Please start Tor Browser or the Tor service.")
         return False
 
-def check_ollama_status():
-    """Check if Ollama is running and list available models"""
+def check_openai_status():
+    """Check if OpenAI API is configured and available"""
     analyzer = OllamaAnalyzer()
     
-    # First check if OpenAI API key is set (this is a fallback)
-    if analyzer.use_openai and analyzer.openai_api_key:
-        logger.info("✅ Using OpenAI API for analysis (Ollama not required)")
-        return True
-    
-    # Otherwise check if Ollama is running
-    if analyzer.wait_for_ollama(max_retries=1, retry_delay=1):
-        logger.info("✅ Ollama service is running")
+    if analyzer.openai_api_key:
+        logger.info(f"✅ Using OpenAI API for analysis with model: {analyzer.model_name}")
         
         # Try to check model availability
         if analyzer.check_model_availability():
-            logger.info(f"✅ Model '{analyzer.model_name}' is available")
+            logger.info(f"✅ OpenAI API key is valid")
+            return True
         else:
-            logger.warning(f"⚠️  Model '{analyzer.model_name}' is not available. Will use fallback model")
-        
-        return True
+            logger.warning("⚠️ OpenAI API key is set but may not be valid")
+            return False
     else:
-        logger.error("❌ Ollama service is not running")
-        # Suggest using OpenAI API key as a fallback
-        logger.info("💡 Tip: You can set the OPENAI_API_KEY environment variable to use OpenAI API instead of Ollama")
+        logger.error("❌ OpenAI API key not found")
+        logger.info("💡 Tip: You need to set the OPENAI_API_KEY environment variable")
         return False
 
 def analyze_single_url(url, save_path=None):
     """Analyze a single URL without crawling links"""
-    if not check_tor_status() or not check_ollama_status():
+    if not check_tor_status() or not check_openai_status():
         return False
     
     logger.info(f"Analyzing single URL: {url}")
@@ -83,8 +76,8 @@ def run_crawler(args):
     if not check_tor_status():
         return False
     
-    if not args.no_analysis and not check_ollama_status():
-        logger.warning("⚠️  Ollama not available. Disabling content analysis.")
+    if not args.no_analysis and not check_openai_status():
+        logger.warning("⚠️  OpenAI API not available. Disabling content analysis.")
         args.no_analysis = True
     
     # Parse delay range
@@ -152,7 +145,7 @@ def main():
     # Process commands
     if args.command == 'status':
         check_tor_status()
-        check_ollama_status()
+        check_openai_status()
     elif args.command == 'crawl':
         run_crawler(args)
     elif args.command == 'analyze':
