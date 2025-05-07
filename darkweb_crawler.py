@@ -17,6 +17,7 @@ from requests.exceptions import RequestException
 import pdfkit
 import requests
 from difflib import SequenceMatcher
+from collections import defaultdict
 
 from tor_manager import TorManager, tor_session_context
 from ai_analyzer import OllamaAnalyzer
@@ -81,6 +82,7 @@ class DarkWebCrawler:
         logger.warning("Screenshot capture is disabled because Selenium is not installed.")
         self.capture_screenshots = False
 
+
     def parse_robots_txt(self, url, session):
         """Parse robots.txt file for a domain"""
         domain = urlparse(url).netloc
@@ -136,18 +138,10 @@ class DarkWebCrawler:
 
     def capture_screenshot(self, url, output_path):
         """Capture screenshot of a webpage using Selenium"""
-        if not self.capture_screenshots:
-            return False
+        # Selenium is no longer used, this function is now a stub.
+        logger.warning(f"Screenshot capture is disabled for {url}.")
+        return False
 
-        try:
-            self.driver.get(url)
-            time.sleep(5)  # Wait for page to load
-            self.driver.save_screenshot(output_path)
-            logger.info(f"Screenshot saved to {output_path}")
-            return True
-        except Exception as e:
-            logger.error(f"Error capturing screenshot of {url}: {e}")
-            return False
 
     def export_to_pdf(self, url, content, output_path):
         """Export webpage to PDF using pdfkit"""
@@ -430,7 +424,8 @@ class DarkWebCrawler:
         finally:
             if self.capture_screenshots:
                 try:
-                    self.driver.quit()
+                    # Selenium is no longer used, this line is now a stub.
+                    pass
                 except:
                     pass
 
@@ -502,3 +497,43 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+def check_tor_status():
+    """Check if Tor is running and functioning correctly."""
+    try:
+        # Add your Tor status check logic here.  This is a placeholder.
+        return True  # Replace with actual status check
+    except Exception as e:
+        logger.error(f"Error checking Tor status: {e}")
+        return False
+
+def check_openai_status():
+    """Check if the OpenAI API is accessible."""
+    try:
+        # Add your OpenAI API status check logic here. This is a placeholder.
+        return True # Replace with actual API status check
+    except Exception as e:
+        logger.error(f"Error checking OpenAI status: {e}")
+        return False
+
+def analyze_single_url(url, save_path=None):
+    """Analyze a single URL without crawling links"""
+    if not check_tor_status() or not check_openai_status():
+        return False
+
+    logger.info(f"Analyzing single URL: {url}")
+
+    # Create a crawler with depth 0 (no link following)
+    crawler = DarkWebCrawler(depth=0, max_pages=1)
+
+    # Start crawl with just this URL
+    result = crawler.start_crawl([url])
+
+    if save_path:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        output_file = f"{save_path}/analysis_{timestamp}.json"
+        with open(output_file, 'w') as f:
+            json.dump(result, f, indent=2)
+        logger.info(f"Analysis saved to: {output_file}")
+
+    return result
