@@ -264,6 +264,27 @@
                             </div>
                             
                             <div class="toolbox-section">
+                                <h3>Default Text</h3>
+                                <div class="input-group">
+                                    <label for="bank-name">Bank Name</label>
+                                    <input type="text" id="bank-name" value="BANK OF BINGO">
+                                </div>
+                                <div class="input-group">
+                                    <label for="bank-address">Bank Address</label>
+                                    <input type="text" id="bank-address" value="123 Secure Street, Cryptoville, CS 12345">
+                                </div>
+                                <div class="input-group">
+                                    <label for="pay-to-text">Pay To The Order Of</label>
+                                    <input type="text" id="pay-to-text" value="PAY TO THE ORDER OF">
+                                </div>
+                                <div class="input-group">
+                                    <button class="tool-button" id="update-default-text">
+                                        <i data-feather="refresh-cw"></i> Update Text
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="toolbox-section">
                                 <h3>Background</h3>
                                 <div class="background-options">
                                     <div class="background-option active" style="background-color: #ffffff;" data-bg="solid-white"></div>
@@ -339,6 +360,12 @@
                                     <label>
                                         <input type="checkbox" id="enable-uv" checked>
                                         UV Features
+                                    </label>
+                                </div>
+                                <div class="input-group">
+                                    <label>
+                                        <input type="checkbox" id="show-lines" checked>
+                                        Show Lines
                                     </label>
                                 </div>
                             </div>
@@ -628,6 +655,32 @@
                 canvas.renderAll();
             });
             
+            // Initialize show lines variable with the checkbox value
+            showLines = document.getElementById('show-lines').checked;
+            
+            // Handle show lines checkbox
+            document.getElementById('show-lines').addEventListener('change', function(e) {
+                showLines = e.target.checked;
+                
+                // Find all line objects (not microprint or UV features)
+                const lineObjects = canvas.getObjects().filter(obj => {
+                    // Include all Line objects that aren't special features
+                    return obj instanceof fabric.Line && !obj.microprint && !obj.uvFeature;
+                });
+                
+                // Update visibility for all lines
+                lineObjects.forEach(obj => {
+                    obj.set('visible', showLines);
+                });
+                
+                canvas.renderAll();
+            });
+            
+            // Add event listener for update default text button
+            document.getElementById('update-default-text').addEventListener('click', function() {
+                updateDefaultTexts();
+            });
+            
             // Reset design button
             document.getElementById('reset-design').addEventListener('click', function() {
                 if (confirm('Are you sure you want to reset the design? All changes will be lost.')) {
@@ -852,8 +905,33 @@
             }
             
             // Function to load templates
+            // Global variables to store current template and lines
+            let currentTemplate = 'personal';
+            let showLines = true;
+            let checkLines = [];
+            let defaultTexts = {
+                bankName: 'BANK OF BINGO',
+                bankAddress: '123 Secure Street, Cryptoville, CS 12345',
+                payToText: 'PAY TO THE ORDER OF'
+            };
+            
+            // Function to update default texts in the canvas
+            function updateDefaultTexts() {
+                // Get text values from inputs
+                defaultTexts.bankName = document.getElementById('bank-name').value;
+                defaultTexts.bankAddress = document.getElementById('bank-address').value;
+                defaultTexts.payToText = document.getElementById('pay-to-text').value;
+                
+                // Reload current template to apply changes
+                loadTemplate(currentTemplate);
+            }
+            
             function loadTemplate(templateName) {
+                // Store current template
+                currentTemplate = templateName;
+                
                 canvas.clear();
+                checkLines = [];
                 
                 // Set default size
                 canvas.setWidth(850);
@@ -866,7 +944,7 @@
                 switch (templateName) {
                     case 'personal':
                         // Add bank name
-                        canvas.add(new fabric.Text('BANK OF BINGO', {
+                        canvas.add(new fabric.Text(defaultTexts.bankName, {
                             left: 50,
                             top: 30,
                             fontSize: 18,
@@ -876,7 +954,7 @@
                         }));
                         
                         // Add bank address
-                        canvas.add(new fabric.Text('123 Secure Street, Cryptoville, CS 12345', {
+                        canvas.add(new fabric.Text(defaultTexts.bankAddress, {
                             left: 50,
                             top: 55,
                             fontSize: 10,
