@@ -869,11 +869,8 @@ def save_check_template():
     return jsonify({
         "success": True,
         "template_id": str(uuid.uuid4()),
-        "name": template_name
-    })
-        "success": True,
-        "message": f"Template '{template_name}' saved successfully",
-        "template_id": f"template_{int(time.time())}"
+        "name": template_name,
+        "message": f"Template '{template_name}' saved successfully"
     })
 
 @app.route('/api/export-check-pdf', methods=['POST'])
