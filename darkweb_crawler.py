@@ -1,6 +1,7 @@
+
 #!/usr/bin/env python3
 """
-Dark Web Crawler - A tool for crawling and analyzing dark web content
+Dark Web Crawler - A tool for crawling and analyzing dark web content with enhanced features
 """
 
 import argparse
@@ -28,187 +29,139 @@ from utils import sanitize_filename, create_directory, is_valid_onion_url
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'  
 )
 logger = logging.getLogger('darkweb_crawler')
 
 class DarkWebCrawler:
-    """
-    Crawler for accessing and analyzing dark web content
-    """
-    def __init__(
-        self, 
-        output_dir='crawl_results', 
-        depth=1, 
-        delay_range=(2, 5),
-        analyze_content=True,
-        max_pages=50,
-        capture_screenshots=False,
-        export_pdf=False
-    ):
-        """
-        Initialize the dark web crawler with specified parameters
+    """Enhanced crawler with new security and analysis features"""
+    
+    USER_AGENTS = [
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0',
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.2 Safari/605.1.15'
+    ]
 
-        Args:
-            output_dir: Directory to store crawl results
-            depth: Maximum crawl depth
-            delay_range: Random delay range between requests (seconds)
-            analyze_content: Whether to analyze content with AI
-            max_pages: Maximum number of pages to crawl
-        """
+    def __init__(self, output_dir='crawl_results', depth=1, delay_range=(2, 5),
+                 analyze_content=True, max_pages=50, capture_screenshots=False,
+                 export_pdf=False, rotate_user_agent=True, custom_cookies=None,
+                 respect_robots=True):
+        """Initialize crawler with enhanced features"""
         self.output_dir = output_dir
         self.depth = depth
         self.delay_range = delay_range
         self.analyze_content = analyze_content
         self.max_pages = max_pages
+        self.capture_screenshots = capture_screenshots
+        self.export_pdf = export_pdf
+        self.rotate_user_agent = rotate_user_agent
+        self.custom_cookies = custom_cookies or {}
+        self.respect_robots = respect_robots
         self.visited_urls = set()
         self.page_count = 0
-        self.text_content_cache = defaultdict(str) # Cache for text content
+        self.text_content_cache = defaultdict(str)
+        self.current_user_agent_idx = 0
+        self.cookie_jar = {}
+        self.robots_cache = {}
 
-        # Create output directory if it doesn't exist
+        # Create output directory
         create_directory(output_dir)
 
-        # Initialize AI analyzer if needed
+        # Initialize AI analyzer
         if analyze_content:
             self.analyzer = OllamaAnalyzer()
             if not self.analyzer.wait_for_ollama():
                 logger.warning("Ollama service not available. Content analysis will be disabled.")
                 self.analyze_content = False
 
-    def extract_links(self, soup, base_url):
-        """
-        Extract all links from a BeautifulSoup object
+        # Initialize Selenium for screenshots if needed
+        if capture_screenshots:
+            self.init_selenium()
 
-        Args:
-            soup: BeautifulSoup object of the page
-            base_url: Base URL for resolving relative links
+    def init_selenium(self):
+        """Initialize Selenium WebDriver for screenshots"""
+        options = Options()
+        options.add_argument('--headless')
+        options.add_argument('--no-sandbox')
+        options.add_argument('--disable-dev-shm-usage')
+        try:
+            self.driver = webdriver.Firefox(options=options)
+            logger.info("Selenium WebDriver initialized successfully")
+        except Exception as e:
+            logger.error(f"Failed to initialize Selenium: {e}")
+            self.capture_screenshots = False
 
-        Returns:
-            List of absolute URLs found on the page
-        """
-        links = []
-        for anchor in soup.find_all('a', href=True):
-            href = anchor['href'].strip()
-            if href and not href.startswith(('#', 'javascript:', 'mailto:')):
-                absolute_url = urljoin(base_url, href)
-                # Only include .onion URLs
-                if is_valid_onion_url(absolute_url):
-                    links.append(absolute_url)
-        return links
+    def parse_robots_txt(self, url, session):
+        """Parse robots.txt file for a domain"""
+        domain = urlparse(url).netloc
+        if domain in self.robots_cache:
+            return self.robots_cache[domain]
 
-    def save_page(self, url, content, soup=None, analysis=None, capture_screenshot=False, export_pdf=False):
-        """
-        Save the crawled page and its analysis
+        try:
+            robots_url = urljoin(f"http://{domain}", "robots.txt")
+            response = session.get(robots_url, timeout=10)
+            if response.status_code == 200:
+                rules = {
+                    'disallow': [],
+                    'allow': [],
+                    'crawl_delay': None
+                }
+                for line in response.text.split('\n'):
+                    line = line.strip().lower()
+                    if line.startswith('disallow:'):
+                        rules['disallow'].append(line.split(':', 1)[1].strip())
+                    elif line.startswith('allow:'):
+                        rules['allow'].append(line.split(':', 1)[1].strip())
+                    elif line.startswith('crawl-delay:'):
+                        try:
+                            rules['crawl_delay'] = float(line.split(':', 1)[1].strip())
+                        except ValueError:
+                            pass
+                self.robots_cache[domain] = rules
+                return rules
+        except Exception as e:
+            logger.debug(f"Error fetching robots.txt for {domain}: {e}")
+        
+        self.robots_cache[domain] = None
+        return None
 
-        Args:
-            url: URL of the page
-            content: Raw HTML content
-            soup: BeautifulSoup object (optional)
-            analysis: AI analysis results (optional)
+    def is_allowed_by_robots(self, url, rules):
+        """Check if URL is allowed by robots.txt rules"""
+        if not rules:
+            return True
 
-        Returns:
-            Path to the saved file
-        """
-        # Create a directory for this domain
-        parsed_url = urlparse(url)
-        domain = parsed_url.netloc
-        domain_dir = os.path.join(self.output_dir, sanitize_filename(domain))
-        create_directory(domain_dir)
-
-        # Generate a filename based on the URL and timestamp
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename_base = sanitize_filename(f"{parsed_url.path or 'index'}_{timestamp}")
-
-        # Save the raw HTML
-        html_path = os.path.join(domain_dir, f"{filename_base}.html")
-        with open(html_path, 'w', encoding='utf-8') as f:
-            f.write(content)
-            
-        # Capture screenshot if enabled
-        if capture_screenshot:
-            screenshot_path = os.path.join(domain_dir, f"{filename_base}.png")
-            self.capture_screenshot(url, screenshot_path)
-            
-        # Export to PDF if enabled
-        if export_pdf:
-            pdf_path = os.path.join(domain_dir, f"{filename_base}.pdf")
-            self.export_to_pdf(url, content, pdf_path)
-
-        # Extract and save the text content
-        if soup is not None:
-            text_content = self.extract_text_content(soup)
-            text_path = os.path.join(domain_dir, f"{filename_base}.txt")
-            with open(text_path, 'w', encoding='utf-8') as f:
-                f.write(text_content)
-
-        # Save the analysis if available
-        if analysis is not None:
-            analysis_path = os.path.join(domain_dir, f"{filename_base}_analysis.json")
-            with open(analysis_path, 'w', encoding='utf-8') as f:
-                json.dump(analysis, f, indent=2)
-
-        logger.info(f"Saved page from {url} to {html_path}")
-        return html_path
-
-    def extract_text_content(self, soup):
-        """
-        Extract readable text content from a BeautifulSoup object
-
-        Args:
-            soup: BeautifulSoup object
-
-        Returns:
-            Extracted text content
-        """
-        # Remove script and style elements
-        for script_or_style in soup(['script', 'style', 'head', 'title', 'meta', '[document]']):
-            script_or_style.decompose()
-
-        # Get text and remove extra whitespace
-        text = soup.get_text()
-        lines = (line.strip() for line in text.splitlines())
-        chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
-        text = '\n'.join(chunk for chunk in chunks if chunk)
-
-        return text
-
-    def analyze_page(self, url, html_content, soup):
-        """
-        Analyze the page content using the AI model
-
-        Args:
-            url: URL of the page
-            html_content: Raw HTML content
-            soup: BeautifulSoup object
-
-        Returns:
-            Analysis results dictionary
-        """
-        if not self.analyze_content:
-            return None
-
+        path = urlparse(url).path
+        
+        # Check allow rules first
+        for allow in rules['allow']:
+            if path.startswith(allow):
+                return True
+                
+        # Then check disallow rules
+        for disallow in rules['disallow']:
+            if path.startswith(disallow):
+                return False
+                
+        return True
 
     def capture_screenshot(self, url, output_path):
-        """Capture screenshot of a webpage"""
+        """Capture screenshot of a webpage using Selenium"""
+        if not self.capture_screenshots:
+            return False
+            
         try:
-            options = Options()
-            options.add_argument('--headless')
-            options.add_argument('--no-sandbox')
-            options.add_argument('--disable-dev-shm-usage')
-            
-            driver = webdriver.Firefox(options=options)
-            driver.get(url)
-            driver.save_screenshot(output_path)
-            driver.quit()
-            
+            self.driver.get(url)
+            time.sleep(5)  # Wait for page to load
+            self.driver.save_screenshot(output_path)
             logger.info(f"Screenshot saved to {output_path}")
             return True
         except Exception as e:
             logger.error(f"Error capturing screenshot of {url}: {e}")
             return False
-            
+
     def export_to_pdf(self, url, content, output_path):
-        """Export webpage to PDF"""
+        """Export webpage to PDF using pdfkit"""
         try:
             options = {
                 'page-size': 'A4',
@@ -226,62 +179,15 @@ class DarkWebCrawler:
             logger.error(f"Error exporting {url} to PDF: {e}")
             return False
 
-
-        try:
-            # Extract text content for analysis
-            text_content = self.extract_text_content(soup)
-            self.text_content_cache[url] = text_content #cache the text content
-
-            if not text_content.strip():
-                logger.warning(f"No text content found at {url}")
-                return {
-                    "url": url,
-                    "error": "No text content found",
-                    "timestamp": datetime.now().isoformat()
-                }
-
-            # Get basic content analysis
-            analysis_result = self.analyzer.analyze_content(text_content)
-
-            # Get entity extraction
-            entities = self.analyzer.extract_entities(text_content)
-
-            # Get content categorization
-            categorization = self.analyzer.categorize_content(text_content)
-
-            # Combine all analysis results
-            result = {
-                "url": url,
-                "timestamp": datetime.now().isoformat(),
-                "general_analysis": analysis_result.get("analysis", ""),
-                "entities": entities,
-                "categorization": categorization,
-                "text_length": len(text_content)
-            }
-
-            logger.info(f"Completed analysis for {url}")
-            return result
-
-        except Exception as e:
-            logger.error(f"Error analyzing content from {url}: {e}")
-            return {
-                "url": url,
-                "error": str(e),
-                "timestamp": datetime.now().isoformat()
-            }
+    def manage_cookies(self, url, response):
+        """Manage cookies for the given URL"""
+        domain = urlparse(url).netloc
+        if 'Set-Cookie' in response.headers:
+            self.cookie_jar[domain] = response.cookies
+        return self.cookie_jar.get(domain, {})
 
     def crawl_url(self, tor_session, url, current_depth=0):
-        """
-        Crawl a single URL and its linked pages up to the specified depth
-
-        Args:
-            tor_session: TorManager instance
-            url: URL to crawl
-            current_depth: Current crawl depth
-
-        Returns:
-            List of links found
-        """
+        """Enhanced crawl_url method with new features"""
         if current_depth > self.depth or url in self.visited_urls or self.page_count >= self.max_pages:
             return []
 
@@ -290,35 +196,92 @@ class DarkWebCrawler:
         self.page_count += 1
 
         try:
-            # Add random delay to avoid detection
+            # Check robots.txt if enabled
+            if self.respect_robots:
+                robots_rules = self.parse_robots_txt(url, tor_session)
+                if robots_rules and not self.is_allowed_by_robots(url, robots_rules):
+                    logger.info(f"Skipping {url} - disallowed by robots.txt")
+                    return []
+                if robots_rules and robots_rules['crawl_delay']:
+                    time.sleep(robots_rules['crawl_delay'])
+            
+            # Add random delay
             delay = random.uniform(self.delay_range[0], self.delay_range[1])
             time.sleep(delay)
 
-            # Request the page through Tor
-            response = tor_session.get(url)
+            # Set up headers with rotating user agent
+            headers = {}
+            if self.rotate_user_agent:
+                headers['User-Agent'] = self.USER_AGENTS[self.current_user_agent_idx]
+                self.current_user_agent_idx = (self.current_user_agent_idx + 1) % len(self.USER_AGENTS)
 
+            # Get cookies for this domain
+            domain_cookies = self.cookie_jar.get(urlparse(url).netloc, {})
+            cookies = {**self.custom_cookies, **domain_cookies}
+
+            # Request the page
+            response = tor_session.get(url, headers=headers, cookies=cookies)
             if response.status_code != 200:
                 logger.warning(f"Failed to fetch {url}: Status code {response.status_code}")
                 return []
 
-            # Parse the content
+            # Update cookie jar
+            self.manage_cookies(url, response)
+
+            # Parse content
             html_content = response.text
             soup = BeautifulSoup(html_content, 'html.parser')
 
-            # Analyze the content if enabled
-            analysis = self.analyze_page(url, html_content, soup) if self.analyze_content else None
+            # Extract and cache text content
+            text_content = self.extract_text_content(soup)
+            self.text_content_cache[url] = text_content
 
-            # Save the page
-            self.save_page(url, html_content, soup, analysis, 
-                          capture_screenshot=hasattr(self, 'capture_screenshots') and self.capture_screenshots,
-                          export_pdf=hasattr(self, 'export_pdf') and self.export_pdf)
+            # Analyze content if enabled
+            analysis = None
+            if self.analyze_content:
+                analysis = self.analyze_page(url, html_content, soup)
 
-            # Extract links for further crawling
-            links = self.extract_links(soup, url)
-            logger.info(f"Found {len(links)} links on {url}")
+            # Create domain-specific directory
+            domain = urlparse(url).netloc
+            domain_dir = os.path.join(self.output_dir, sanitize_filename(domain))
+            create_directory(domain_dir)
 
-            # Crawl the found links if not at max depth
+            # Generate base filename
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename_base = sanitize_filename(f"{urlparse(url).path or 'index'}_{timestamp}")
+
+            # Save HTML content
+            html_path = os.path.join(domain_dir, f"{filename_base}.html")
+            with open(html_path, 'w', encoding='utf-8') as f:
+                f.write(html_content)
+
+            # Save text content
+            text_path = os.path.join(domain_dir, f"{filename_base}.txt")
+            with open(text_path, 'w', encoding='utf-8') as f:
+                f.write(text_content)
+
+            # Save analysis if available
+            if analysis:
+                analysis_path = os.path.join(domain_dir, f"{filename_base}_analysis.json")
+                with open(analysis_path, 'w', encoding='utf-8') as f:
+                    json.dump(analysis, f, indent=2)
+
+            # Capture screenshot if enabled
+            if self.capture_screenshots:
+                screenshot_path = os.path.join(domain_dir, f"{filename_base}.png")
+                self.capture_screenshot(url, screenshot_path)
+
+            # Export to PDF if enabled
+            if self.export_pdf:
+                pdf_path = os.path.join(domain_dir, f"{filename_base}.pdf")
+                self.export_to_pdf(url, html_content, pdf_path)
+
+            # Extract and follow links
+            links = []
             if current_depth < self.depth:
+                links = self.extract_links(soup, url)
+                logger.info(f"Found {len(links)} links on {url}")
+                
                 for link in links:
                     if link not in self.visited_urls and self.page_count < self.max_pages:
                         self.crawl_url(tor_session, link, current_depth + 1)
@@ -331,29 +294,138 @@ class DarkWebCrawler:
         except Exception as e:
             logger.error(f"Unexpected error crawling {url}: {e}")
             return []
+        
+    def extract_links(self, soup, base_url):
+        """Extract and normalize links from page"""
+        links = []
+        for anchor in soup.find_all('a', href=True):
+            href = anchor['href'].strip()
+            if href and not href.startswith(('#', 'javascript:', 'mailto:')):
+                absolute_url = urljoin(base_url, href)
+                if is_valid_onion_url(absolute_url):
+                    links.append(absolute_url)
+        return links
+
+    def extract_text_content(self, soup):
+        """Extract readable text content from page"""
+        # Remove unwanted elements
+        for element in soup(['script', 'style', 'head', 'title', 'meta', '[document]']):
+            element.decompose()
+
+        # Get text and clean it up
+        text = soup.get_text()
+        lines = (line.strip() for line in text.splitlines())
+        chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
+        text = '\n'.join(chunk for chunk in chunks if chunk)
+        return text
+
+    def analyze_page(self, url, html_content, soup):
+        """Analyze page content using AI"""
+        if not self.analyze_content:
+            return None
+
+        try:
+            # Extract text content
+            text_content = self.extract_text_content(soup)
+            self.text_content_cache[url] = text_content
+
+            if not text_content.strip():
+                logger.warning(f"No text content found at {url}")
+                return None
+
+            # Get content analysis
+            analysis = self.analyzer.analyze_content(text_content)
+            entities = self.analyzer.extract_entities(text_content)
+            categorization = self.analyzer.categorize_content(text_content)
+
+            # Build complete analysis
+            result = {
+                "url": url,
+                "timestamp": datetime.now().isoformat(),
+                "general_analysis": analysis.get("analysis", ""),
+                "entities": entities,
+                "categorization": categorization,
+                "text_length": len(text_content),
+                "language_detection": self.detect_language(text_content),
+                "cryptocurrency_addresses": self.extract_crypto_addresses(text_content),
+                "contact_info": self.extract_contact_info(text_content)
+            }
+
+            return result
+
+        except Exception as e:
+            logger.error(f"Error analyzing content from {url}: {e}")
+            return None
+
+    def detect_language(self, text):
+        """Detect the language of the text"""
+        try:
+            from langdetect import detect
+            return detect(text)
+        except:
+            return "unknown"
+
+    def extract_crypto_addresses(self, text):
+        """Extract cryptocurrency addresses from text"""
+        patterns = {
+            'bitcoin': r'[13][a-km-zA-HJ-NP-Z1-9]{25,34}',
+            'ethereum': r'0x[a-fA-F0-9]{40}',
+            'monero': r'4[0-9AB][1-9A-HJ-NP-Za-km-z]{93}'
+        }
+        
+        addresses = {}
+        for currency, pattern in patterns.items():
+            matches = re.findall(pattern, text)
+            if matches:
+                addresses[currency] = matches
+                
+        return addresses
+
+    def extract_contact_info(self, text):
+        """Extract contact information from text"""
+        patterns = {
+            'email': r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}',
+            'telegram': r'@[a-zA-Z0-9_]{5,}',
+            'discord': r'[a-zA-Z0-9_]{3,32}#[0-9]{4}'
+        }
+        
+        contact_info = {}
+        for contact_type, pattern in patterns.items():
+            matches = re.findall(pattern, text)
+            if matches:
+                contact_info[contact_type] = matches
+                
+        return contact_info
+
+    def similarity_check(self, url1, url2):
+        """Compare similarity between two pages"""
+        text1 = self.text_content_cache.get(url1)
+        text2 = self.text_content_cache.get(url2)
+        
+        if not text1 or not text2:
+            return None
+            
+        return SequenceMatcher(None, text1, text2).ratio()
 
     def start_crawl(self, start_urls):
-        """
-        Start the crawling process from the given URLs
-
-        Args:
-            start_urls: List of URLs to start crawling from
-
-        Returns:
-            Dictionary with crawl results
-        """
+        """Start the crawling process"""
         start_time = time.time()
         results = {
             "start_time": datetime.now().isoformat(),
             "crawled_pages": 0,
-            "visited_urls": []
+            "visited_urls": [],
+            "features_enabled": {
+                "screenshots": self.capture_screenshots,
+                "pdf_export": self.export_pdf,
+                "content_analysis": self.analyze_content,
+                "robots_txt": self.respect_robots
+            }
         }
 
         try:
-            # Use the Tor context manager
             with tor_session_context() as tor:
                 logger.info(f"Starting crawl with {len(start_urls)} seed URLs")
-
+                
                 for url in start_urls:
                     if is_valid_onion_url(url):
                         self.crawl_url(tor, url)
@@ -366,52 +438,39 @@ class DarkWebCrawler:
         except Exception as e:
             logger.error(f"Error in crawl process: {e}")
             results["error"] = str(e)
+        finally:
+            if self.capture_screenshots:
+                try:
+                    self.driver.quit()
+                except:
+                    pass
 
         end_time = time.time()
         results["duration_seconds"] = end_time - start_time
         results["end_time"] = datetime.now().isoformat()
 
         # Save crawl summary
-        summary_path = os.path.join(self.output_dir, f"crawl_summary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json")
+        summary_path = os.path.join(self.output_dir, 
+                                  f"crawl_summary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json")
         with open(summary_path, 'w') as f:
             json.dump(results, f, indent=2)
 
         logger.info(f"Crawl completed. Visited {self.page_count} pages in {results['duration_seconds']:.2f} seconds")
         return results
 
-
-    def similarity_check(self, url1, url2):
-        """
-        Compares the text content of two URLs for similarity.
-
-        Args:
-            url1: First URL.
-            url2: Second URL.
-
-        Returns:
-            A float representing the similarity ratio (0.0-1.0), or None if either URL's content isn't cached.
-        """
-        text1 = self.text_content_cache.get(url1)
-        text2 = self.text_content_cache.get(url2)
-
-        if text1 is None or text2 is None:
-            return None
-
-        return SequenceMatcher(None, text1, text2).ratio()
-
-
 def main():
-    """
-    Main function to run the dark web crawler
-    """
-    parser = argparse.ArgumentParser(description='Dark Web Crawler with AI Analysis')
-    parser.add_argument('--url', '-u', help='Starting URL(s) for crawling (comma-separated)', required=False)
+    """Main entry point"""
+    parser = argparse.ArgumentParser(description='Dark Web Crawler with enhanced features')
+    parser.add_argument('--url', '-u', help='Starting URL(s) for crawling (comma-separated)')
     parser.add_argument('--depth', '-d', type=int, default=1, help='Maximum crawl depth')
     parser.add_argument('--output', '-o', default='crawl_results', help='Output directory')
     parser.add_argument('--max-pages', '-m', type=int, default=50, help='Maximum number of pages to crawl')
     parser.add_argument('--no-analysis', action='store_true', help='Disable AI content analysis')
     parser.add_argument('--delay', type=str, default='2-5', help='Delay range between requests (format: min-max)')
     parser.add_argument('--list-file', '-f', help='File containing list of URLs to crawl')
+    parser.add_argument('--capture-screenshots', '-s', action='store_true', help='Capture page screenshots')
+    parser.add_argument('--export-pdf', '-p', action='store_true', help='Export pages to PDF')
+    parser.add_argument('--ignore-robots', action='store_true', help='Ignore robots.txt restrictions')
 
     args = parser.parse_args()
 
@@ -425,40 +484,32 @@ def main():
 
     # Get starting URLs
     start_urls = []
-
     if args.url:
         start_urls.extend([url.strip() for url in args.url.split(',') if url.strip()])
 
     if args.list_file:
         try:
             with open(args.list_file, 'r') as f:
-                for line in f:
-                    url = line.strip()
-                    if url and not url.startswith('#'):
-                        start_urls.append(url)
+                start_urls.extend([url.strip() for url in f if url.strip() and not url.startswith('#')])
         except Exception as e:
             logger.error(f"Error reading URL list file: {e}")
 
-    # If no URLs provided, use some default .onion directories
-    if not start_urls:
-        logger.info("No URLs provided. Using default onion directories.")
-        start_urls = [
-            "http://darkfailllnkf4vf.onion/",  # Dark.fail
-            "http://zqktlwiuavvvqqt4ybvgvi7tyo4hjl5xgfuvpdf6otjiycgwqbym2qad.onion/wiki/index.php/Main_Page",  # Hidden Wiki
-            "http://juhanurmihxlp77nkq76byazcldy2hlmovfu2epvl5ankdibsot4csyd.onion/"  # Ahmia search
-        ]
-
-    # Initialize and start the crawler
+    # Initialize and start crawler
     crawler = DarkWebCrawler(
         output_dir=args.output,
         depth=args.depth,
         delay_range=delay_range,
         analyze_content=not args.no_analysis,
-        max_pages=args.max_pages
+        max_pages=args.max_pages,
+        capture_screenshots=args.capture_screenshots,
+        export_pdf=args.export_pdf,
+        respect_robots=not args.ignore_robots
     )
 
-    crawler.start_crawl(start_urls)
-
+    if start_urls:
+        crawler.start_crawl(start_urls)
+    else:
+        logger.error("No URLs provided. Please specify URLs using --url or --list-file")
 
 if __name__ == "__main__":
     main()
