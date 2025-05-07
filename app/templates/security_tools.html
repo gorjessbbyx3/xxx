@@ -1,4 +1,30 @@
-{% for category, tools in tools_by_category.items() %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Tools - BINGOxBANGO</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1><i data-feather="shield"></i> Security Tools</h1>
+        </div>
+        <nav>
+            <a href="{{ url_for('index') }}" class="nav-link"><i data-feather="home"></i> Home</a>
+            <a href="{{ url_for('security_tools') }}" class="nav-link"><i data-feather="shield"></i> Security Tools</a>
+            <a href="{{ url_for('interactive_tools') }}" class="nav-link"><i data-feather="cpu"></i> Interactive Tools</a>
+            <a href="{{ url_for('check_designer') }}" class="nav-link"><i data-feather="file-text"></i> Check Designer</a>
+        </nav>
+    </header>
+
+    <main>
+        <section>
+            <h2>Available Tools</h2>
+            <div class="dashboard-grid">
+                {% for category, tools in tools_by_category.items() %}
                 <div class="dashboard-card">
                     <div class="dashboard-card-header">
                         <div class="dashboard-card-icon">
@@ -17,12 +43,6 @@
                                 </div>
                             </li>
                             {% endfor %}
-                            {% if tools|length > 4 %}
-                            <li>
-                                <i class="tool-list-icon" data-feather="more-horizontal"></i>
-                                <div class="tool-list-text">And {{ tools|length - 4 }} more tools...</div>
-                            </li>
-                            {% endif %}
                         </ul>
                     </div>
                     <div class="dashboard-card-footer">
@@ -32,7 +52,6 @@
                 {% endfor %}
             </div>
 
-            <!-- Category Specific Tools Sections -->
             {% for category, tools in tools_by_category.items() %}
             <div id="{{ category|replace(' ', '') }}" class="category-section" style="display: none; margin-top: 2rem;">
                 <h3>{{ category }} ({{ tools|length }} tools)</h3>
@@ -58,265 +77,6 @@
                 </div>
             </div>
             {% endfor %}
-        </section>
-
-        <!-- Forensic Tools -->
-        <section>
-            <h2>Forensic & Analysis Tools</h2>
-            <div class="dashboard-grid">
-                <div class="dashboard-card analysis">
-                    <div class="dashboard-card-header">
-                        <div class="dashboard-card-icon">
-                            <i data-feather="search"></i>
-                        </div>
-                        <h3 class="dashboard-card-title">Digital Forensics</h3>
-                    </div>
-                    <div class="dashboard-card-content">
-                        <ul class="tool-list">
-                            <li>
-                                <i class="tool-list-icon" data-feather="chevron-right"></i>
-                                <div class="tool-list-text">Autopsy
-                                    <span class="tool-command-example">Example: autopsy --dataPath=/path/to/evidence</span>
-                                </div>
-                            </li>
-                            <li>
-                                <i class="tool-list-icon" data-feather="chevron-right"></i>
-                                <div class="tool-list-text">Wireshark
-                                    <span class="tool-command-example">Example: wireshark -i eth0 -k -f "port 80"</span>
-                                </div>
-                            </li>
-                            <li>
-                                <i class="tool-list-icon" data-feather="chevron-right"></i>
-                                <div class="tool-list-text">Bulk Extractor
-                                    <span class="tool-command-example">Example: bulk_extractor -o output_dir disk_image.dd</span>
-                                </div>
-                            </li>
-                            <li>
-                                <i class="tool-list-icon" data-feather="chevron-right"></i>
-                                <div class="tool-list-text">Disk Image Analyzer</div>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="dashboard-card-footer">
-                        <a href="#" class="btn btn-primary">Launch Tools</a>
-                    </div>
-                </div>
-
-                <div class="dashboard-card tools">
-                    <div class="dashboard-card-header">
-                        <div class="dashboard-card-icon">
-                            <i data-feather="shield"></i>
-                        </div>
-                        <h3 class="dashboard-card-title">Anonymity & Privacy</h3>
-                    </div>
-                    <div class="dashboard-card-content">
-                        <ul class="tool-list">
-                            <li>
-                                <i class="tool-list-icon" data-feather="chevron-right"></i>
-                                <div class="tool-list-text">Anonsurf</div>
-                            </li>
-                            <li>
-                                <i class="tool-list-icon" data-feather="chevron-right"></i>
-                                <div class="tool-list-text">Multitor</div>
-                            </li>
-                            <li>
-                                <i class="tool-list-icon" data-feather="chevron-right"></i>
-                                <div class="tool-list-text">Tor Identity Switcher</div>
-                            </li>
-                            <li>
-                                <i class="tool-list-icon" data-feather="chevron-right"></i>
-                                <div class="tool-list-text">Network Traffic Analyzer</div>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="dashboard-card-footer">
-                        <a href="#" class="btn btn-primary">Launch Tools</a>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Password Tools Section -->
-        <section>
-            <h2>Password & Authentication Tools</h2>
-            <div class="dashboard-grid">
-                <div class="dashboard-card security">
-                    <div class="dashboard-card-header">
-                        <div class="dashboard-card-icon">
-                            <i data-feather="key"></i>
-                        </div>
-                        <h3 class="dashboard-card-title">Password Cracking</h3>
-                    </div>
-                    <div class="dashboard-card-content">
-                        <ul class="tool-list">
-                            <li>
-                                <i class="tool-list-icon" data-feather="chevron-right"></i>
-                                <div class="tool-list-text">Hashcat
-                                    <span class="tool-command-example">Example: hashcat -m 0 -a 0 hashes.txt wordlist.txt</span>
-                                </div>
-                            </li>
-                            <li>
-                                <i class="tool-list-icon" data-feather="chevron-right"></i>
-                                <div class="tool-list-text">John the Ripper</div>
-                            </li>
-                            <li>
-                                <i class="tool-list-icon" data-feather="chevron-right"></i>
-                                <div class="tool-list-text">Hydra SSH/FTP Cracker</div>
-                            </li>
-                            <li>
-                                <i class="tool-list-icon" data-feather="chevron-right"></i>
-                                <div class="tool-list-text">Credential Harvester</div>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="dashboard-card-footer">
-                        <a href="#" class="btn btn-primary">Launch Tools</a>
-                    </div>
-                </div>
-
-                <div class="dashboard-card analysis">
-                    <div class="dashboard-card-header">
-                        <div class="dashboard-card-icon">
-                            <i data-feather="database"></i>
-                        </div>
-                        <h3 class="dashboard-card-title">SQL Injection</h3>
-                    </div>
-                    <div class="dashboard-card-content">
-                        <ul class="tool-list">
-                            <li>
-                                <i class="tool-list-icon" data-feather="chevron-right"></i>
-                                <div class="tool-list-text">SQLmap Advanced
-                                    <span class="tool-command-example">Example: sqlmap -u "http://example.com/vuln.php?id=1" --dbs --batch</span>
-                                </div>
-                            </li>
-                            <li>
-                                <i class="tool-list-icon" data-feather="chevron-right"></i>
-                                <div class="tool-list-text">Database Fingerprinting</div>
-                            </li>
-                            <li>
-                                <i class="tool-list-icon" data-feather="chevron-right"></i>
-                                <div class="tool-list-text">Tables Enumeration</div>
-                            </li>
-                            <li>
-                                <i class="tool-list-icon" data-feather="chevron-right"></i>
-                                <div class="tool-list-text">Data Extraction Tools</div>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="dashboard-card-footer">
-                        <a href="#" class="btn btn-primary">Launch Tools</a>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- RFID & Card Tools Section -->
-        <section>
-            <h2>RFID & Card Tools</h2>
-            <div class="dashboard-grid">
-                <div class="dashboard-card tools">
-                    <div class="dashboard-card-header">
-                        <div class="dashboard-card-icon">
-                            <i data-feather="credit-card"></i>
-                        </div>
-                        <h3 class="dashboard-card-title">RFID & Magnetic Cards</h3>
-                    </div>
-                    <div class="dashboard-card-content">
-                        <ul class="tool-list">
-                            <li>
-                                <i class="tool-list-icon" data-feather="chevron-right"></i>
-                                <div class="tool-list-text">Proxmark3 RFID Tool</div>
-                            </li>
-                            <li>
-                                <i class="tool-list-icon" data-feather="chevron-right"></i>
-                                <div class="tool-list-text">MFOC - Mifare Classic Cracker</div>
-                            </li>
-                            <li>
-                                <i class="tool-list-icon" data-feather="chevron-right"></i>
-                                <div class="tool-list-text">MagSpoof Card Emulator</div>
-                            </li>
-                            <li>
-                                <i class="tool-list-icon" data-feather="chevron-right"></i>
-                                <div class="tool-list-text">ACR Bluetooth Card Readers</div>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="dashboard-card-footer">
-                        <a href="#" class="btn btn-primary">Launch Tools</a>
-                    </div>
-                </div>
-
-                <div class="dashboard-card crawl">
-                    <div class="dashboard-card-header">
-                        <div class="dashboard-card-icon">
-                            <i data-feather="file-text"></i>
-                        </div>
-                        <h3 class="dashboard-card-title">Check Maker Pro</h3>
-                    </div>
-                    <div class="dashboard-card-content">
-                        <ul class="tool-list">
-                            <li>
-                                <i class="tool-list-icon" data-feather="chevron-right"></i>
-                                <div class="tool-list-text">Business Check Creator</div>
-                            </li>
-                            <li>
-                                <i class="tool-list-icon" data-feather="chevron-right"></i>
-                                <div class="tool-list-text">Personal Check Designer</div>
-                            </li>
-                            <li>
-                                <i class="tool-list-icon" data-feather="chevron-right"></i>
-                                <div class="tool-list-text">MICR Line Generator</div>
-                            </li>
-                            <li>
-                                <i class="tool-list-icon" data-feather="chevron-right"></i>
-                                <div class="tool-list-text">Custom Check Templates</div>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="dashboard-card-footer">
-                        <a href="#" class="btn btn-primary">Launch Tools</a>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Custom Tool Generator -->
-        <section>
-            <h2>Custom Security Tool Generator</h2>
-            <div class="dashboard-card special">
-                <div class="dashboard-card-header">
-                    <div class="dashboard-card-icon">
-                        <i data-feather="cpu"></i>
-                    </div>
-                    <h3 class="dashboard-card-title">AI-Powered Tool Creator</h3>
-                </div>
-                <div class="dashboard-card-content">
-                    <p>Use our AI-powered tool generator to create custom security tools tailored to your specific needs.</p>
-                    <ul class="tool-list">
-                        <li>
-                            <i class="tool-list-icon" data-feather="code"></i>
-                            <div class="tool-list-text">Generate custom security tools with AI</div>
-                        </li>
-                        <li>
-                            <i class="tool-list-icon" data-feather="edit-2"></i>
-                            <div class="tool-list-text">Just describe what you need in plain language</div>
-                        </li>
-                        <li>
-                            <i class="tool-list-icon" data-feather="download"></i>
-                            <div class="tool-list-text">Download and use your custom-built tools</div>
-                        </li>
-                        <li>
-                            <i class="tool-list-icon" data-feather="folder"></i>
-                            <div class="tool-list-text">Manage your collection of custom tools</div>
-                        </li>
-                    </ul>
-                </div>
-                <div class="dashboard-card-footer">
-                    <a href="{{ url_for('custom_tool_generator') }}" class="btn btn-special">
-                        <i data-feather="zap"></i> Create Custom Tool
-                    </a>
-                </div>
-            </div>
         </section>
     </main>
 
@@ -414,168 +174,153 @@
 
                 addMessage(response, 'ai');
             }
-        });
+            // Function to search for tools
+            // Function for quick search using tags
+            function quickSearch(tag) {
+                const searchInput = document.getElementById('toolSearch');
+                searchInput.value = tag;
+                searchTools();
 
-        // Function to show a specific category's tools section
-        function showCategoryTools(category) {
-            // Hide all category sections first
-            document.querySelectorAll('.category-section').forEach(function(section) {
-                section.style.display = 'none';
-            });
+                // Highlight the clicked tag
+                document.querySelectorAll('.search-tag').forEach(tagEl => {
+                    tagEl.style.backgroundColor = '';
+                    tagEl.style.borderColor = '';
 
-            // Show the selected category section
-            const categoryId = category.replace(/ /g, '');
-            document.getElementById(categoryId).style.display = 'block';
-
-            // Scroll to the section
-            document.getElementById(categoryId).scrollIntoView({ behavior: 'smooth' });
-        }
-
-        // Function to hide a specific category's tools section
-        function hideCategoryTools(category) {
-            const categoryId = category.replace(/ /g, '');
-            document.getElementById(categoryId).style.display = 'none';
-
-            // Scroll back to the top of the categories
-            document.querySelector('h2').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        // Function to search for tools
-        // Function for quick search using tags
-        function quickSearch(tag) {
-            const searchInput = document.getElementById('toolSearch');
-            searchInput.value = tag;
-            searchTools();
-
-            // Highlight the clicked tag
-            document.querySelectorAll('.search-tag').forEach(tagEl => {
-                tagEl.style.backgroundColor = '';
-                tagEl.style.borderColor = '';
-
-                if (tagEl.textContent.toLowerCase() === tag.toLowerCase()) {
-                    tagEl.style.backgroundColor = 'var(--primary-color)';
-                    tagEl.style.borderColor = 'var(--primary-color)';
-                }
-            });
-        }
-
-        function searchTools() {
-            const searchInput = document.getElementById('toolSearch');
-            const searchQuery = searchInput.value.toLowerCase().trim();
-            const searchResults = document.getElementById('searchResults');
-            const searchResultsGrid = document.getElementById('searchResultsGrid');
-            const resultsCount = document.getElementById('resultsCount');
-
-            if (searchQuery.length < 2) {
-                searchResults.style.display = 'none';
-                return;
+                    if (tagEl.textContent.toLowerCase() === tag.toLowerCase()) {
+                        tagEl.style.backgroundColor = 'var(--primary-color)';
+                        tagEl.style.borderColor = 'var(--primary-color)';
+                    }
+                });
             }
 
-            // Show loading state
-            searchResults.style.display = 'block';
-            searchResultsGrid.innerHTML = '<div class="loading-indicator"><i data-feather="loader"></i> Searching...</div>';
-            feather.replace();
+            function searchTools() {
+                const searchInput = document.getElementById('toolSearch');
+                const searchQuery = searchInput.value.toLowerCase().trim();
+                const searchResults = document.getElementById('searchResults');
+                const searchResultsGrid = document.getElementById('searchResultsGrid');
+                const resultsCount = document.getElementById('resultsCount');
 
-            fetch('/search_security_tools?query=' + encodeURIComponent(searchQuery))
-                .then(response => response.json())
-                .then(data => {
-                    searchResultsGrid.innerHTML = '';
+                if (searchQuery.length < 2) {
+                    searchResults.style.display = 'none';
+                    return;
+                }
 
-                    if (!data.results || data.results.length === 0) {
-                        searchResultsGrid.innerHTML = '<div class="no-results">No tools found matching your query. Try different keywords or check our <a href="#" onclick="showAllTools()">complete tools list</a>.</div>';
-                        resultsCount.textContent = '0 tools found';
-                    } else {
-                        // Update count
-                        const toolCount = data.results.length;
-                        resultsCount.textContent = `${toolCount} tool${toolCount === 1 ? '' : 's'} found`;
+                // Show loading state
+                searchResults.style.display = 'block';
+                searchResultsGrid.innerHTML = '<div class="loading-indicator"><i data-feather="loader"></i> Searching...</div>';
+                feather.replace();
 
-                        // Create card for each tool
-                        data.results.forEach(tool => {
-                            const toolCard = document.createElement('div');
-                            toolCard.className = 'tool-card';
+                fetch('/search_security_tools?query=' + encodeURIComponent(searchQuery))
+                    .then(response => response.json())
+                    .then(data => {
+                        searchResultsGrid.innerHTML = '';
 
-                            const toolHeader = document.createElement('div');
-                            toolHeader.className = 'tool-card-header';
+                        if (!data.results || data.results.length === 0) {
+                            searchResultsGrid.innerHTML = '<div class="no-results">No tools found matching your query. Try different keywords or check our <a href="#" onclick="showAllTools()">complete tools list</a>.</div>';
+                            resultsCount.textContent = '0 tools found';
+                        } else {
+                            // Update count
+                            const toolCount = data.results.length;
+                            resultsCount.textContent = `${toolCount} tool${toolCount === 1 ? '' : 's'} found`;
 
-                            const toolTitle = document.createElement('h4');
-                            toolTitle.textContent = tool.title;
+                            // Create card for each tool
+                            data.results.forEach(tool => {
+                                const toolCard = document.createElement('div');
+                                toolCard.className = 'tool-card';
 
-                            const toolContent = document.createElement('div');
-                            toolContent.className = 'tool-card-content';
+                                const toolHeader = document.createElement('div');
+                                toolHeader.className = 'tool-card-header';
 
-                            const toolDescription = document.createElement('p');
-                            toolDescription.textContent = tool.description;
+                                const toolTitle = document.createElement('h4');
+                                toolTitle.textContent = tool.title;
 
-                            const toolFooter = document.createElement('div');
-                            toolFooter.className = 'tool-card-footer';
+                                const toolContent = document.createElement('div');
+                                toolContent.className = 'tool-card-content';
 
-                            const toolLink = document.createElement('a');
-                            toolLink.href = `/tool/${encodeURIComponent(tool.title)}`;
-                            toolLink.className = 'btn btn-small';
-                            toolLink.textContent = 'Details';
+                                const toolDescription = document.createElement('p');
+                                toolDescription.textContent = tool.description;
 
-                            // Build the card
-                            toolHeader.appendChild(toolTitle);
-                            toolContent.appendChild(toolDescription);
-                            toolFooter.appendChild(toolLink);
+                                const toolFooter = document.createElement('div');
+                                toolFooter.className = 'tool-card-footer';
 
-                            toolCard.appendChild(toolHeader);
-                            toolCard.appendChild(toolContent);
-                            toolCard.appendChild(toolFooter);
+                                const toolLink = document.createElement('a');
+                                toolLink.href = `/tool/${encodeURIComponent(tool.title)}`;
+                                toolLink.className = 'btn btn-small';
+                                toolLink.textContent = 'Details';
 
-                            searchResultsGrid.appendChild(toolCard);
-                        });
+                                // Build the card
+                                toolHeader.appendChild(toolTitle);
+                                toolContent.appendChild(toolDescription);
+                                toolFooter.appendChild(toolLink);
 
-                        // Re-initialize feather icons for the new content
-                        feather.replace();
-                    }
+                                toolCard.appendChild(toolHeader);
+                                toolCard.appendChild(toolContent);
+                                toolCard.appendChild(toolFooter);
 
-                    // Highlight matching text in results
-                    highlightSearchResults(searchQuery);
+                                searchResultsGrid.appendChild(toolCard);
+                            });
 
-                    // Ensure search results are visible
-                    searchResults.style.display = 'block';
+                            // Re-initialize feather icons for the new content
+                            feather.replace();
+                        }
 
-                    // Smooth scroll to results
-                    const yOffset = -100;
-                    const y = searchResults.getBoundingClientRect().top + window.pageYOffset + yOffset;
-                    window.scrollTo({top: y, behavior: 'smooth'});
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    searchResultsGrid.innerHTML = '<div class="error-message">An error occurred while searching. Please try again.</div>';
+                        // Highlight matching text in results
+                        highlightSearchResults(searchQuery);
+
+                        // Ensure search results are visible
+                        searchResults.style.display = 'block';
+
+                        // Smooth scroll to results
+                        const yOffset = -100;
+                        const y = searchResults.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                        window.scrollTo({top: y, behavior: 'smooth'});
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        searchResultsGrid.innerHTML = '<div class="error-message">An error occurred while searching. Please try again.</div>';
+                    });
+            }
+
+            // Function to highlight matching text in search results
+            function highlightSearchResults(query) {
+                if (!query || query.length < 2) return;
+
+                const regex = new RegExp(`(${query})`, 'gi');
+
+                document.querySelectorAll('#searchResultsGrid .tool-card-content p, #searchResultsGrid .tool-card-header h4').forEach(element => {
+                    const originalText = element.textContent;
+                    element.innerHTML = originalText.replace(regex, '<span class="highlight">$1</span>');
                 });
+            }
+
+            // Function to show all tools
+            function showAllTools() {
+                const allCategories = [];
+                document.querySelectorAll('.dashboard-card-title').forEach(el => {
+                    allCategories.push(el.textContent.trim());
+                });
+
+                // Hide search results
+                document.getElementById('searchResults').style.display = 'none';
+                document.getElementById('toolSearch').value = '';
+
+                // Clear highlighted tags
+                document.querySelectorAll('.search-tag').forEach(tagEl => {
+                    tagEl.style.backgroundColor = '';
+                    tagEl.style.borderColor = '';
+                });
+
+                // Show all categories one after another
+                let delay = 0;
+                allCategories.forEach(category => {
+                    setTimeout(() => showCategoryTools(category), delay);
+                    delay += 300;
+                });
+            }
+        });
+
+        function showCategoryTools(category) {
+            document.getElementById(category.replace(/ /g, '')).style.display = 'block';
         }
 
-        // Function to highlight matching text in search results
-        function highlightSearchResults(query) {
-            if (!query || query.length < 2) return;
-
-            const regex = new RegExp(`(${query})`, 'gi');
-
-            document.querySelectorAll('#searchResultsGrid .tool-card-content p, #searchResultsGrid .tool-card-header h4').forEach(element => {
-                const originalText = element.textContent;
-                element.innerHTML = originalText.replace(regex, '<span class="highlight">$1</span>');
-            });
-        }
-
-        // Function to show all tools
-        function showAllTools() {
-            const allCategories = [];
-            document.querySelectorAll('.dashboard-card-title').forEach(el => {
-                allCategories.push(el.textContent.trim());
-            });
-
-            // Hide search results
-            document.getElementById('searchResults').style.display = 'none';
-            document.getElementById('toolSearch').value = '';
-
-            // Clear highlighted tags
-            document.querySelectorAll('.search-tag').forEach(tagEl => {
-                tagEl.style.backgroundColor = '';
-                tagEl.style.borderColor = '';
-            });
-
-            // Show all categories one after another
-            let delay = 0;
-            allCategories.forEach(category => {
+        function hideCategoryTools(category) {
