@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -176,6 +175,10 @@
         <a href="{{ url_for('download_tool', tool_name=tool.TITLE) }}" class="download-btn">
             <i data-feather="download"></i> Download {{ tool.TITLE }}
         </a>
+        <div class="tool-card-footer">
+            <a href="{{ url_for('view_tool_details', tool_name=tool.title) }}" class="btn btn-small">Details</a>
+            <button onclick="executeTool('{{ tool.title }}')" class="btn btn-primary">Execute Tool</button>
+        </div>
     </main>
 
     <script>
@@ -213,6 +216,28 @@
                     output.innerHTML += `Error: ${error}\n`;
                 });
             }
+        }
+
+        function executeTool(toolName) {
+            fetch(`/execute_tool/${encodeURIComponent(toolName)}`, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Create workflow (assuming window.repl.workflow exists)
+                    const workflow = {
+                        name: data.workflow,
+                        commands: data.commands,
+                        mode: "sequential"
+                    };
+                    window.repl.workflow.create(workflow);
+
+                    // Start the workflow
+                    window.repl.workflow.run(data.workflow);
+                }
+            })
+            .catch(error => console.error('Error:', error));
         }
     </script>
 </body>
