@@ -38,17 +38,20 @@ def check_services():
         "ip": tor.get_current_ip() if tor.is_tor_running() else None
     }
     
-    # Check Ollama
+    # Check OpenAI API
     analyzer = OllamaAnalyzer()
-    ollama_status = {
-        "running": analyzer.wait_for_ollama(max_retries=1, retry_delay=1),
-        "model": analyzer.model_name if analyzer.wait_for_ollama(max_retries=1, retry_delay=1) else None,
-        "model_available": analyzer.check_model_availability() if analyzer.wait_for_ollama(max_retries=1, retry_delay=1) else False
+    openai_status = {
+        "available": analyzer.check_model_availability(),
+        "model": analyzer.model_name if analyzer.check_model_availability() else None
     }
+    
+    # Get public IP address for location info
+    public_ip = tor.get_current_ip() if tor.is_tor_running() else "Unknown"
     
     return {
         "tor": tor_status,
-        "ollama": ollama_status
+        "openai": openai_status,
+        "public_ip": public_ip
     }
 
 def crawler_thread(job_id, urls, depth, output_dir, analyze_content, max_pages, delay_range):
