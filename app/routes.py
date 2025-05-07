@@ -457,6 +457,7 @@ if __name__ == "__main__":
     })
 
 @app.route('/interactive-tools')
+@app.route('/interactive_tools')  # Add underscore version for compatibility
 def interactive_tools():
     """Interactive tools page with vulnerability scanner, location changer, email templates, and bot maker"""
     # Initialize security tools API
