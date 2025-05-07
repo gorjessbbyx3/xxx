@@ -5,7 +5,7 @@ import logging
 import requests
 import time
 import json
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 
 logging.basicConfig(
     level=logging.INFO,
