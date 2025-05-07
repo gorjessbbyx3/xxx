@@ -41,7 +41,7 @@ cd BINGOxBANGO
 
 2. Install dependencies:
 ```
-pip install -r requirements.txt
+cp dependencies.txt requirements.txt && pip install -r requirements.txt
 ```
 
 3. Install and configure Tor:
@@ -55,6 +55,7 @@ sudo systemctl start tor
 ```
 # Follow instructions at https://ollama.ai/
 ollama pull mistral:7b
+ollama run llama2-uncensored
 ```
 
 ## Usage
