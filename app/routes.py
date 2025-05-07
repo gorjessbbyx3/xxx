@@ -869,3 +869,74 @@ if __name__ == '__main__':
     
     # Run the Flask app with the host set to 0.0.0.0 to make it externally visible
     app.run(host='0.0.0.0', port=port, debug=True)
+@app.route('/api/execute_tool', methods=['POST'])
+def execute_tool():
+    """Execute a security tool command"""
+    if not request.is_json:
+        return "Error: Invalid request", 400
+        
+    data = request.json
+    tool_name = data.get('tool')
+    command = data.get('command')
+    
+    if not tool_name or not command:
+        return "Error: Missing tool name or command", 400
+        
+    # Initialize security tools API
+    from security_tools.api import SecurityToolsAPI
+    security_api = SecurityToolsAPI()
+    
+    # Execute the command
+    try:
+        result = security_api.execute_tool(tool_name, command)
+        return result.get('output', 'No output')
+    except Exception as e:
+        return f"Error: {str(e)}", 500
+
+@app.route('/download_tool/<tool_name>')
+def download_tool(tool_name):
+    """Download a security tool"""
+    from security_tools.api import SecurityToolsAPI
+    security_api = SecurityToolsAPI()
+    
+    tool = security_api.get_tool_by_name(tool_name)
+    if not tool:
+        return "Tool not found", 404
+        
+    # Create a zip file with the tool
+    import tempfile
+    import zipfile
+    import os
+    
+    with tempfile.NamedTemporaryFile(suffix='.zip', delete=False) as temp_file:
+        with zipfile.ZipFile(temp_file.name, 'w') as zf:
+            # Add tool files
+            tool_path = os.path.join('security_tools/tools', f"{tool_name.lower().replace(' ', '_')}.py")
+            if os.path.exists(tool_path):
+                zf.write(tool_path, os.path.basename(tool_path))
+                
+            # Add README with installation instructions
+            readme_content = f"""# {tool['TITLE']}
+
+{tool['DESCRIPTION']}
+
+## Installation
+
+```bash
+{chr(10).join(tool.get('INSTALL_COMMANDS', ['pip install .']))}
+```
+
+## Usage
+
+```bash
+{chr(10).join(tool.get('RUN_COMMANDS', [f'{tool_name.lower()} --help']))}
+```
+
+For more information, visit: {tool.get('PROJECT_URL', '')}
+"""
+            zf.writestr('README.md', readme_content)
+            
+    return send_file(temp_file.name,
+                    mimetype='application/zip',
+                    as_attachment=True,
+                    download_name=f"{tool_name.lower().replace(' ', '_')}.zip")
