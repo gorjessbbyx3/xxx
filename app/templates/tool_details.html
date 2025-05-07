@@ -3,345 +3,167 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ tool.title }} - GhostTrace Security Tools</title>
+    <title>{{ tool.TITLE }} - BINGOxBANGO</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
     <style>
-        .tool-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 2rem;
-        }
-        
-        .tool-icon {
-            width: 80px;
-            height: 80px;
-            background-color: rgba(52, 152, 219, 0.1);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 1.5rem;
-        }
-        
-        .tool-icon i {
-            font-size: 2rem;
-            color: var(--secondary-color);
-        }
-        
-        .tool-title {
-            flex-grow: 1;
-        }
-        
-        .tool-title h2 {
-            margin-bottom: 0.5rem;
-            border-bottom: none;
-        }
-        
-        .tool-category {
-            display: inline-block;
-            background-color: rgba(52, 152, 219, 0.1);
-            color: var(--secondary-color);
-            padding: 0.25rem 0.75rem;
-            border-radius: 50px;
-            font-size: 0.8rem;
-        }
-        
-        .tool-commands {
-            background-color: #1a1a1a;
-            padding: 1rem;
+        .tool-examples {
+            background: var(--bg-secondary);
             border-radius: 8px;
-            margin: 1rem 0;
-            overflow-x: auto;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .command-example {
+            background: var(--bg-color);
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
             font-family: monospace;
         }
-        
-        .command-title {
-            font-size: 0.9rem;
-            color: var(--secondary-color);
-            margin-bottom: 0.5rem;
+
+        .terminal {
+            background: #1a1a1a;
+            color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-family: monospace;
         }
-        
-        .command {
-            margin-bottom: 0.5rem;
-            padding-left: 1rem;
-            position: relative;
+
+        .terminal-output {
+            height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin: 10px 0;
         }
-        
-        .command:before {
-            content: "$";
-            position: absolute;
-            left: 0;
-            color: var(--accent-color);
+
+        .terminal input {
+            background: transparent;
+            border: none;
+            color: #fff;
+            width: 100%;
+            font-family: monospace;
+            outline: none;
         }
-        
-        .action-buttons {
-            display: flex;
-            gap: 1rem;
-            margin-top: 2rem;
+
+        .download-btn {
+            background: var(--primary-color);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 6px;
+            text-decoration: none;
+            display: inline-block;
+            margin: 20px 0;
+            cursor: pointer;
+        }
+
+        .download-btn:hover {
+            background: var(--primary-dark);
         }
     </style>
 </head>
 <body>
     <header>
         <div class="logo">
-            <h1><i data-feather="eye"></i> GhostTrace</h1>
+            <h1><i data-feather="shield"></i> Security Tools</h1>
         </div>
         <nav>
             <a href="{{ url_for('index') }}" class="nav-link"><i data-feather="home"></i> Home</a>
             <a href="{{ url_for('security_tools') }}" class="nav-link"><i data-feather="shield"></i> Security Tools</a>
+            <a href="{{ url_for('interactive_tools') }}" class="nav-link"><i data-feather="cpu"></i> Interactive Tools</a>
+            <a href="{{ url_for('check_designer') }}" class="nav-link"><i data-feather="file-text"></i> Check Designer</a>
         </nav>
     </header>
 
     <main>
-        <section>
-            <div class="tool-header">
-                <div class="tool-icon">
-                    <i data-feather="{% if 'web' in tool.category|lower %}globe{% elif 'information' in tool.category|lower %}search{% elif 'anonymity' in tool.category|lower %}shield{% elif 'forensic' in tool.category|lower %}hard-drive{% else %}tool{% endif %}"></i>
-                </div>
-                <div class="tool-title">
-                    <h2>{{ tool.title }}</h2>
-                    <div class="tool-category">{{ tool.category }}</div>
-                    {% if tool.project_url %}
-                    <div class="tool-link">
-                        <a href="{{ tool.project_url }}" target="_blank">
-                            <i data-feather="external-link"></i> Project Website
-                        </a>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-            
-            <div class="tool-description">
-                <h3>Description</h3>
-                <p>{{ tool.description }}</p>
-            </div>
-            
-            {% if tool.installable %}
-            <div class="tool-installation">
-                <h3>Installation</h3>
-                <div class="tool-commands">
-                    <div class="command-title">Installation Commands:</div>
-                    {% for command in tool.install_commands %}
-                    <div class="command">{{ command }}</div>
-                    {% endfor %}
-                </div>
-            </div>
+        <div class="page-header">
+            <h2><i data-feather="tool"></i> {{ tool.TITLE }}</h2>
+            <p class="subtitle">{{ tool.DESCRIPTION }}</p>
+        </div>
+
+        <div class="tool-examples">
+            <h3>Common Commands</h3>
+            {% if "nmap" in tool.TITLE|lower %}
+            <div class="command-example">nmap -sC -sV -p- target.com # Full port scan with service detection</div>
+            <div class="command-example">nmap -sS -sV --top-ports 1000 target.com # Quick scan of top ports</div>
+            <div class="command-example">nmap -A target.com # Aggressive scan with OS detection</div>
+            <div class="command-example">nmap -sU -p 53,161,162 target.com # UDP port scan</div>
+            <div class="command-example">nmap --script vuln target.com # Vulnerability scan</div>
+            {% elif "wireshark" in tool.TITLE|lower %}
+            <div class="command-example">tshark -i eth0 # Capture on ethernet interface</div>
+            <div class="command-example">tshark -r capture.pcap # Read pcap file</div>
+            <div class="command-example">tshark -i any -f "port 80" # Capture HTTP traffic</div>
+            <div class="command-example">tshark -i any -Y "http.request" # Filter HTTP requests</div>
+            <div class="command-example">tshark -i any -T fields -e http.host # Extract hostnames</div>
+            {% elif "hydra" in tool.TITLE|lower %}
+            <div class="command-example">hydra -l admin -P wordlist.txt ssh://10.0.0.1 # SSH brute force</div>
+            <div class="command-example">hydra -L users.txt -P pass.txt ftp://10.0.0.1 # FTP brute force</div>
+            <div class="command-example">hydra -l admin -P wordlist.txt 10.0.0.1 http-post-form # HTTP form attack</div>
+            <div class="command-example">hydra -l root -P pass.txt mysql://10.0.0.1 # MySQL brute force</div>
+            <div class="command-example">hydra -L users.txt -p test rdp://10.0.0.1 # RDP brute force</div>
+            {% elif "sqlmap" in tool.TITLE|lower %}
+            <div class="command-example">sqlmap -u "http://target.com/page.php?id=1" --dbs # Database enumeration</div>
+            <div class="command-example">sqlmap -u "http://target.com/page.php?id=1" --tables # Table enumeration</div>
+            <div class="command-example">sqlmap -u "http://target.com/page.php?id=1" --dump # Data extraction</div>
+            <div class="command-example">sqlmap -r request.txt --level 5 --risk 3 # Advanced scan from request</div>
+            <div class="command-example">sqlmap -u "http://target.com/page.php?id=1" --os-shell # Try to get shell</div>
+            {% else %}
+            <div class="command-example">{{ tool.TITLE }} --help # Show help menu</div>
+            <div class="command-example">{{ tool.TITLE }} --version # Show version</div>
+            <div class="command-example">{{ tool.TITLE }} --scan target # Basic scan</div>
+            <div class="command-example">{{ tool.TITLE }} --advanced-mode # Advanced features</div>
+            <div class="command-example">{{ tool.TITLE }} --output report.txt # Save output</div>
             {% endif %}
-            
-            {% if tool.runnable %}
-            <div class="tool-usage">
-                <h3>Usage</h3>
-                <div class="tool-commands">
-                    <div class="command-title">Run Commands:</div>
-                    {% for command in tool.run_commands %}
-                    <div class="command">{{ command }}</div>
-                    {% endfor %}
-                </div>
-            </div>
-            {% endif %}
-            
-            <div class="action-buttons">
-                {% if tool.installable %}
-                <button class="btn btn-primary" onclick="executeTool('{{ tool.title }}', 'install')">
-                    <i data-feather="download"></i> Install
-                </button>
-                {% endif %}
-                
-                {% if tool.runnable %}
-                <button class="btn btn-secondary" onclick="executeTool('{{ tool.title }}', 'run')">
-                    <i data-feather="play"></i> Run
-                </button>
-                {% endif %}
-                
-                <a href="{{ url_for('security_tools') }}" class="btn btn-secondary">
-                    <i data-feather="arrow-left"></i> Back to Tools
-                </a>
-            </div>
-            
-            <div id="result-message" style="display: none; margin-top: 1rem; padding: 1rem; border-radius: 8px;"></div>
-            
-            <!-- Terminal Section -->
-            <div class="terminal-section" style="margin-top: 2rem;">
-                <h3>Terminal Output</h3>
-                <div class="terminal" id="terminal-window" style="background-color: #0f0f0f; color: #f0f0f0; border-radius: 8px; padding: 1rem; font-family: monospace; height: 300px; overflow-y: auto;">
-                    <div class="terminal-header" style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; border-bottom: 1px solid #333; padding-bottom: 0.5rem;">
-                        <span>BINGOxBANGO Terminal</span>
-                        <div class="terminal-controls">
-                            <button class="terminal-btn" onclick="clearTerminal()" style="background: none; border: none; color: #f0f0f0; cursor: pointer;">Clear</button>
-                        </div>
-                    </div>
-                    <div class="terminal-content" id="terminal-content">
-                        <div class="terminal-line"><span style="color: #0f0;">BINGOxBANGO@security-terminal:~$</span> Tool terminal ready...</div>
-                    </div>
-                </div>
-                <div class="terminal-input-container" style="display: flex; margin-top: 0.5rem;">
-                    <input type="text" id="terminal-input" style="flex-grow: 1; background-color: #1a1a1a; border: 1px solid #333; color: #f0f0f0; padding: 0.5rem; border-radius: 4px;" placeholder="Enter command...">
-                    <button onclick="executeCommand()" style="background-color: #333; border: none; color: #f0f0f0; padding: 0 1rem; border-radius: 0 4px 4px 0; cursor: pointer;">Run</button>
-                </div>
-            </div>
-        </section>
+        </div>
+
+        <div class="terminal">
+            <h3>Live Terminal</h3>
+            <div id="terminal-output" class="terminal-output"></div>
+            <input type="text" id="terminal-input" placeholder="Enter command..." onkeypress="handleCommand(event)">
+        </div>
+
+        <a href="{{ url_for('download_tool', tool_name=tool.TITLE) }}" class="download-btn">
+            <i data-feather="download"></i> Download {{ tool.TITLE }}
+        </a>
     </main>
 
-    <footer>
-        <p>BINGOxBANGO Dark Web Crawler &copy; 2025 | <a href="https://github.com/Z4nzu/hackingtool" target="_blank">GitHub</a></p>
-    </footer>
-
     <script>
-        // Initialize Feather icons
         document.addEventListener('DOMContentLoaded', function() {
             feather.replace();
         });
-        
-        // Function to execute tool actions
-        function executeTool(toolName, action) {
-            const resultMessage = document.getElementById('result-message');
-            resultMessage.style.display = 'none';
-            
-            // In a real implementation, this would make an AJAX call to the server
-            // For demo purposes, we'll just show a message
-            setTimeout(() => {
-                resultMessage.style.display = 'block';
-                resultMessage.style.backgroundColor = 'rgba(46, 204, 113, 0.1)';
-                resultMessage.style.color = '#2ecc71';
-                resultMessage.style.borderLeft = '4px solid #2ecc71';
-                
-                if (action === 'install') {
-                    resultMessage.innerHTML = `<i data-feather="check-circle"></i> Tool "${toolName}" installation initiated. Check the terminal for progress.`;
-                    addToTerminal(`Installing ${toolName}...`);
-                    
-                    // Simulate installation progress
-                    setTimeout(() => {
-                        addToTerminal(`Downloading ${toolName} dependencies...`);
-                    }, 1500);
-                    
-                    setTimeout(() => {
-                        addToTerminal(`Setting up ${toolName}...`);
-                    }, 3000);
-                    
-                    setTimeout(() => {
-                        addToTerminal(`Installation of ${toolName} completed successfully.`);
-                    }, 4500);
-                    
-                } else if (action === 'run') {
-                    resultMessage.innerHTML = `<i data-feather="check-circle"></i> Tool "${toolName}" execution initiated. Check the terminal for output.`;
-                    addToTerminal(`Running ${toolName}...`);
-                    
-                    // Simulate tool execution output
-                    setTimeout(() => {
-                        addToTerminal(`${toolName} started successfully.`);
-                    }, 1000);
-                    
-                    setTimeout(() => {
-                        addToTerminal(`${toolName} is now running. You can interact with it via the terminal.`);
-                    }, 2000);
-                }
-                
-                feather.replace();
-            }, 1000);
-        }
-        
-        // Terminal functionality
-        let commandHistory = [];
-        let historyIndex = -1;
-        
-        // Function to add a line to the terminal
-        function addToTerminal(text, isCommand = false) {
-            const terminal = document.getElementById('terminal-content');
-            const line = document.createElement('div');
-            line.className = 'terminal-line';
-            
-            if (isCommand) {
-                line.innerHTML = `<span style="color: #0f0;">BINGOxBANGO@security-terminal:~$</span> ${text}`;
-                // Add to command history
-                commandHistory.push(text);
-                historyIndex = commandHistory.length;
-            } else {
-                line.innerHTML = text;
-            }
-            
-            terminal.appendChild(line);
-            
-            // Auto-scroll to bottom
-            const terminalWindow = document.getElementById('terminal-window');
-            terminalWindow.scrollTop = terminalWindow.scrollHeight;
-        }
-        
-        // Function to clear the terminal
-        function clearTerminal() {
-            const terminal = document.getElementById('terminal-content');
-            terminal.innerHTML = '';
-            addToTerminal('Terminal cleared.', false);
-        }
-        
-        // Function to execute a command entered in the terminal
-        function executeCommand() {
-            const input = document.getElementById('terminal-input');
-            const command = input.value.trim();
-            
-            if (command) {
-                addToTerminal(command, true);
-                
-                // Process the command
-                processCommand(command);
-                
-                // Clear the input
+
+        function handleCommand(event) {
+            if (event.key === 'Enter') {
+                const input = document.getElementById('terminal-input');
+                const output = document.getElementById('terminal-output');
+                const command = input.value;
                 input.value = '';
+
+                // Add command to output
+                output.innerHTML += `$ ${command}\n`;
+
+                // Send command to server
+                fetch('/api/execute_tool', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        tool: '{{ tool.TITLE }}',
+                        command: command
+                    })
+                })
+                .then(response => response.text())
+                .then(result => {
+                    output.innerHTML += result + '\n';
+                    output.scrollTop = output.scrollHeight;
+                })
+                .catch(error => {
+                    output.innerHTML += `Error: ${error}\n`;
+                });
             }
         }
-        
-        // Function to process terminal commands
-        function processCommand(command) {
-            // Simple command processing
-            if (command === 'help') {
-                addToTerminal('Available commands:');
-                addToTerminal('  help - Show this help message');
-                addToTerminal('  clear - Clear the terminal');
-                addToTerminal('  about - Show information about BINGOxBANGO');
-                addToTerminal('  whoami - Show current user');
-                addToTerminal('  date - Show current date');
-                addToTerminal('  echo [text] - Display text');
-            } else if (command === 'clear') {
-                clearTerminal();
-            } else if (command === 'about') {
-                addToTerminal('BINGOxBANGO - Advanced Dark Web Crawler and Security Tool Suite');
-                addToTerminal('Version: 1.0.0');
-                addToTerminal('© 2025 BINGOxBANGO Team');
-            } else if (command === 'whoami') {
-                addToTerminal('security-user');
-            } else if (command === 'date') {
-                addToTerminal(new Date().toString());
-            } else if (command.startsWith('echo ')) {
-                const text = command.substring(5);
-                addToTerminal(text);
-            } else {
-                addToTerminal(`Command not found: ${command}. Type 'help' for available commands.`);
-            }
-        }
-        
-        // Event listener for the terminal input
-        document.getElementById('terminal-input').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                executeCommand();
-            } else if (e.key === 'ArrowUp') {
-                // Navigate command history up
-                if (historyIndex > 0) {
-                    historyIndex--;
-                    this.value = commandHistory[historyIndex];
-                }
-                e.preventDefault();
-            } else if (e.key === 'ArrowDown') {
-                // Navigate command history down
-                if (historyIndex < commandHistory.length - 1) {
-                    historyIndex++;
-                    this.value = commandHistory[historyIndex];
-                } else {
-                    historyIndex = commandHistory.length;
-                    this.value = '';
-                }
-                e.preventDefault();
-            }
-        });
     </script>
 </body>
 </html>
