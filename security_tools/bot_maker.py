@@ -678,6 +678,225 @@ class BotMaker:
             bot["status"] = "completed"
             bot["end_time"] = datetime.now().isoformat()
             
+    def list_bots(self, bot_type=None):
+        """
+        List all active bots, optionally filtered by type
+        
+        Args:
+            bot_type: Optional bot type to filter by
+            
+        Returns:
+            List of bot information dictionaries
+        """
+        bots = []
+        for bot_id, bot in self.active_bots.items():
+            if bot_type is None or bot["type"] == bot_type:
+                # Create a safe copy with only essential info
+                bot_info = {
+                    "id": bot["id"],
+                    "type": bot["type"],
+                    "status": bot["status"],
+                    "created_at": bot["created_at"]
+                }
+                
+                # Add type-specific information
+                if bot["type"] == "web_crawler":
+                    bot_info["urls_crawled"] = len(bot.get("visited_urls", []))
+                elif bot["type"] == "chat_bot":
+                    bot_info["platform"] = bot.get("platform", "unknown")
+                elif bot["type"] == "social_media_bot":
+                    bot_info["platform"] = bot.get("platform", "unknown")
+                
+                bots.append(bot_info)
+        
+        return bots
+        
+    def get_bot_status(self, bot_id: str) -> Dict[str, Any]:
+        """
+        Get status and information about a specific bot
+        
+        Args:
+            bot_id: ID of the bot
+            
+        Returns:
+            Dictionary with bot status and information
+        """
+        if bot_id not in self.active_bots:
+            return {"error": f"Bot with ID {bot_id} not found"}
+        
+        bot = self.active_bots[bot_id]
+        
+        # Create a safe copy with only essential info
+        status = {
+            "id": bot["id"],
+            "type": bot["type"],
+            "status": bot["status"],
+            "created_at": bot["created_at"]
+        }
+        
+        # Add type-specific status information
+        if bot["type"] == "web_crawler":
+            status["urls_crawled"] = len(bot.get("visited_urls", []))
+            status["found_content"] = len(bot.get("found_content", []))
+        elif bot["type"] == "chat_bot":
+            status["platform"] = bot.get("platform", "unknown")
+            status["messages"] = len(bot.get("log", []))
+        elif bot["type"] == "social_media_bot":
+            status["platform"] = bot.get("platform", "unknown")
+            status["posts"] = len(bot.get("activity_log", []))
+        
+        return status
+    
+    def stop_bot(self, bot_id: str) -> Dict[str, Any]:
+        """
+        Stop a running bot
+        
+        Args:
+            bot_id: ID of the bot to stop
+            
+        Returns:
+            Dictionary with stop result
+        """
+        if bot_id not in self.active_bots:
+            return {"error": f"Bot with ID {bot_id} not found"}
+        
+        bot = self.active_bots[bot_id]
+        
+        if bot["status"] != "running":
+            return {"error": f"Bot with ID {bot_id} is not running"}
+        
+        # Set flag to stop the bot
+        bot["stop_flag"] = True
+        bot["status"] = "stopping"
+        
+        return {
+            "success": True,
+            "message": f"Bot {bot_id} stopping...",
+            "status": "stopping"
+        }
+    
+    def delete_bot(self, bot_id: str) -> Dict[str, Any]:
+        """
+        Delete a bot
+        
+        Args:
+            bot_id: ID of the bot to delete
+            
+        Returns:
+            Dictionary with delete result
+        """
+        if bot_id not in self.active_bots:
+            return {"error": f"Bot with ID {bot_id} not found"}
+        
+        bot = self.active_bots[bot_id]
+        
+        if bot["status"] == "running":
+            # Stop the bot first
+            self.stop_bot(bot_id)
+            
+        # Wait briefly for bot to clean up
+        time.sleep(0.5)
+        
+        # Remove from active bots
+        del self.active_bots[bot_id]
+        
+        return {
+            "success": True,
+            "message": f"Bot {bot_id} deleted"
+        }
+    
+    def add_user_task(self, bot_id: str, task_type: str, task_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Add a task for a bot to execute
+        
+        Args:
+            bot_id: ID of the bot
+            task_type: Type of task
+            task_data: Task-specific data
+            
+        Returns:
+            Dictionary with task result
+        """
+        if bot_id not in self.active_bots:
+            return {"error": f"Bot with ID {bot_id} not found"}
+        
+        # Initialize task queue if not exists
+        if bot_id not in self.task_queue:
+            self.task_queue[bot_id] = []
+        
+        # Create task
+        task_id = f"task_{int(time.time())}_{random.randint(1000, 9999)}"
+        task = {
+            "id": task_id,
+            "type": task_type,
+            "data": task_data,
+            "status": "pending",
+            "created_at": datetime.now().isoformat(),
+            "result": None
+        }
+        
+        # Add to queue
+        self.task_queue[bot_id].append(task)
+        
+        return {
+            "success": True,
+            "message": f"Task {task_id} added to bot {bot_id}",
+            "task_id": task_id
+        }
+    
+    def execute_user_task(self, bot_id: str, task_id: Optional[str] = None) -> Dict[str, Any]:
+        """
+        Execute a task for a bot
+        
+        Args:
+            bot_id: ID of the bot
+            task_id: Optional specific task ID to execute
+            
+        Returns:
+            Dictionary with execution result
+        """
+        if bot_id not in self.active_bots:
+            return {"error": f"Bot with ID {bot_id} not found"}
+        
+        if bot_id not in self.task_queue or not self.task_queue[bot_id]:
+            return {"error": f"No tasks for bot {bot_id}"}
+        
+        # Find the task
+        task = None
+        if task_id:
+            for t in self.task_queue[bot_id]:
+                if t["id"] == task_id:
+                    task = t
+                    break
+            
+            if not task:
+                return {"error": f"Task {task_id} not found for bot {bot_id}"}
+        else:
+            # Get the first pending task
+            for t in self.task_queue[bot_id]:
+                if t["status"] == "pending":
+                    task = t
+                    break
+            
+            if not task:
+                return {"error": f"No pending tasks for bot {bot_id}"}
+        
+        # Execute task
+        task["status"] = "running"
+        
+        # Simulate task execution
+        time.sleep(1)
+        
+        task["status"] = "completed"
+        task["result"] = {"message": f"Task {task['id']} executed successfully"}
+        task["completed_at"] = datetime.now().isoformat()
+        
+        return {
+            "success": True,
+            "message": f"Task {task['id']} executed",
+            "task": task
+        }
+    
     def _run_chat_bot(self, bot_id: str) -> None:
         """
         Run a chat bot (backend implementation)
