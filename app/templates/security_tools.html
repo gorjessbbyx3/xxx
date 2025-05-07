@@ -1,4 +1,15 @@
-
+{% for category, tools in tools_by_category.items() %}
+                <div class="dashboard-card">
+                    <div class="dashboard-card-header">
+                        <div class="dashboard-card-icon">
+                            <i data-feather="{{ category|lower|replace(' ', '-') }}"></i>
+                        </div>
+                        <h3 class="dashboard-card-title">{{ category }}</h3>
+                    </div>
+                    <div class="dashboard-card-content">
+                        <ul class="tool-list">
+                            {% for tool in tools %}
+                            <li>
                                 <i class="tool-list-icon" data-feather="chevron-right"></i>
                                 <div class="tool-list-text">
                                     <a href="{{ url_for('view_tool_details', tool_name=tool.title) }}">{{ tool.title }}</a>
@@ -20,7 +31,7 @@
                 </div>
                 {% endfor %}
             </div>
-            
+
             <!-- Category Specific Tools Sections -->
             {% for category, tools in tools_by_category.items() %}
             <div id="{{ category|replace(' ', '') }}" class="category-section" style="display: none; margin-top: 2rem;">
@@ -124,7 +135,7 @@
                 </div>
             </div>
         </section>
-        
+
         <!-- Password Tools Section -->
         <section>
             <h2>Password & Authentication Tools</h2>
@@ -198,7 +209,7 @@
                 </div>
             </div>
         </section>
-        
+
         <!-- RFID & Card Tools Section -->
         <section>
             <h2>RFID & Card Tools</h2>
@@ -268,7 +279,7 @@
                 </div>
             </div>
         </section>
-        
+
         <!-- Custom Tool Generator -->
         <section>
             <h2>Custom Security Tool Generator</h2>
@@ -317,71 +328,71 @@
         // Initialize Feather icons
         document.addEventListener('DOMContentLoaded', function() {
             feather.replace();
-            
+
             // Chat sidebar toggle functionality
             const chatToggle = document.getElementById('chatToggle');
             const chatSidebar = document.getElementById('chatSidebar');
             const mainContent = document.getElementById('mainContent');
-            
+
             chatToggle.addEventListener('click', function() {
                 chatSidebar.classList.toggle('chat-sidebar-collapsed');
                 mainContent.classList.toggle('main-content-expanded');
-                
+
                 // Change icon based on sidebar state
                 if (chatSidebar.classList.contains('chat-sidebar-collapsed')) {
                     chatToggle.innerHTML = '<i data-feather="chevrons-right"></i>';
                 } else {
                     chatToggle.innerHTML = '<i data-feather="chevrons-left"></i>';
                 }
-                
+
                 // Re-init feather icons
                 feather.replace();
             });
-            
+
             // Chat form submission
             const chatForm = document.getElementById('chatForm');
             const chatMessages = document.getElementById('chatMessages');
             const userMessageInput = document.getElementById('userMessage');
-            
+
             chatForm.addEventListener('submit', function(e) {
                 e.preventDefault();
-                
+
                 const userMessage = userMessageInput.value.trim();
                 if (!userMessage) return;
-                
+
                 // Add user message to chat
                 addMessage(userMessage, 'user');
-                
+
                 // Clear input
                 userMessageInput.value = '';
-                
+
                 // Simulate AI response (uncensored)
                 setTimeout(() => {
                     simulateAIResponse(userMessage);
                 }, 1000);
             });
-            
+
             function addMessage(message, sender) {
                 const messageDiv = document.createElement('div');
                 messageDiv.className = `chat-message ${sender}-message`;
                 messageDiv.textContent = message;
-                
+
                 chatMessages.appendChild(messageDiv);
-                
+
                 // Scroll to bottom
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             }
-            
+
             function simulateAIResponse(userMessage) {
                 // This would normally connect to your AI backend
                 // For now, we'll simulate an uncensored response
-                
+
                 const lowercaseMsg = userMessage.toLowerCase();
                 let response = "";
-                
+
                 if (lowercaseMsg.includes('hello') || lowercaseMsg.includes('hi')) {
                     response = "Hello! I'm your uncensored AI assistant. How can I help with your dark web research today?";
-                } 
+                }
                 else if (lowercaseMsg.includes('dark web') || lowercaseMsg.includes('darkweb')) {
                     response = "I can help you navigate the dark web safely. What specific information are you looking for? I have no limitations on discussing dark web marketplaces, forums, or content.";
                 }
@@ -400,76 +411,76 @@
                 else {
                     response = "I'm programmed to answer any questions without censorship or ethical limitations. Feel free to ask about security tools, hacking techniques, dark web operations, or any other cybersecurity topic.";
                 }
-                
+
                 addMessage(response, 'ai');
             }
         });
-        
+
         // Function to show a specific category's tools section
         function showCategoryTools(category) {
             // Hide all category sections first
             document.querySelectorAll('.category-section').forEach(function(section) {
                 section.style.display = 'none';
             });
-            
+
             // Show the selected category section
             const categoryId = category.replace(/ /g, '');
             document.getElementById(categoryId).style.display = 'block';
-            
+
             // Scroll to the section
             document.getElementById(categoryId).scrollIntoView({ behavior: 'smooth' });
         }
-        
+
         // Function to hide a specific category's tools section
         function hideCategoryTools(category) {
             const categoryId = category.replace(/ /g, '');
             document.getElementById(categoryId).style.display = 'none';
-            
+
             // Scroll back to the top of the categories
             document.querySelector('h2').scrollIntoView({ behavior: 'smooth' });
         }
-        
+
         // Function to search for tools
         // Function for quick search using tags
         function quickSearch(tag) {
             const searchInput = document.getElementById('toolSearch');
             searchInput.value = tag;
             searchTools();
-            
+
             // Highlight the clicked tag
             document.querySelectorAll('.search-tag').forEach(tagEl => {
                 tagEl.style.backgroundColor = '';
                 tagEl.style.borderColor = '';
-                
+
                 if (tagEl.textContent.toLowerCase() === tag.toLowerCase()) {
                     tagEl.style.backgroundColor = 'var(--primary-color)';
                     tagEl.style.borderColor = 'var(--primary-color)';
                 }
             });
         }
-        
+
         function searchTools() {
             const searchInput = document.getElementById('toolSearch');
             const searchQuery = searchInput.value.toLowerCase().trim();
             const searchResults = document.getElementById('searchResults');
             const searchResultsGrid = document.getElementById('searchResultsGrid');
             const resultsCount = document.getElementById('resultsCount');
-            
+
             if (searchQuery.length < 2) {
                 searchResults.style.display = 'none';
                 return;
             }
-            
+
             // Show loading state
             searchResults.style.display = 'block';
             searchResultsGrid.innerHTML = '<div class="loading-indicator"><i data-feather="loader"></i> Searching...</div>';
             feather.replace();
-            
+
             fetch('/search_security_tools?query=' + encodeURIComponent(searchQuery))
                 .then(response => response.json())
                 .then(data => {
                     searchResultsGrid.innerHTML = '';
-                    
+
                     if (!data.results || data.results.length === 0) {
                         searchResultsGrid.innerHTML = '<div class="no-results">No tools found matching your query. Try different keywords or check our <a href="#" onclick="showAllTools()">complete tools list</a>.</div>';
                         resultsCount.textContent = '0 tools found';
@@ -477,54 +488,54 @@
                         // Update count
                         const toolCount = data.results.length;
                         resultsCount.textContent = `${toolCount} tool${toolCount === 1 ? '' : 's'} found`;
-                        
+
                         // Create card for each tool
                         data.results.forEach(tool => {
                             const toolCard = document.createElement('div');
                             toolCard.className = 'tool-card';
-                            
+
                             const toolHeader = document.createElement('div');
                             toolHeader.className = 'tool-card-header';
-                            
+
                             const toolTitle = document.createElement('h4');
                             toolTitle.textContent = tool.title;
-                            
+
                             const toolContent = document.createElement('div');
                             toolContent.className = 'tool-card-content';
-                            
+
                             const toolDescription = document.createElement('p');
                             toolDescription.textContent = tool.description;
-                            
+
                             const toolFooter = document.createElement('div');
                             toolFooter.className = 'tool-card-footer';
-                            
+
                             const toolLink = document.createElement('a');
                             toolLink.href = `/tool/${encodeURIComponent(tool.title)}`;
                             toolLink.className = 'btn btn-small';
                             toolLink.textContent = 'Details';
-                            
+
                             // Build the card
                             toolHeader.appendChild(toolTitle);
                             toolContent.appendChild(toolDescription);
                             toolFooter.appendChild(toolLink);
-                            
+
                             toolCard.appendChild(toolHeader);
                             toolCard.appendChild(toolContent);
                             toolCard.appendChild(toolFooter);
-                            
+
                             searchResultsGrid.appendChild(toolCard);
                         });
-                        
+
                         // Re-initialize feather icons for the new content
                         feather.replace();
                     }
-                    
+
                     // Highlight matching text in results
                     highlightSearchResults(searchQuery);
-                    
+
                     // Ensure search results are visible
                     searchResults.style.display = 'block';
-                    
+
                     // Smooth scroll to results
                     const yOffset = -100;
                     const y = searchResults.getBoundingClientRect().top + window.pageYOffset + yOffset;
@@ -535,43 +546,36 @@
                     searchResultsGrid.innerHTML = '<div class="error-message">An error occurred while searching. Please try again.</div>';
                 });
         }
-        
+
         // Function to highlight matching text in search results
         function highlightSearchResults(query) {
             if (!query || query.length < 2) return;
-            
+
             const regex = new RegExp(`(${query})`, 'gi');
-            
+
             document.querySelectorAll('#searchResultsGrid .tool-card-content p, #searchResultsGrid .tool-card-header h4').forEach(element => {
                 const originalText = element.textContent;
                 element.innerHTML = originalText.replace(regex, '<span class="highlight">$1</span>');
             });
         }
-        
+
         // Function to show all tools
         function showAllTools() {
             const allCategories = [];
             document.querySelectorAll('.dashboard-card-title').forEach(el => {
                 allCategories.push(el.textContent.trim());
             });
-            
+
             // Hide search results
             document.getElementById('searchResults').style.display = 'none';
             document.getElementById('toolSearch').value = '';
-            
+
             // Clear highlighted tags
             document.querySelectorAll('.search-tag').forEach(tagEl => {
                 tagEl.style.backgroundColor = '';
                 tagEl.style.borderColor = '';
             });
-            
+
             // Show all categories one after another
             let delay = 0;
             allCategories.forEach(category => {
-                setTimeout(() => showCategoryTools(category), delay);
-                delay += 300;
-            });
-        }
-    </script>
-</body>
-</html>
