@@ -1,10 +1,10 @@
- 
+
                                 <i class="tool-list-icon" data-feather="chevron-right"></i>
                                 <div class="tool-list-text">
                                     <a href="{{ url_for('view_tool_details', tool_name=tool.title) }}">{{ tool.title }}</a>
+                                    <span class="tool-command-example">Example: {% if "nmap" in tool.title|lower %}nmap -p 1-1000 scanme.nmap.org{% elif "hydra" in tool.title|lower %}hydra -l admin -P passlist.txt ssh://10.0.0.1{% elif "hashcat" in tool.title|lower %}hashcat -m 0 -a 0 hash.txt wordlist.txt{% elif "aircrack" in tool.title|lower %}aircrack-ng -w wordlist.txt capture.cap{% elif "sqlmap" in tool.title|lower %}sqlmap -u "http://example.com/vuln.php?id=1" --dbs{% elif "metasploit" in tool.title|lower %}msfconsole -q -x "use exploit/multi/handler; set PAYLOAD windows/meterpreter/reverse_tcp; run"{% elif "wireshark" in tool.title|lower %}tshark -i eth0 -f "port 80"{% elif "john" in tool.title|lower %}john --wordlist=password.lst hash.txt{% elif "beef" in tool.title|lower %}beef -x{% else %}tool --help{% endif %}</span>
                                 </div>
                             </li>
-                            {% endif %}
                             {% endfor %}
                             {% if tools|length > 4 %}
                             <li>
@@ -64,15 +64,21 @@
                         <ul class="tool-list">
                             <li>
                                 <i class="tool-list-icon" data-feather="chevron-right"></i>
-                                <div class="tool-list-text">Autopsy</div>
+                                <div class="tool-list-text">Autopsy
+                                    <span class="tool-command-example">Example: autopsy --dataPath=/path/to/evidence</span>
+                                </div>
                             </li>
                             <li>
                                 <i class="tool-list-icon" data-feather="chevron-right"></i>
-                                <div class="tool-list-text">Wireshark</div>
+                                <div class="tool-list-text">Wireshark
+                                    <span class="tool-command-example">Example: wireshark -i eth0 -k -f "port 80"</span>
+                                </div>
                             </li>
                             <li>
                                 <i class="tool-list-icon" data-feather="chevron-right"></i>
-                                <div class="tool-list-text">Bulk Extractor</div>
+                                <div class="tool-list-text">Bulk Extractor
+                                    <span class="tool-command-example">Example: bulk_extractor -o output_dir disk_image.dd</span>
+                                </div>
                             </li>
                             <li>
                                 <i class="tool-list-icon" data-feather="chevron-right"></i>
@@ -134,7 +140,9 @@
                         <ul class="tool-list">
                             <li>
                                 <i class="tool-list-icon" data-feather="chevron-right"></i>
-                                <div class="tool-list-text">Hashcat</div>
+                                <div class="tool-list-text">Hashcat
+                                    <span class="tool-command-example">Example: hashcat -m 0 -a 0 hashes.txt wordlist.txt</span>
+                                </div>
                             </li>
                             <li>
                                 <i class="tool-list-icon" data-feather="chevron-right"></i>
@@ -166,7 +174,9 @@
                         <ul class="tool-list">
                             <li>
                                 <i class="tool-list-icon" data-feather="chevron-right"></i>
-                                <div class="tool-list-text">SQLmap Advanced</div>
+                                <div class="tool-list-text">SQLmap Advanced
+                                    <span class="tool-command-example">Example: sqlmap -u "http://example.com/vuln.php?id=1" --dbs --batch</span>
+                                </div>
                             </li>
                             <li>
                                 <i class="tool-list-icon" data-feather="chevron-right"></i>
