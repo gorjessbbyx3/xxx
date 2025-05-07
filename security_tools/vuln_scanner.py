@@ -210,6 +210,28 @@ class VulnerabilityScanner:
                     "description": f"The {header} header value '{headers[header]}' reveals technology details that could help attackers target specific vulnerabilities."
                 })
                 
+    def analyze_ssl_cert(self, hostname: str) -> Dict[str, Any]:
+        """Analyze SSL/TLS certificate"""
+        try:
+            import ssl
+            import socket
+            
+            context = ssl.create_default_context()
+            with context.wrap_socket(socket.socket(), server_hostname=hostname) as sock:
+                sock.connect((hostname, 443))
+                cert = sock.getpeercert()
+                
+                return {
+                    "subject": dict(x[0] for x in cert['subject']),
+                    "issuer": dict(x[0] for x in cert['issuer']),
+                    "version": cert['version'],
+                    "serialNumber": cert['serialNumber'],
+                    "notBefore": cert['notBefore'],
+                    "notAfter": cert['notAfter']
+                }
+        except Exception as e:
+            return {"error": str(e)}
+
     def _analyze_html_content(self, result: Dict[str, Any], content: str) -> None:
         """
         Analyze HTML content for vulnerabilities
