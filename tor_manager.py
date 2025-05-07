@@ -45,36 +45,86 @@ class TorManager:
     def get_new_identity(self):
         """
         Request a new identity (circuit) from Tor
+        Works with both system Tor and Tor Browser
         """
-        try:
-            with Controller.from_port(port=self.control_port) as controller:
-                if self.password:
-                    controller.authenticate(password=self.password)
-                else:
-                    controller.authenticate()
-                controller.signal(Signal.NEWNYM)
-                logger.info("New Tor identity obtained")
-                # Give the Tor network time to establish new circuits
-                time.sleep(5)
-                # Refresh the session with the new identity
-                self.session = self._get_tor_session()
-                return True
-        except Exception as e:
-            logger.error(f"Failed to get new identity: {e}")
-            return False
+        # Try both the standard control port and Tor Browser's control port
+        control_ports = [self.control_port, 9151]  # 9051 is system Tor, 9151 is Tor Browser
+        
+        for port in control_ports:
+            try:
+                logger.info(f"Trying to get new identity using control port {port}")
+                with Controller.from_port(port=port) as controller:
+                    if self.password:
+                        controller.authenticate(password=self.password)
+                    else:
+                        # Try to authenticate without password
+                        try:
+                            controller.authenticate()
+                        except Exception:
+                            # Tor Browser often uses a blank password
+                            controller.authenticate("")
+                    
+                    controller.signal(Signal.NEWNYM)
+                    logger.info(f"New Tor identity obtained using control port {port}")
+                    
+                    # If this worked, update the control port for future use
+                    if port != self.control_port:
+                        self.control_port = port
+                        logger.info(f"Updated control port to {port}")
+                    
+                    # Give the Tor network time to establish new circuits
+                    time.sleep(5)
+                    # Refresh the session with the new identity
+                    self.session = self._get_tor_session()
+                    return True
+            except Exception as e:
+                logger.debug(f"Failed to get new identity using port {port}: {e}")
+                continue
+                
+        logger.error("Failed to get new identity using any known control port")
+        return False
 
     def is_tor_running(self):
         """
-        Check if Tor is running properly
+        Check if Tor is running properly - including Tor Browser
         """
-        try:
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            result = sock.connect_ex(('127.0.0.1', self.socks_port))
-            sock.close()
-            return result == 0
-        except Exception as e:
-            logger.error(f"Error checking Tor status: {e}")
-            return False
+        # List of common Tor SOCKS ports to check (system Tor and Tor Browser)
+        tor_ports = [self.socks_port, 9150]  # 9050 is system Tor, 9150 is Tor Browser
+        
+        for port in tor_ports:
+            try:
+                # Check if the port is open
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                result = sock.connect_ex(('127.0.0.1', port))
+                sock.close()
+                
+                if result == 0:
+                    # Port is open, now verify it's actually Tor by making a test connection
+                    test_session = requests.session()
+                    test_session.proxies = {
+                        'http': f'socks5h://127.0.0.1:{port}',
+                        'https': f'socks5h://127.0.0.1:{port}'
+                    }
+                    
+                    try:
+                        # Try to connect to a Tor-specific service
+                        response = test_session.get('https://check.torproject.org/', timeout=5)
+                        if 'Congratulations' in response.text:
+                            # If this port works, update the object's port to match
+                            if port != self.socks_port:
+                                logger.info(f"Found Tor running on port {port} (likely Tor Browser)")
+                                self.socks_port = port
+                                # Refresh the session with the new port
+                                self.session = self._get_tor_session()
+                            return True
+                    except Exception as e:
+                        logger.debug(f"Port {port} is open but doesn't appear to be Tor: {e}")
+                        continue
+            except Exception as e:
+                logger.debug(f"Error checking Tor on port {port}: {e}")
+        
+        logger.error("No running Tor service found. Please start Tor or Tor Browser.")
+        return False
 
     def get_current_ip(self):
         """
@@ -119,7 +169,7 @@ def tor_session_context():
     tor = TorManager()
     try:
         if not tor.is_tor_running():
-            raise RuntimeError("Tor is not running. Please start the Tor service.")
+            raise RuntimeError("Tor is not running. Please start Tor Browser or the Tor service.")
         logger.info(f"Tor is running. Current IP: {tor.get_current_ip()}")
         yield tor
     finally:
