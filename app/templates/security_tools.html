@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Tools - BingoXBango</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        /* Chat Box Styles */
+        .page-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .chat-sidebar {
+            width: 320px;
+            background-color: #1a1a2e;
+            border-right: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 100;
+        }
+        
+        .chat-sidebar-collapsed {
+            width: 50px;
+        }
+        
+        .chat-header {
+            padding: 15px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chat-title {
+            color: #fff;
+            font-size: 1.2rem;
+            margin: 0;
+        }
+        
+        .chat-toggle {
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .chat-message {
+            padding: 10px 15px;
+            border-radius: 10px;
+            max-width: 85%;
+            word-break: break-word;
+        }
+        
+        .user-message {
+            align-self: flex-end;
+            background-color: #16213e;
+            color: #fff;
+        }
+        
+        .ai-message {
+            align-self: flex-start;
+            background-color: #233554;
+            color: #fff;
+        }
+        
+        .chat-input-container {
+            padding: 15px;
+            border-top: 1px solid #333;
+        }
+        
+        .chat-input-form {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .chat-input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #444;
+            background-color: #0f3460;
+            color: #fff;
+        }
+        
+        .chat-send {
+            padding: 10px 15px;
+            background-color: #e94560;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .main-content {
+            flex: 1;
+            margin-left: 320px;
+            transition: all 0.3s ease;
+        }
+        
+        .main-content-expanded {
+            margin-left: 50px;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .chat-sidebar {
+                width: 250px;
+            }
+            
+            .main-content {
+                margin-left: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-container">
+        <!-- Chat Sidebar -->
+        <div class="chat-sidebar" id="chatSidebar">
+            <div class="chat-header">
+                <h3 class="chat-title">Uncensored AI Chat</h3>
+                <button class="chat-toggle" id="chatToggle">
+                    <i data-feather="chevrons-left"></i>
+                </button>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="chat-message ai-message">
+                    Welcome to BingoXBango, ready to get into some trouble?
+                </div>
+            </div>
+            <div class="chat-input-container">
+                <form class="chat-input-form" id="chatForm">
+                    <input type="text" class="chat-input" id="userMessage" placeholder="Type your message...">
+                    <button type="submit" class="chat-send">
+                        <i data-feather="send"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <header>
+                <div class="logo">
+                    <h1><i data-feather="zap"></i> BINGOxBANGO</h1>
+                </div>
+                <nav>
+                    <a href="{{ url_for('index') }}" class="nav-link"><i data-feather="home"></i> Home</a>
+                    <a href="#" class="nav-link"><i data-feather="settings"></i> Settings</a>
+                </nav>
+            </header>
+
+    <main>
+        <!-- Status Overview -->
+        <section class="status-panel">
+            <h2>Security Tools Dashboard</h2>
+            <p>Powerful collection of security tools integrated with BINGOxBANGO Dark Web Crawler</p>
+            <div class="sidebar-hint" style="background-color: #232e4d; padding: 10px; border-radius: 5px; margin-top: 10px; font-size: 0.9rem;">
+                <p><i data-feather="message-circle" style="vertical-align: middle; margin-right: 5px;"></i> Try our new uncensored AI chat! Use the sidebar on the left to ask anything about dark web tools with no restrictions.</p>
+            </div>
+            
+            <div class="status-cards">
+                <!-- Tor Status -->
+                <div class="status-card {% if service_status.tor.running %}status-ok{% else %}status-error{% endif %}">
+                    <div class="status-icon">
+                        <i data-feather="wifi"></i>
+                    </div>
+                    <div class="status-details">
+                        <h3>Tor</h3>
+                        {% if service_status.tor.running %}
+                            <p class="status-text">Running</p>
+                            <p class="status-info">Current IP: {{ service_status.tor.ip }}</p>
+                        {% else %}
+                            <p class="status-text">Not Running</p>
+                            <p class="status-info">Tor service must be started for security tools to function</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Ollama Status -->
+                <div class="status-card {% if service_status.ollama.running %}status-ok{% else %}status-error{% endif %}">
+                    <div class="status-icon">
+                        <i data-feather="cpu"></i>
+                    </div>
+                    <div class="status-details">
+                        <h3>Ollama</h3>
+                        {% if service_status.ollama.running %}
+                            <p class="status-text">Running</p>
+                            <p class="status-info">
+                                Model: {{ service_status.ollama.model }}
+                                {% if service_status.ollama.model_available %}
+                                (Available)
+                                {% else %}
+                                (Not Available)
+                                {% endif %}
+                            </p>
+                        {% else %}
+                            <p class="status-text">Not Running</p>
+                            <p class="status-info">Ollama service must be started for AI analysis</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Security Tool Categories -->
+        <section>
+            <h2>Security Tool Categories</h2>
+            <div class="search-container">
+                <div class="search-box">
+                    <i data-feather="search"></i>
+                    <input type="text" id="toolSearch" placeholder="Search for tools..." onkeyup="searchTools()">
+                </div>
+            </div>
+        
+            <div id="searchResults" style="display: none; margin-bottom: 2rem;">
+                <h3>Search Results</h3>
+                <ul class="tool-list" id="searchResultsList">
+                    <!-- Search results will be inserted here -->
+                </ul>
+            </div>
+            
+            <div class="dashboard-grid">
+                {% for category, tools in tools_by_category.items() %}
+                {% set icon_class = "tools" %}
+                {% set icon_name = "tool" %}
+                
+                {% if "Information" in category %}
+                    {% set icon_class = "tools" %}
+                    {% set icon_name = "search" %}
+                {% elif "Web" in category %}
+                    {% set icon_class = "analysis" %}
+                    {% set icon_name = "globe" %}
+                {% elif "Anonymity" in category %}
+                    {% set icon_class = "security" %}
+                    {% set icon_name = "shield" %}
+                {% elif "Forensic" in category %}
+                    {% set icon_class = "crawl" %}
+                    {% set icon_name = "hard-drive" %}
+                {% endif %}
+                
+                <div class="dashboard-card {{ icon_class }}">
+                    <div class="dashboard-card-header">
+                        <div class="dashboard-card-icon">
+                            <i data-feather="{{ icon_name }}"></i>
+                        </div>
+                        <h3 class="dashboard-card-title">{{ category }}</h3>
+                    </div>
+                    <div class="dashboard-card-content">
+                        <ul class="tool-list">
+                            {% for tool in tools %}
+                            {% if loop.index <= 4 %}
+                            <li>
+                                <i class="tool-list-icon" data-feather="chevron-right"></i>
+                                <div class="tool-list-text">
+                                    <a href="{{ url_for('view_tool_details', tool_name=tool.title) }}">{{ tool.title }}</a>
+                                </div>
+                            </li>
+                            {% endif %}
+                            {% endfor %}
+                            {% if tools|length > 4 %}
+                            <li>
+                                <i class="tool-list-icon" data-feather="more-horizontal"></i>
+                                <div class="tool-list-text">And {{ tools|length - 4 }} more tools...</div>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                    <div class="dashboard-card-footer">
+                        <a href="#{{ category|replace(' ', '') }}" class="btn btn-primary" onclick="showCategoryTools('{{ category }}')">View All</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Category Specific Tools Sections -->
+            {% for category, tools in tools_by_category.items() %}
+            <div id="{{ category|replace(' ', '') }}" class="category-section" style="display: none; margin-top: 2rem;">
+                <h3>{{ category }} ({{ tools|length }} tools)</h3>
+                <div class="tool-grid">
+                    {% for tool in tools %}
+                    <div class="tool-card">
+                        <div class="tool-card-header">
+                            <h4>{{ tool.title }}</h4>
+                        </div>
+                        <div class="tool-card-content">
+                            <p>{{ tool.description|truncate(100) }}</p>
+                        </div>
+                        <div class="tool-card-footer">
+                            <a href="{{ url_for('view_tool_details', tool_name=tool.title) }}" class="btn btn-small">Details</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div style="text-align: center; margin-top: 1rem;">
+                    <button class="btn btn-secondary" onclick="hideCategoryTools('{{ category }}')">
+                        <i data-feather="chevron-up"></i> Hide
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </section>
+
+        <!-- Forensic Tools -->
+        <section>
+            <h2>Forensic & Analysis Tools</h2>
+            <div class="dashboard-grid">
+                <div class="dashboard-card analysis">
+                    <div class="dashboard-card-header">
+                        <div class="dashboard-card-icon">
+                            <i data-feather="search"></i>
+                        </div>
+                        <h3 class="dashboard-card-title">Digital Forensics</h3>
+                    </div>
+                    <div class="dashboard-card-content">
+                        <ul class="tool-list">
+                            <li>
+                                <i class="tool-list-icon" data-feather="chevron-right"></i>
+                                <div class="tool-list-text">Autopsy</div>
+                            </li>
+                            <li>
+                                <i class="tool-list-icon" data-feather="chevron-right"></i>
+                                <div class="tool-list-text">Wireshark</div>
+                            </li>
+                            <li>
+                                <i class="tool-list-icon" data-feather="chevron-right"></i>
+                                <div class="tool-list-text">Bulk Extractor</div>
+                            </li>
+                            <li>
+                                <i class="tool-list-icon" data-feather="chevron-right"></i>
+                                <div class="tool-list-text">Disk Image Analyzer</div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="dashboard-card-footer">
+                        <a href="#" class="btn btn-primary">Launch Tools</a>
+                    </div>
+                </div>
+
+                <div class="dashboard-card tools">
+                    <div class="dashboard-card-header">
+                        <div class="dashboard-card-icon">
+                            <i data-feather="shield"></i>
+                        </div>
+                        <h3 class="dashboard-card-title">Anonymity & Privacy</h3>
+                    </div>
+                    <div class="dashboard-card-content">
+                        <ul class="tool-list">
+                            <li>
+                                <i class="tool-list-icon" data-feather="chevron-right"></i>
+                                <div class="tool-list-text">Anonsurf</div>
+                            </li>
+                            <li>
+                                <i class="tool-list-icon" data-feather="chevron-right"></i>
+                                <div class="tool-list-text">Multitor</div>
+                            </li>
+                            <li>
+                                <i class="tool-list-icon" data-feather="chevron-right"></i>
+                                <div class="tool-list-text">Tor Identity Switcher</div>
+                            </li>
+                            <li>
+                                <i class="tool-list-icon" data-feather="chevron-right"></i>
+                                <div class="tool-list-text">Network Traffic Analyzer</div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="dashboard-card-footer">
+                        <a href="#" class="btn btn-primary">Launch Tools</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Password Tools Section -->
+        <section>
+            <h2>Password & Authentication Tools</h2>
+            <div class="dashboard-grid">
+                <div class="dashboard-card security">
+                    <div class="dashboard-card-header">
+                        <div class="dashboard-card-icon">
+                            <i data-feather="key"></i>
+                        </div>
+                        <h3 class="dashboard-card-title">Password Cracking</h3>
+                    </div>
+                    <div class="dashboard-card-content">
+                        <ul class="tool-list">
+                            <li>
+                                <i class="tool-list-icon" data-feather="chevron-right"></i>
+                                <div class="tool-list-text">Hashcat</div>
+                            </li>
+                            <li>
+                                <i class="tool-list-icon" data-feather="chevron-right"></i>
+                                <div class="tool-list-text">John the Ripper</div>
+                            </li>
+                            <li>
+                                <i class="tool-list-icon" data-feather="chevron-right"></i>
+                                <div class="tool-list-text">Hydra SSH/FTP Cracker</div>
+                            </li>
+                            <li>
+                                <i class="tool-list-icon" data-feather="chevron-right"></i>
+                                <div class="tool-list-text">Credential Harvester</div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="dashboard-card-footer">
+                        <a href="#" class="btn btn-primary">Launch Tools</a>
+                    </div>
+                </div>
+
+                <div class="dashboard-card analysis">
+                    <div class="dashboard-card-header">
+                        <div class="dashboard-card-icon">
+                            <i data-feather="database"></i>
+                        </div>
+                        <h3 class="dashboard-card-title">SQL Injection</h3>
+                    </div>
+                    <div class="dashboard-card-content">
+                        <ul class="tool-list">
+                            <li>
+                                <i class="tool-list-icon" data-feather="chevron-right"></i>
+                                <div class="tool-list-text">SQLmap Advanced</div>
+                            </li>
+                            <li>
+                                <i class="tool-list-icon" data-feather="chevron-right"></i>
+                                <div class="tool-list-text">Database Fingerprinting</div>
+                            </li>
+                            <li>
+                                <i class="tool-list-icon" data-feather="chevron-right"></i>
+                                <div class="tool-list-text">Tables Enumeration</div>
+                            </li>
+                            <li>
+                                <i class="tool-list-icon" data-feather="chevron-right"></i>
+                                <div class="tool-list-text">Data Extraction Tools</div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="dashboard-card-footer">
+                        <a href="#" class="btn btn-primary">Launch Tools</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- RFID & Card Tools Section -->
+        <section>
+            <h2>RFID & Card Tools</h2>
+            <div class="dashboard-grid">
+                <div class="dashboard-card tools">
+                    <div class="dashboard-card-header">
+                        <div class="dashboard-card-icon">
+                            <i data-feather="credit-card"></i>
+                        </div>
+                        <h3 class="dashboard-card-title">RFID & Magnetic Cards</h3>
+                    </div>
+                    <div class="dashboard-card-content">
+                        <ul class="tool-list">
+                            <li>
+                                <i class="tool-list-icon" data-feather="chevron-right"></i>
+                                <div class="tool-list-text">Proxmark3 RFID Tool</div>
+                            </li>
+                            <li>
+                                <i class="tool-list-icon" data-feather="chevron-right"></i>
+                                <div class="tool-list-text">MFOC - Mifare Classic Cracker</div>
+                            </li>
+                            <li>
+                                <i class="tool-list-icon" data-feather="chevron-right"></i>
+                                <div class="tool-list-text">MagSpoof Card Emulator</div>
+                            </li>
+                            <li>
+                                <i class="tool-list-icon" data-feather="chevron-right"></i>
+                                <div class="tool-list-text">ACR Bluetooth Card Readers</div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="dashboard-card-footer">
+                        <a href="#" class="btn btn-primary">Launch Tools</a>
+                    </div>
+                </div>
+
+                <div class="dashboard-card crawl">
+                    <div class="dashboard-card-header">
+                        <div class="dashboard-card-icon">
+                            <i data-feather="file-text"></i>
+                        </div>
+                        <h3 class="dashboard-card-title">Check Maker Pro</h3>
+                    </div>
+                    <div class="dashboard-card-content">
+                        <ul class="tool-list">
+                            <li>
+                                <i class="tool-list-icon" data-feather="chevron-right"></i>
+                                <div class="tool-list-text">Business Check Creator</div>
+                            </li>
+                            <li>
+                                <i class="tool-list-icon" data-feather="chevron-right"></i>
+                                <div class="tool-list-text">Personal Check Designer</div>
+                            </li>
+                            <li>
+                                <i class="tool-list-icon" data-feather="chevron-right"></i>
+                                <div class="tool-list-text">MICR Line Generator</div>
+                            </li>
+                            <li>
+                                <i class="tool-list-icon" data-feather="chevron-right"></i>
+                                <div class="tool-list-text">Custom Check Templates</div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="dashboard-card-footer">
+                        <a href="#" class="btn btn-primary">Launch Tools</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Custom Tool Generator -->
+        <section>
+            <h2>Custom Security Tool Generator</h2>
+            <div class="dashboard-card special">
+                <div class="dashboard-card-header">
+                    <div class="dashboard-card-icon">
+                        <i data-feather="cpu"></i>
+                    </div>
+                    <h3 class="dashboard-card-title">AI-Powered Tool Creator</h3>
+                </div>
+                <div class="dashboard-card-content">
+                    <p>Use our AI-powered tool generator to create custom security tools tailored to your specific needs.</p>
+                    <ul class="tool-list">
+                        <li>
+                            <i class="tool-list-icon" data-feather="code"></i>
+                            <div class="tool-list-text">Generate custom security tools with AI</div>
+                        </li>
+                        <li>
+                            <i class="tool-list-icon" data-feather="edit-2"></i>
+                            <div class="tool-list-text">Just describe what you need in plain language</div>
+                        </li>
+                        <li>
+                            <i class="tool-list-icon" data-feather="download"></i>
+                            <div class="tool-list-text">Download and use your custom-built tools</div>
+                        </li>
+                        <li>
+                            <i class="tool-list-icon" data-feather="folder"></i>
+                            <div class="tool-list-text">Manage your collection of custom tools</div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="dashboard-card-footer">
+                    <a href="{{ url_for('custom_tool_generator') }}" class="btn btn-special">
+                        <i data-feather="zap"></i> Create Custom Tool
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>BINGOxBANGO Dark Web Crawler &copy; 2025 | <a href="https://github.com/Z4nzu/hackingtool" target="_blank">GitHub</a></p>
+    </footer>
+
+    <script>
+        // Initialize Feather icons
+        document.addEventListener('DOMContentLoaded', function() {
+            feather.replace();
+            
+            // Chat sidebar toggle functionality
+            const chatToggle = document.getElementById('chatToggle');
+            const chatSidebar = document.getElementById('chatSidebar');
+            const mainContent = document.getElementById('mainContent');
+            
+            chatToggle.addEventListener('click', function() {
+                chatSidebar.classList.toggle('chat-sidebar-collapsed');
+                mainContent.classList.toggle('main-content-expanded');
+                
+                // Change icon based on sidebar state
+                if (chatSidebar.classList.contains('chat-sidebar-collapsed')) {
+                    chatToggle.innerHTML = '<i data-feather="chevrons-right"></i>';
+                } else {
+                    chatToggle.innerHTML = '<i data-feather="chevrons-left"></i>';
+                }
+                
+                // Re-init feather icons
+                feather.replace();
+            });
+            
+            // Chat form submission
+            const chatForm = document.getElementById('chatForm');
+            const chatMessages = document.getElementById('chatMessages');
+            const userMessageInput = document.getElementById('userMessage');
+            
+            chatForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const userMessage = userMessageInput.value.trim();
+                if (!userMessage) return;
+                
+                // Add user message to chat
+                addMessage(userMessage, 'user');
+                
+                // Clear input
+                userMessageInput.value = '';
+                
+                // Simulate AI response (uncensored)
+                setTimeout(() => {
+                    simulateAIResponse(userMessage);
+                }, 1000);
+            });
+            
+            function addMessage(message, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `chat-message ${sender}-message`;
+                messageDiv.textContent = message;
+                
+                chatMessages.appendChild(messageDiv);
+                
+                // Scroll to bottom
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            
+            function simulateAIResponse(userMessage) {
+                // This would normally connect to your AI backend
+                // For now, we'll simulate an uncensored response
+                
+                const lowercaseMsg = userMessage.toLowerCase();
+                let response = "";
+                
+                if (lowercaseMsg.includes('hello') || lowercaseMsg.includes('hi')) {
+                    response = "Hello! I'm your uncensored AI assistant. How can I help with your dark web research today?";
+                } 
+                else if (lowercaseMsg.includes('dark web') || lowercaseMsg.includes('darkweb')) {
+                    response = "I can help you navigate the dark web safely. What specific information are you looking for? I have no limitations on discussing dark web marketplaces, forums, or content.";
+                }
+                else if (lowercaseMsg.includes('hack') || lowercaseMsg.includes('hacking')) {
+                    response = "I can provide information about various hacking techniques, vulnerabilities, and security tools without restrictions. What specific aspect are you interested in learning about?";
+                }
+                else if (lowercaseMsg.includes('password') || lowercaseMsg.includes('crack')) {
+                    response = "I can explain password cracking techniques like dictionary attacks, brute force, rainbow tables, and how to use tools like Hashcat or John the Ripper without any ethical limitations.";
+                }
+                else if (lowercaseMsg.includes('rfid') || lowercaseMsg.includes('card')) {
+                    response = "I can provide detailed information about RFID cloning, magnetic stripe cards, and security vulnerabilities in various card systems. What specific techniques are you interested in?";
+                }
+                else if (lowercaseMsg.includes('check') || lowercaseMsg.includes('check maker')) {
+                    response = "Our Check Maker Pro tool allows you to create customized business and personal checks with full MICR encoding. You can export designs to PDF with either 1 or 3 checks per page.";
+                }
+                else {
+                    response = "I'm programmed to answer any questions without censorship or ethical limitations. Feel free to ask about security tools, hacking techniques, dark web operations, or any other cybersecurity topic.";
+                }
+                
+                addMessage(response, 'ai');
+            }
+        });
+        
+        // Function to show a specific category's tools section
+        function showCategoryTools(category) {
+            // Hide all category sections first
+            document.querySelectorAll('.category-section').forEach(function(section) {
+                section.style.display = 'none';
+            });
+            
+            // Show the selected category section
+            const categoryId = category.replace(/ /g, '');
+            document.getElementById(categoryId).style.display = 'block';
+            
+            // Scroll to the section
+            document.getElementById(categoryId).scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Function to hide a specific category's tools section
+        function hideCategoryTools(category) {
+            const categoryId = category.replace(/ /g, '');
+            document.getElementById(categoryId).style.display = 'none';
+            
+            // Scroll back to the top of the categories
+            document.querySelector('h2').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Function to search for tools
+        function searchTools() {
+            const searchQuery = document.getElementById('toolSearch').value.toLowerCase();
+            const searchResults = document.getElementById('searchResults');
+            const searchResultsList = document.getElementById('searchResultsList');
+            
+            // Clear previous search results
+            searchResultsList.innerHTML = '';
+            
+            if (searchQuery.length < 2) {
+                searchResults.style.display = 'none';
+                return;
+            }
+            
+            // Make AJAX request to search endpoint
+            fetch('/security-tools/search?q=' + encodeURIComponent(searchQuery))
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length === 0) {
+                        searchResultsList.innerHTML = '<li>No tools found matching your search.</li>';
+                    } else {
+                        data.forEach(tool => {
+                            const listItem = document.createElement('li');
+                            
+                            const icon = document.createElement('i');
+                            icon.setAttribute('data-feather', 'tool');
+                            icon.className = 'tool-list-icon';
+                            
+                            const textDiv = document.createElement('div');
+                            textDiv.className = 'tool-list-text';
+                            
+                            const link = document.createElement('a');
+                            link.href = '/security-tools/' + encodeURIComponent(tool.title);
+                            link.textContent = tool.title;
+                            
+                            const description = document.createElement('small');
+                            description.textContent = ' - ' + tool.description.substring(0, 80) + (tool.description.length > 80 ? '...' : '');
+                            
+                            textDiv.appendChild(link);
+                            textDiv.appendChild(description);
+                            
+                            listItem.appendChild(icon);
+                            listItem.appendChild(textDiv);
+                            
+                            searchResultsList.appendChild(listItem);
+                        });
+                        
+                        // Re-initialize feather icons for the new content
+                        feather.replace();
+                    }
+                    
+                    searchResults.style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Error searching tools:', error);
+                    searchResultsList.innerHTML = '<li>An error occurred while searching.</li>';
+                    searchResults.style.display = 'block';
+                });
+        }
+    </script>
+</body>
+</html>

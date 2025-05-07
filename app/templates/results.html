@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Results - GhostTrace Dark Web Crawler</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1><i data-feather="eye"></i> GhostTrace Dark Web Crawler</h1>
+        </div>
+        <nav>
+            <a href="{{ url_for('index') }}" class="nav-link"><i data-feather="home"></i> Home</a>
+        </nav>
+    </header>
+
+    <main>
+        {% if error %}
+        <section class="error-message">
+            <p><i data-feather="alert-triangle"></i> {{ error }}</p>
+            <a href="{{ url_for('index') }}" class="btn btn-primary">Back to Home</a>
+        </section>
+        {% else %}
+        <section class="job-details">
+            <h2>Job Details: {{ job.id }}</h2>
+            
+            <div class="job-status-card job-status-{{ job.status }}">
+                <div class="job-status-icon">
+                    {% if job.status == 'completed' %}
+                        <i data-feather="check-circle"></i>
+                    {% elif job.status == 'running' %}
+                        <i data-feather="loader"></i>
+                    {% elif job.status == 'failed' %}
+                        <i data-feather="alert-triangle"></i>
+                    {% else %}
+                        <i data-feather="clock"></i>
+                    {% endif %}
+                </div>
+                <div class="job-status-details">
+                    <h3>Status: {{ job.status|title }}</h3>
+                    <p>Started: {{ job.start_time }}</p>
+                    {% if job.status in ['completed', 'failed'] and job.end_time %}
+                        <p>Completed: {{ job.end_time }}</p>
+                    {% endif %}
+                    {% if job.error %}
+                        <p class="error-text">Error: {{ job.error }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="job-parameters">
+                <h3>Parameters</h3>
+                <table class="parameters-table">
+                    <tr>
+                        <th>URLs:</th>
+                        <td>
+                            {% if job.urls|length > 5 %}
+                                {{ job.urls[:5]|join(', ') }} and {{ job.urls|length - 5 }} more
+                            {% else %}
+                                {{ job.urls|join(', ') }}
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Depth:</th>
+                        <td>{{ job.depth }}</td>
+                    </tr>
+                    <tr>
+                        <th>Max Pages:</th>
+                        <td>{{ job.max_pages }}</td>
+                    </tr>
+                    <tr>
+                        <th>AI Analysis:</th>
+                        <td>{{ 'Enabled' if job.analyze_content else 'Disabled' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Output Directory:</th>
+                        <td>{{ job.output_dir }}</td>
+                    </tr>
+                </table>
+            </div>
+            
+            {% if job.status == 'running' %}
+            <div class="job-progress">
+                <h3>Progress</h3>
+                <p>Crawler is currently running. This page will automatically refresh to show updates.</p>
+                <div class="progress-indicator">
+                    <div class="progress-spinner"></div>
+                </div>
+            </div>
+            {% endif %}
+        </section>
+        
+        <section class="results-section">
+            <h2>Result Files</h2>
+            {% if files %}
+                <table class="files-table">
+                    <thead>
+                        <tr>
+                            <th>Filename</th>
+                            <th>Path</th>
+                            <th>Size</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for file in files %}
+                            <tr>
+                                <td>{{ file.name }}</td>
+                                <td>{{ file.path }}</td>
+                                <td>{{ file.size|filesizeformat }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="empty-state">No result files available{% if job.status == 'running' %} yet{% endif %}.</p>
+            {% endif %}
+        </section>
+        
+        {% if job.status == 'completed' and job.result %}
+        <section class="summary-section">
+            <h2>Crawl Summary</h2>
+            <div class="summary-card">
+                <div class="summary-item">
+                    <h3>Pages Crawled</h3>
+                    <p class="summary-value">{{ job.result.crawled_pages }}</p>
+                </div>
+                <div class="summary-item">
+                    <h3>Duration</h3>
+                    <p class="summary-value">{{ job.result.duration_seconds|round(1) }} seconds</p>
+                </div>
+            </div>
+        </section>
+        {% endif %}
+        {% endif %}
+    </main>
+
+    <footer>
+        <p>GhostTrace Dark Web Crawler &copy; 2023</p>
+    </footer>
+
+    <script>
+        // Initialize Feather icons
+        document.addEventListener('DOMContentLoaded', function() {
+            feather.replace();
+            
+            // Auto-refresh if job is running
+            {% if job and job.status == 'running' %}
+            setTimeout(function() {
+                window.location.reload();
+            }, 10000); // Refresh every 10 seconds
+            {% endif %}
+        });
+    </script>
+</body>
+</html>

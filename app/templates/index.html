@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GhostTrace Dark Web Crawler</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1><i data-feather="eye"></i> GhostTrace Dark Web Crawler</h1>
+        </div>
+    </header>
+
+    <main>
+        <section class="status-panel">
+            <h2>System Status</h2>
+            <div class="status-cards">
+                <!-- Tor Status -->
+                <div class="status-card {% if service_status.tor.running %}status-ok{% else %}status-error{% endif %}">
+                    <div class="status-icon">
+                        <i data-feather="wifi"></i>
+                    </div>
+                    <div class="status-details">
+                        <h3>Tor</h3>
+                        {% if service_status.tor.running %}
+                            <p class="status-text">Running</p>
+                            <p class="status-info">Current IP: {{ service_status.tor.ip }}</p>
+                        {% else %}
+                            <p class="status-text">Not Running</p>
+                            <p class="status-info">Tor service must be started for crawler to function</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Ollama Status -->
+                <div class="status-card {% if service_status.ollama.running %}status-ok{% else %}status-error{% endif %}">
+                    <div class="status-icon">
+                        <i data-feather="cpu"></i>
+                    </div>
+                    <div class="status-details">
+                        <h3>Ollama</h3>
+                        {% if service_status.ollama.running %}
+                            <p class="status-text">Running</p>
+                            <p class="status-info">
+                                Model: {{ service_status.ollama.model }}
+                                {% if service_status.ollama.model_available %}
+                                (Available)
+                                {% else %}
+                                (Not Available)
+                                {% endif %}
+                            </p>
+                        {% else %}
+                            <p class="status-text">Not Running</p>
+                            <p class="status-info">Ollama service must be started for AI analysis</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {% if error %}
+        <section class="error-message">
+            <p><i data-feather="alert-triangle"></i> {{ error }}</p>
+        </section>
+        {% endif %}
+
+        <section class="crawl-section">
+            <h2>Start Crawling</h2>
+            <form action="{{ url_for('start_crawl') }}" method="post" class="crawl-form">
+                <div class="form-group">
+                    <label for="urls">URLs (.onion only, one per line)</label>
+                    <textarea id="urls" name="urls" rows="5" placeholder="http://exampleonionsite.onion" required></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="depth">Max Depth</label>
+                        <input type="number" id="depth" name="depth" min="0" max="5" value="1">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="max_pages">Max Pages</label>
+                        <input type="number" id="max_pages" name="max_pages" min="1" max="1000" value="50">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="delay">Delay Range (seconds)</label>
+                        <input type="text" id="delay" name="delay" value="2-5" placeholder="min-max">
+                    </div>
+                </div>
+
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="analyze" name="analyze" checked>
+                    <label for="analyze">Enable AI Analysis</label>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Start Crawling</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="analyze-section">
+            <h2>Analyze Single URL</h2>
+            <form action="{{ url_for('analyze_single') }}" method="post" class="analyze-form">
+                <div class="form-group">
+                    <label for="url">URL (.onion only)</label>
+                    <input type="text" id="url" name="url" placeholder="http://exampleonionsite.onion" required>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-secondary">Analyze URL</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="jobs-section">
+            <h2>Recent Jobs</h2>
+            {% if jobs %}
+                <table class="jobs-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Status</th>
+                            <th>URLs</th>
+                            <th>Start Time</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for job_id, job in jobs.items() %}
+                            <tr>
+                                <td>{{ job.id }}</td>
+                                <td class="job-status-{{ job.status }}">{{ job.status }}</td>
+                                <td>{{ job.urls|length }} URL(s)</td>
+                                <td>{{ job.start_time }}</td>
+                                <td>
+                                    <a href="{{ url_for('job_status', job_id=job.id) }}" class="btn btn-small">View</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="empty-state">No jobs have been started yet.</p>
+            {% endif %}
+        </section>
+    </main>
+
+    <footer>
+        <p>GhostTrace Dark Web Crawler &copy; 2023</p>
+    </footer>
+
+    <script>
+        // Initialize Feather icons
+        document.addEventListener('DOMContentLoaded', function() {
+            feather.replace();
+        });
+    </script>
+</body>
+</html>

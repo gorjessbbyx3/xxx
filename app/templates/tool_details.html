@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ tool.title }} - GhostTrace Security Tools</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        .tool-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .tool-icon {
+            width: 80px;
+            height: 80px;
+            background-color: rgba(52, 152, 219, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1.5rem;
+        }
+        
+        .tool-icon i {
+            font-size: 2rem;
+            color: var(--secondary-color);
+        }
+        
+        .tool-title {
+            flex-grow: 1;
+        }
+        
+        .tool-title h2 {
+            margin-bottom: 0.5rem;
+            border-bottom: none;
+        }
+        
+        .tool-category {
+            display: inline-block;
+            background-color: rgba(52, 152, 219, 0.1);
+            color: var(--secondary-color);
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+        }
+        
+        .tool-commands {
+            background-color: #1a1a1a;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            overflow-x: auto;
+            font-family: monospace;
+        }
+        
+        .command-title {
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .command {
+            margin-bottom: 0.5rem;
+            padding-left: 1rem;
+            position: relative;
+        }
+        
+        .command:before {
+            content: "$";
+            position: absolute;
+            left: 0;
+            color: var(--accent-color);
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1><i data-feather="eye"></i> GhostTrace</h1>
+        </div>
+        <nav>
+            <a href="{{ url_for('index') }}" class="nav-link"><i data-feather="home"></i> Home</a>
+            <a href="{{ url_for('security_tools') }}" class="nav-link"><i data-feather="shield"></i> Security Tools</a>
+        </nav>
+    </header>
+
+    <main>
+        <section>
+            <div class="tool-header">
+                <div class="tool-icon">
+                    <i data-feather="{% if 'web' in tool.category|lower %}globe{% elif 'information' in tool.category|lower %}search{% elif 'anonymity' in tool.category|lower %}shield{% elif 'forensic' in tool.category|lower %}hard-drive{% else %}tool{% endif %}"></i>
+                </div>
+                <div class="tool-title">
+                    <h2>{{ tool.title }}</h2>
+                    <div class="tool-category">{{ tool.category }}</div>
+                    {% if tool.project_url %}
+                    <div class="tool-link">
+                        <a href="{{ tool.project_url }}" target="_blank">
+                            <i data-feather="external-link"></i> Project Website
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="tool-description">
+                <h3>Description</h3>
+                <p>{{ tool.description }}</p>
+            </div>
+            
+            {% if tool.installable %}
+            <div class="tool-installation">
+                <h3>Installation</h3>
+                <div class="tool-commands">
+                    <div class="command-title">Installation Commands:</div>
+                    {% for command in tool.install_commands %}
+                    <div class="command">{{ command }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if tool.runnable %}
+            <div class="tool-usage">
+                <h3>Usage</h3>
+                <div class="tool-commands">
+                    <div class="command-title">Run Commands:</div>
+                    {% for command in tool.run_commands %}
+                    <div class="command">{{ command }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="action-buttons">
+                {% if tool.installable %}
+                <button class="btn btn-primary" onclick="executeTool('{{ tool.title }}', 'install')">
+                    <i data-feather="download"></i> Install
+                </button>
+                {% endif %}
+                
+                {% if tool.runnable %}
+                <button class="btn btn-secondary" onclick="executeTool('{{ tool.title }}', 'run')">
+                    <i data-feather="play"></i> Run
+                </button>
+                {% endif %}
+                
+                <a href="{{ url_for('security_tools') }}" class="btn btn-secondary">
+                    <i data-feather="arrow-left"></i> Back to Tools
+                </a>
+            </div>
+            
+            <div id="result-message" style="display: none; margin-top: 1rem; padding: 1rem; border-radius: 8px;"></div>
+        </section>
+    </main>
+
+    <footer>
+        <p>GhostTrace Dark Web Crawler &copy; 2025 | <a href="https://github.com/Z4nzu/hackingtool" target="_blank">GitHub</a></p>
+    </footer>
+
+    <script>
+        // Initialize Feather icons
+        document.addEventListener('DOMContentLoaded', function() {
+            feather.replace();
+        });
+        
+        // Function to execute tool actions
+        function executeTool(toolName, action) {
+            const resultMessage = document.getElementById('result-message');
+            resultMessage.style.display = 'none';
+            
+            // In a real implementation, this would make an AJAX call to the server
+            // For demo purposes, we'll just show a message
+            setTimeout(() => {
+                resultMessage.style.display = 'block';
+                resultMessage.style.backgroundColor = 'rgba(46, 204, 113, 0.1)';
+                resultMessage.style.color = '#2ecc71';
+                resultMessage.style.borderLeft = '4px solid #2ecc71';
+                
+                if (action === 'install') {
+                    resultMessage.innerHTML = `<i data-feather="check-circle"></i> Tool "${toolName}" installation initiated. Check the terminal for progress.`;
+                } else if (action === 'run') {
+                    resultMessage.innerHTML = `<i data-feather="check-circle"></i> Tool "${toolName}" execution initiated. Check the terminal for output.`;
+                }
+                
+                feather.replace();
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
