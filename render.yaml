@@ -5,22 +5,21 @@ services:
     env: python
     buildCommand: |
       pip install -r requirements.txt
-      curl -fsSL https://ollama.com/install.sh | sh
-      ollama serve &
-      sleep 5
-      ollama pull mistral:7b
-      ollama create wormgpt -f Modelfile
-    startCommand: |
-      ollama serve &
-      sleep 5 
-      python app.py
+      mkdir -p ollama
+      cd ollama
+      curl -fsSL https://ollama.com/download/ollama-linux-amd64 -o ollama
+      chmod +x ollama
+      cd ..
+    startCommand: python app.py
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
       - key: PORT
         value: 5000
+      - key: HOST
+        value: "0.0.0.0"
       - key: OLLAMA_HOST
         value: "0.0.0.0"
-      - key: OLLAMA_PORT  
+      - key: OLLAMA_PORT
         value: 11434
     healthCheckPath: /
