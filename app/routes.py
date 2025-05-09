@@ -62,16 +62,22 @@ def check_services():
         # Get public IP address
         public_ip = tor.get_current_ip() if tor.is_tor_running() else "Unknown"
 
+        # Return complete service status
         return {
             "tor": tor_status,
             "ollama": ollama_status,
-            "public_ip": public_ip
+            "public_ip": public_ip,
+            "openai": {
+                "available": False,  # Set default OpenAI status
+                "model": None
+            }
         }
     except Exception as e:
         logger.error(f"Error checking services: {e}")
         return {
             "tor": {"running": False, "ip": None},
             "ollama": {"available": False, "model": None},
+            "openai": {"available": False, "model": None},
             "public_ip": "Unknown",
             "error": str(e)
         }
@@ -235,6 +241,26 @@ def api_job_status(job_id):
     if job_id not in job_statuses:
         return jsonify({"error": "Job not found"}), 404
     return jsonify(job_statuses[job_id])
+
+@app.route('/interactive_tools')
+def interactive_tools():
+    """Interactive tools dashboard"""
+    service_status = check_services()
+    return render_template('interactive_tools.html', service_status=service_status)
+
+@app.route('/analyze_single', methods=['GET', 'POST'])
+def analyze_single():
+    """Single URL analysis interface"""
+    if request.method == 'POST':
+        url = request.form.get('url')
+        if url and is_valid_onion_url(url):
+            result = analyze_single_url(url)
+            return render_template('results.html', 
+                                 result=result, 
+                                 service_status=check_services())
+    return render_template('index.html', 
+                         service_status=check_services(),
+                         jobs=job_statuses)
 
 @app.route('/security_tools')
 @app.route('/security-tools')
