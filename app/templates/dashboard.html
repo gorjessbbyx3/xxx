@@ -131,9 +131,35 @@
         </nav>
     </header>
 
-    <main>
-        <!-- Status Overview -->
-        <section class="status-panel">
+    <div class="page-container">
+        <!-- Chat Sidebar -->
+        <div class="chat-sidebar" id="chatSidebar">
+            <div class="chat-header">
+                <h3 class="chat-title">Uncensored AI Chat</h3>
+                <button class="chat-toggle" id="chatToggle">
+                    <i data-feather="chevrons-left"></i>
+                </button>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="chat-message ai-message">
+                    Welcome to BINGOxBANGO, ready to get into some trouble?
+                </div>
+            </div>
+            <div class="chat-input-container">
+                <form class="chat-input-form" id="chatForm">
+                    <input type="text" class="chat-input" id="userMessage" placeholder="Type your message...">
+                    <button type="submit" class="chat-send">
+                        <i data-feather="send"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <main>
+                <!-- Status Overview -->
+                <section class="status-panel">
             <h2>System Status</h2>
             <div class="status-cards">
                 <!-- Tor Browser -->
@@ -454,7 +480,7 @@
                     </div>
                     <div class="activity-item-content">
                         {% if not service_status.tor.running %}Tor service not running. {% endif %}
-                        {% if not service_status.openai.available %}OpenAI API not available. {% endif %}
+                        {% if service_status.openai and not service_status.openai.available %}OpenAI API not available. {% endif %}
                         {% if service_status.tor.running and service_status.openai.available %}All services running correctly.{% endif %}
                     </div>
                 </li>
@@ -476,6 +502,76 @@
             </ul>
         </section>
     </main>
+        </div>
+    </div>
+    
+    <script>
+        // Chat functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatForm = document.getElementById('chatForm');
+            const chatMessages = document.getElementById('chatMessages');
+            const userMessageInput = document.getElementById('userMessage');
+
+            // Toggle chat sidebar
+            const chatToggle = document.getElementById('chatToggle');
+            const chatSidebar = document.getElementById('chatSidebar');
+            const mainContent = document.getElementById('mainContent');
+
+            chatToggle.addEventListener('click', function() {
+                chatSidebar.classList.toggle('chat-sidebar-collapsed');
+                mainContent.classList.toggle('main-content-expanded');
+                
+                if (chatSidebar.classList.contains('chat-sidebar-collapsed')) {
+                    chatToggle.innerHTML = '<i data-feather="chevrons-right"></i>';
+                } else {
+                    chatToggle.innerHTML = '<i data-feather="chevrons-left"></i>';
+                }
+                feather.replace();
+            });
+
+            // Handle chat form submission
+            chatForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const message = userMessageInput.value.trim();
+                if (!message) return;
+
+                // Add user message
+                addMessage(message, 'user');
+                userMessageInput.value = '';
+
+                // Send to API
+                fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        uncensored: true
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        addMessage("Error: " + data.error, 'system');
+                    } else {
+                        addMessage(data.response, 'ai');
+                    }
+                })
+                .catch(error => {
+                    addMessage("Error: Could not connect to AI service", 'system');
+                });
+            });
+
+            function addMessage(message, type) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `chat-message ${type}-message`;
+                messageDiv.textContent = message;
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+        });
+    </script>
 
     <footer>
         <p>GhostTrace Dark Web Crawler &copy; 2025 | <a href="https://github.com/Z4nzu/hackingtool" target="_blank">GitHub</a></p>
