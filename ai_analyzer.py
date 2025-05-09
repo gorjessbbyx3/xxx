@@ -17,7 +17,7 @@ class OllamaAnalyzer:
     """Class to handle interactions with Ollama for analysis"""
     def __init__(self, model_name: str = "wormgpt"):
         self.model_name = model_name
-        self.base_url = "http://0.0.0.0:11434/api"
+        self.base_url = "http://127.0.0.1:11434/api"
 
     def wait_for_ollama(self, max_retries=5, retry_delay=2) -> bool:
         """Wait for Ollama to become available"""

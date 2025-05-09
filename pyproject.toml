@@ -8,6 +8,7 @@ dependencies = [
     "bip32utils>=0.3.post4",
     "exifread>=3.3.0",
     "flask>=3.1.0",
+    "gunicorn>=23.0.0",
     "hashid>=3.1.4",
     "mnemonic>=0.21",
     "numpy>=2.2.5",
