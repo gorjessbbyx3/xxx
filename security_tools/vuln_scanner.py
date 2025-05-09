@@ -1,3 +1,4 @@
+
 """
 Enhanced Vulnerability Scanner with additional security checks
 """
@@ -13,6 +14,7 @@ from bs4 import BeautifulSoup
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
+class VulnerabilityScanner:
     def _check_cors(self, result: Dict[str, Any], header: str, value: str) -> None:
         """Check CORS configuration for security issues"""
         if value == '*':
@@ -99,7 +101,6 @@ class VulnerabilityScanner:
         Returns:
             Boolean indicating if string is a valid domain
         """
-        # Basic domain validation
         pattern = r"^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$"
         return bool(re.match(pattern, domain))
 
@@ -215,21 +216,6 @@ class VulnerabilityScanner:
             'Content-Security-Policy': {'required': True},
             'Strict-Transport-Security': {'required': True},
             'Referrer-Policy': {'required': False, 'recommended': 'strict-origin-when-cross-origin'},
-            'Permissions-Policy': {'required': True},
-            'Cross-Origin-Embedder-Policy': {'required': False},
-            'Cross-Origin-Opener-Policy': {'required': False},
-            'Cross-Origin-Resource-Policy': {'required': False},
-            'Access-Control-Allow-Origin': {'required': False, 'check': self._check_cors},
-            'Expect-CT': {'required': False},
-            'Report-To': {'required': False},
-            'NEL': {'required': False}
-        }
-            'X-XSS-Protection': {'required': True, 'recommended': '1; mode=block'},
-            'X-Content-Type-Options': {'required': True, 'recommended': 'nosniff'},
-            'X-Frame-Options': {'required': True, 'recommended': ['DENY', 'SAMEORIGIN']},
-            'Content-Security-Policy': {'required': True},
-            'Strict-Transport-Security': {'required': True},
-            'Referrer-Policy': {'required': False, 'recommended': 'strict-origin-when-cross-origin'},
             'Feature-Policy': {'required': False},
             'Access-Control-Allow-Origin': {'required': False, 'check': self._check_cors}
         }
@@ -241,7 +227,7 @@ class VulnerabilityScanner:
                     result['vulnerabilities'].append({
                         'type': 'missing_security_header',
                         'header': header,
-                        'severity': 'high',
+                        'severity': severity,
                         'description': f'Missing required security header: {header}'
                     })
             else:
@@ -282,29 +268,6 @@ class VulnerabilityScanner:
                     'severity': 'low',
                     'description': f'Header {header} reveals technology information'
                 })
-
-
-    def analyze_ssl_cert(self, hostname: str) -> Dict[str, Any]:
-        """Analyze SSL/TLS certificate"""
-        try:
-            import ssl
-            import socket
-
-            context = ssl.create_default_context()
-            with context.wrap_socket(socket.socket(), server_hostname=hostname) as sock:
-                sock.connect((hostname, 443))
-                cert = sock.getpeercert()
-
-                return {
-                    "subject": dict(x[0] for x in cert['subject']),
-                    "issuer": dict(x[0] for x in cert['issuer']),
-                    "version": cert['version'],
-                    "serialNumber": cert['serialNumber'],
-                    "notBefore": cert['notBefore'],
-                    "notAfter": cert['notAfter']
-                }
-        except Exception as e:
-            return {"error": str(e)}
 
     def _analyze_html_content(self, result: Dict[str, Any], content: str) -> None:
         """
