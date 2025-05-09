@@ -165,21 +165,5 @@ class PasswordToolsCollection(HackingToolsCollection):
         CredentialHarvesterTool(),
         CudaHashcatTool(),
         OphcrackTool(),
-        SqlmapAdvancedTool(),
-        PasswordStrengthAnalyzerTool(),
-        PassphraseGeneratorTool(),
-        HashIdentifierTool(),
-        RainbowTableTool(),
-        PasswordPolicyAuditorTool(),
-        MFABypassCheckerTool()
-    ]
-        HashcatTool(),
-        JohnTheRipperTool(),
-        HydraFtpTool(),
-        HydraSshTool(),
-        XHydraGUITool(),
-        CredentialHarvesterTool(),
-        CudaHashcatTool(),
-        OphcrackTool(),
         SqlmapAdvancedTool()
     ]
