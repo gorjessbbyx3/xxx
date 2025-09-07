@@ -1,11 +1,10 @@
-modules = ["python-3.11"]
+modules = ["bash", "nodejs-20", "python-3.11", "web"]
 
 [nix]
 channel = "stable-24_05"
 packages = ["freetype", "geckodriver", "gmp", "imagemagickBig", "lcms2", "libGL", "libGLU", "libimagequant", "libjpeg", "libtiff", "libwebp", "libxcrypt", "openjpeg", "sox", "tcl", "tcpdump", "tk", "wireshark", "zlib"]
 
 [workflows]
-runButton = "Project"
 
 [[workflows.workflow]]
 name = "Project"

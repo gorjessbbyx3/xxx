@@ -1,301 +1,375 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Security Tools - BINGOxBANGO</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
     <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
-</head>
-<body>
+  </head>
+  <body>
     <header>
-        <div class="logo">
-            <h1><i data-feather="shield"></i> Security Tools</h1>
-        </div>
-        <nav>
-            <a href="{{ url_for('index') }}" class="nav-link"><i data-feather="home"></i> Home</a>
-            <a href="{{ url_for('security_tools') }}" class="nav-link"><i data-feather="shield"></i> Security Tools</a>
-            <a href="{{ url_for('interactive_tools') }}" class="nav-link"><i data-feather="cpu"></i> Interactive Tools</a>
-            <a href="{{ url_for('check_designer') }}" class="nav-link"><i data-feather="file-text"></i> Check Designer</a>
-        </nav>
+      <div class="logo">
+        <h1><i data-feather="shield"></i> Security Tools</h1>
+      </div>
+      <nav>
+        <a href="{{ url_for('index') }}" class="nav-link"
+          ><i data-feather="home"></i> Home</a
+        >
+        <a href="{{ url_for('security_tools') }}" class="nav-link"
+          ><i data-feather="shield"></i> Security Tools</a
+        >
+        <a href="{{ url_for('interactive_tools') }}" class="nav-link"
+          ><i data-feather="cpu"></i> Interactive Tools</a
+        >
+        <a href="{{ url_for('check_designer') }}" class="nav-link"
+          ><i data-feather="file-text"></i> Check Designer</a
+        >
+      </nav>
     </header>
 
     <main>
-        <section>
-            <h2>Available Tools</h2>
-            <div class="dashboard-grid">
-                {% for category, tools in tools_by_category.items() %}
-                <div class="dashboard-card">
-                    <div class="dashboard-card-header">
-                        <div class="dashboard-card-icon">
-                            <i data-feather="{{ category|lower|replace(' ', '-') }}"></i>
-                        </div>
-                        <h3 class="dashboard-card-title">{{ category }}</h3>
-                    </div>
-                    <div class="dashboard-card-content">
-                        <ul class="tool-list">
-                            {% for tool in tools %}
-                            <li>
-                                <i class="tool-list-icon" data-feather="chevron-right"></i>
-                                <div class="tool-list-text">
-                                    <a href="{{ url_for('view_tool_details', tool_name=tool.title) }}">{{ tool.title }}</a>
-                                    <span class="tool-command-example">Example: {% if "nmap" in tool.title|lower %}nmap -p 1-1000 scanme.nmap.org{% elif "hydra" in tool.title|lower %}hydra -l admin -P passlist.txt ssh://10.0.0.1{% elif "hashcat" in tool.title|lower %}hashcat -m 0 -a 0 hash.txt wordlist.txt{% elif "aircrack" in tool.title|lower %}aircrack-ng -w wordlist.txt capture.cap{% elif "sqlmap" in tool.title|lower %}sqlmap -u "http://example.com/vuln.php?id=1" --dbs{% elif "metasploit" in tool.title|lower %}msfconsole -q -x "use exploit/multi/handler; set PAYLOAD windows/meterpreter/reverse_tcp; run"{% elif "wireshark" in tool.title|lower %}tshark -i eth0 -f "port 80"{% elif "john" in tool.title|lower %}john --wordlist=password.lst hash.txt{% elif "beef" in tool.title|lower %}beef -x{% else %}tool --help{% endif %}</span>
-                                </div>
-                            </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                    <div class="dashboard-card-footer">
-                        <a href="#{{ category|replace(' ', '') }}" class="btn btn-primary" onclick="showCategoryTools('{{ category }}')">View All</a>
-                    </div>
-                </div>
-                {% endfor %}
+      <section>
+        <h2>Available Tools</h2>
+        <div class="dashboard-grid">
+          {% for category, tools in tools_by_category.items() %}
+          <div class="dashboard-card">
+            <div class="dashboard-card-header">
+              <div class="dashboard-card-icon">
+                <i data-feather="{{ category|lower|replace(' ', '-') }}"></i>
+              </div>
+              <h3 class="dashboard-card-title">{{ category }}</h3>
             </div>
+            <div class="dashboard-card-content">
+              <ul class="tool-list">
+                {% for tool in tools %}
+                <li>
+                  <i class="tool-list-icon" data-feather="chevron-right"></i>
+                  <div class="tool-list-text">
+                    <a
+                      href="{{ url_for('view_tool_details', tool_name=tool.title) }}"
+                      >{{ tool.title }}</a
+                    >
+                    <span class="tool-command-example"
+                      >Example: {% if "nmap" in tool.title|lower %}nmap -p
+                      1-1000 scanme.nmap.org{% elif "hydra" in tool.title|lower
+                      %}hydra -l admin -P passlist.txt ssh://10.0.0.1{% elif
+                      "hashcat" in tool.title|lower %}hashcat -m 0 -a 0 hash.txt
+                      wordlist.txt{% elif "aircrack" in tool.title|lower
+                      %}aircrack-ng -w wordlist.txt capture.cap{% elif "sqlmap"
+                      in tool.title|lower %}sqlmap -u
+                      "http://example.com/vuln.php?id=1" --dbs{% elif
+                      "metasploit" in tool.title|lower %}msfconsole -q -x "use
+                      exploit/multi/handler; set PAYLOAD
+                      windows/meterpreter/reverse_tcp; run"{% elif "wireshark"
+                      in tool.title|lower %}tshark -i eth0 -f "port 80"{% elif
+                      "john" in tool.title|lower %}john --wordlist=password.lst
+                      hash.txt{% elif "beef" in tool.title|lower %}beef -x{%
+                      else %}tool --help{% endif %}</span
+                    >
+                  </div>
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
+            <div class="dashboard-card-footer">
+              <a
+                href="#{{ category|replace(' ', '') }}"
+                class="btn btn-primary"
+                onclick="showCategoryTools('{{ category }}')"
+                >View All</a
+              >
+            </div>
+          </div>
+          {% endfor %}
+        </div>
 
-            {% for category, tools in tools_by_category.items() %}
-            <div id="{{ category|replace(' ', '') }}" class="category-section" style="display: none; margin-top: 2rem;">
-                <h3>{{ category }} ({{ tools|length }} tools)</h3>
-                <div class="tool-grid">
-                    {% for tool in tools %}
-                    <div class="tool-card">
-                        <div class="tool-card-header">
-                            <h4>{{ tool.title }}</h4>
-                        </div>
-                        <div class="tool-card-content">
-                            <p>{{ tool.description|truncate(100) }}</p>
-                        </div>
-                        <div class="tool-card-footer">
-                            <a href="{{ url_for('view_tool_details', tool_name=tool.title) }}" class="btn btn-small">Details</a>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-                <div style="text-align: center; margin-top: 1rem;">
-                    <button class="btn btn-secondary" onclick="hideCategoryTools('{{ category }}')">
-                        <i data-feather="chevron-up"></i> Hide
-                    </button>
-                </div>
+        {% for category, tools in tools_by_category.items() %}
+        <div
+          id="{{ category|replace(' ', '') }}"
+          class="category-section"
+          style="display: none; margin-top: 2rem"
+        >
+          <h3>{{ category }} ({{ tools|length }} tools)</h3>
+          <div class="tool-grid">
+            {% for tool in tools %}
+            <div class="tool-card">
+              <div class="tool-card-header">
+                <h4>{{ tool.title }}</h4>
+              </div>
+              <div class="tool-card-content">
+                <p>{{ tool.description|truncate(100) }}</p>
+              </div>
+              <div class="tool-card-footer">
+                <a
+                  href="{{ url_for('view_tool_details', tool_name=tool.title) }}"
+                  class="btn btn-small"
+                  >Details</a
+                >
+              </div>
             </div>
             {% endfor %}
-        </section>
+          </div>
+          <div style="text-align: center; margin-top: 1rem">
+            <button
+              class="btn btn-secondary"
+              onclick="hideCategoryTools('{{ category }}')"
+            >
+              <i data-feather="chevron-up"></i> Hide
+            </button>
+          </div>
+        </div>
+        {% endfor %}
+      </section>
     </main>
 
     <footer>
-        <p>BINGOxBANGO Dark Web Crawler &copy; 2025 | <a href="https://github.com/Z4nzu/hackingtool" target="_blank">GitHub</a></p>
+      <p>
+        BINGOxBANGO Dark Web Crawler &copy; 2025 |
+        <a href="https://github.com/Z4nzu/hackingtool" target="_blank"
+          >GitHub</a
+        >
+      </p>
     </footer>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            feather.replace();
+      document.addEventListener("DOMContentLoaded", function () {
+        feather.replace();
 
-            // Initialize chat
-            const chatForm = document.getElementById('chatForm');
-            const chatMessages = document.getElementById('chatMessages');
-            const userInput = document.getElementById('userMessage');
-            const chatToggle = document.getElementById('chatToggle');
-            const chatSidebar = document.getElementById('chatSidebar');
-            const mainContent = document.getElementById('mainContent');
+        // Initialize chat
+        const chatForm = document.getElementById("chatForm");
+        const chatMessages = document.getElementById("chatMessages");
+        const userInput = document.getElementById("userMessage");
+        const chatToggle = document.getElementById("chatToggle");
+        const chatSidebar = document.getElementById("chatSidebar");
+        const mainContent = document.getElementById("mainContent");
 
-            // Toggle chat sidebar
-            chatToggle.addEventListener('click', function() {
-                chatSidebar.classList.toggle('chat-sidebar-collapsed');
-                mainContent.classList.toggle('main-content-expanded');
-                chatToggle.innerHTML = chatSidebar.classList.contains('chat-sidebar-collapsed') 
-                    ? '<i data-feather="chevrons-right"></i>' 
-                    : '<i data-feather="chevrons-left"></i>';
-                feather.replace();
-            });
-
-            // Handle chat form submission
-            chatForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const message = userInput.value.trim();
-                if (!message) return;
-
-                // Add user message
-                addMessage(message, true);
-                userInput.value = '';
-
-                try {
-                    const response = await fetch('/api/chat', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ message, uncensored: true })
-                    });
-
-                    if (!response.ok) throw new Error('Network response was not ok');
-                    const data = await response.json();
-
-                    // Add AI response
-                    addMessage(data.response, false);
-                } catch (error) {
-                    console.error('Error:', error);
-                    addMessage('Sorry, I encountered an error. Please try again.', false);
-                }
-            });
-
-            function addMessage(text, isUser) {
-                const messageDiv = document.createElement('div');
-                messageDiv.className = `chat-message ${isUser ? 'user-message' : 'ai-message'}`;
-                messageDiv.textContent = text;
-                chatMessages.appendChild(messageDiv);
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-            }
-
-            // Function to search for tools
-            // Function for quick search using tags
-            function quickSearch(tag) {
-                const searchInput = document.getElementById('toolSearch');
-                searchInput.value = tag;
-                searchTools();
-
-                // Highlight the clicked tag
-                document.querySelectorAll('.search-tag').forEach(tagEl => {
-                    tagEl.style.backgroundColor = '';
-                    tagEl.style.borderColor = '';
-
-                    if (tagEl.textContent.toLowerCase() === tag.toLowerCase()) {
-                        tagEl.style.backgroundColor = 'var(--primary-color)';
-                        tagEl.style.borderColor = 'var(--primary-color)';
-                    }
-                });
-            }
-
-            function searchTools() {
-                const searchInput = document.getElementById('toolSearch');
-                const searchQuery = searchInput.value.toLowerCase().trim();
-                const searchResults = document.getElementById('searchResults');
-                const searchResultsGrid = document.getElementById('searchResultsGrid');
-                const resultsCount = document.getElementById('resultsCount');
-
-                if (searchQuery.length < 2) {
-                    searchResults.style.display = 'none';
-                    return;
-                }
-
-                // Show loading state
-                searchResults.style.display = 'block';
-                searchResultsGrid.innerHTML = '<div class="loading-indicator"><i data-feather="loader"></i> Searching...</div>';
-                feather.replace();
-
-                fetch('/search_security_tools?query=' + encodeURIComponent(searchQuery))
-                    .then(response => response.json())
-                    .then(data => {
-                        searchResultsGrid.innerHTML = '';
-
-                        if (!data.results || data.results.length === 0) {
-                            searchResultsGrid.innerHTML = '<div class="no-results">No tools found matching your query. Try different keywords or check our <a href="#" onclick="showAllTools()">complete tools list</a>.</div>';
-                            resultsCount.textContent = '0 tools found';
-                        } else {
-                            // Update count
-                            const toolCount = data.results.length;
-                            resultsCount.textContent = `${toolCount} tool${toolCount === 1 ? '' : 's'} found`;
-
-                            // Create card for each tool
-                            data.results.forEach(tool => {
-                                const toolCard = document.createElement('div');
-                                toolCard.className = 'tool-card';
-
-                                const toolHeader = document.createElement('div');
-                                toolHeader.className = 'tool-card-header';
-
-                                const toolTitle = document.createElement('h4');
-                                toolTitle.textContent = tool.title;
-
-                                const toolContent = document.createElement('div');
-                                toolContent.className = 'tool-card-content';
-
-                                const toolDescription = document.createElement('p');
-                                toolDescription.textContent = tool.description;
-
-                                const toolFooter = document.createElement('div');
-                                toolFooter.className = 'tool-card-footer';
-
-                                const toolLink = document.createElement('a');
-                                toolLink.href = `/tool/${encodeURIComponent(tool.title)}`;
-                                toolLink.className = 'btn btn-small';
-                                toolLink.textContent = 'Details';
-
-                                // Build the card
-                                toolHeader.appendChild(toolTitle);
-                                toolContent.appendChild(toolDescription);
-                                toolFooter.appendChild(toolLink);
-
-                                toolCard.appendChild(toolHeader);
-                                toolCard.appendChild(toolContent);
-                                toolCard.appendChild(toolFooter);
-
-                                searchResultsGrid.appendChild(toolCard);
-                            });
-
-                            // Re-initialize feather icons for the new content
-                            feather.replace();
-                        }
-
-                        // Highlight matching text in results
-                        highlightSearchResults(searchQuery);
-
-                        // Ensure search results are visible
-                        searchResults.style.display = 'block';
-
-                        // Smooth scroll to results
-                        const yOffset = -100;
-                        const y = searchResults.getBoundingClientRect().top + window.pageYOffset + yOffset;
-                        window.scrollTo({top: y, behavior: 'smooth'});
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        searchResultsGrid.innerHTML = '<div class="error-message">An error occurred while searching. Please try again.</div>';
-                    });
-            }
-
-            // Function to highlight matching text in search results
-            function highlightSearchResults(query) {
-                if (!query || query.length < 2) return;
-
-                const regex = new RegExp(`(${query})`, 'gi');
-
-                document.querySelectorAll('#searchResultsGrid .tool-card-content p, #searchResultsGrid .tool-card-header h4').forEach(element => {
-                    const originalText = element.textContent;
-                    element.innerHTML = originalText.replace(regex, '<span class="highlight">$1</span>');
-                });
-            }
-
-            // Function to show all tools
-            function showAllTools() {
-                const allCategories = [];
-                document.querySelectorAll('.dashboard-card-title').forEach(el => {
-                    allCategories.push(el.textContent.trim());
-                });
-
-                // Hide search results
-                document.getElementById('searchResults').style.display = 'none';
-                document.getElementById('toolSearch').value = '';
-
-                // Clear highlighted tags
-                document.querySelectorAll('.search-tag').forEach(tagEl => {
-                    tagEl.style.backgroundColor = '';
-                    tagEl.style.borderColor = '';
-                });
-
-                // Show all categories one after another
-                let delay = 0;
-                allCategories.forEach(category => {
-                    setTimeout(() => showCategoryTools(category), delay);
-                    delay += 300;
-                });
-            }
+        // Toggle chat sidebar
+        chatToggle.addEventListener("click", function () {
+          chatSidebar.classList.toggle("chat-sidebar-collapsed");
+          mainContent.classList.toggle("main-content-expanded");
+          chatToggle.innerHTML = chatSidebar.classList.contains(
+            "chat-sidebar-collapsed",
+          )
+            ? '<i data-feather="chevrons-right"></i>'
+            : '<i data-feather="chevrons-left"></i>';
+          feather.replace();
         });
 
-        function showCategoryTools(category) {
-            document.getElementById(category.replace(/ /g, '')).style.display = 'block';
+        // Handle chat form submission
+        chatForm.addEventListener("submit", async function (e) {
+          e.preventDefault();
+          const message = userInput.value.trim();
+          if (!message) return;
+
+          // Add user message
+          addMessage(message, true);
+          userInput.value = "";
+
+          try {
+            const response = await fetch("/api/chat", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ message, uncensored: true }),
+            });
+
+            if (!response.ok) throw new Error("Network response was not ok");
+            const data = await response.json();
+
+            // Add AI response
+            addMessage(data.response, false);
+          } catch (error) {
+            console.error("Error:", error);
+            addMessage(
+              "Sorry, I encountered an error. Please try again.",
+              false,
+            );
+          }
+        });
+
+        function addMessage(text, isUser) {
+          const messageDiv = document.createElement("div");
+          messageDiv.className = `chat-message ${isUser ? "user-message" : "ai-message"}`;
+          messageDiv.textContent = text;
+          chatMessages.appendChild(messageDiv);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
-        function hideCategoryTools(category) {
-            document.getElementById(category.replace(/ /g, '')).style.display = 'none';
+        // Function to search for tools
+        // Function for quick search using tags
+        function quickSearch(tag) {
+          const searchInput = document.getElementById("toolSearch");
+          searchInput.value = tag;
+          searchTools();
+
+          // Highlight the clicked tag
+          document.querySelectorAll(".search-tag").forEach((tagEl) => {
+            tagEl.style.backgroundColor = "";
+            tagEl.style.borderColor = "";
+
+            if (tagEl.textContent.toLowerCase() === tag.toLowerCase()) {
+              tagEl.style.backgroundColor = "var(--primary-color)";
+              tagEl.style.borderColor = "var(--primary-color)";
+            }
+          });
         }
+
+        function searchTools() {
+          const searchInput = document.getElementById("toolSearch");
+          const searchQuery = searchInput.value.toLowerCase().trim();
+          const searchResults = document.getElementById("searchResults");
+          const searchResultsGrid =
+            document.getElementById("searchResultsGrid");
+          const resultsCount = document.getElementById("resultsCount");
+
+          if (searchQuery.length < 2) {
+            searchResults.style.display = "none";
+            return;
+          }
+
+          // Show loading state
+          searchResults.style.display = "block";
+          searchResultsGrid.innerHTML =
+            '<div class="loading-indicator"><i data-feather="loader"></i> Searching...</div>';
+          feather.replace();
+
+          fetch(
+            "/search_security_tools?query=" + encodeURIComponent(searchQuery),
+          )
+            .then((response) => response.json())
+            .then((data) => {
+              searchResultsGrid.innerHTML = "";
+
+              if (!data.results || data.results.length === 0) {
+                searchResultsGrid.innerHTML =
+                  '<div class="no-results">No tools found matching your query. Try different keywords or check our <a href="#" onclick="showAllTools()">complete tools list</a>.</div>';
+                resultsCount.textContent = "0 tools found";
+              } else {
+                // Update count
+                const toolCount = data.results.length;
+                resultsCount.textContent = `${toolCount} tool${toolCount === 1 ? "" : "s"} found`;
+
+                // Create card for each tool
+                data.results.forEach((tool) => {
+                  const toolCard = document.createElement("div");
+                  toolCard.className = "tool-card";
+
+                  const toolHeader = document.createElement("div");
+                  toolHeader.className = "tool-card-header";
+
+                  const toolTitle = document.createElement("h4");
+                  toolTitle.textContent = tool.title;
+
+                  const toolContent = document.createElement("div");
+                  toolContent.className = "tool-card-content";
+
+                  const toolDescription = document.createElement("p");
+                  toolDescription.textContent = tool.description;
+
+                  const toolFooter = document.createElement("div");
+                  toolFooter.className = "tool-card-footer";
+
+                  const toolLink = document.createElement("a");
+                  toolLink.href = `/tool/${encodeURIComponent(tool.title)}`;
+                  toolLink.className = "btn btn-small";
+                  toolLink.textContent = "Details";
+
+                  // Build the card
+                  toolHeader.appendChild(toolTitle);
+                  toolContent.appendChild(toolDescription);
+                  toolFooter.appendChild(toolLink);
+
+                  toolCard.appendChild(toolHeader);
+                  toolCard.appendChild(toolContent);
+                  toolCard.appendChild(toolFooter);
+
+                  searchResultsGrid.appendChild(toolCard);
+                });
+
+                // Re-initialize feather icons for the new content
+                feather.replace();
+              }
+
+              // Highlight matching text in results
+              highlightSearchResults(searchQuery);
+
+              // Ensure search results are visible
+              searchResults.style.display = "block";
+
+              // Smooth scroll to results
+              const yOffset = -100;
+              const y =
+                searchResults.getBoundingClientRect().top +
+                window.pageYOffset +
+                yOffset;
+              window.scrollTo({ top: y, behavior: "smooth" });
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+              searchResultsGrid.innerHTML =
+                '<div class="error-message">An error occurred while searching. Please try again.</div>';
+            });
+        }
+
+        // Function to highlight matching text in search results
+        function highlightSearchResults(query) {
+          if (!query || query.length < 2) return;
+
+          const regex = new RegExp(`(${query})`, "gi");
+
+          document
+            .querySelectorAll(
+              "#searchResultsGrid .tool-card-content p, #searchResultsGrid .tool-card-header h4",
+            )
+            .forEach((element) => {
+              const originalText = element.textContent;
+              element.innerHTML = originalText.replace(
+                regex,
+                '<span class="highlight">$1</span>',
+              );
+            });
+        }
+
+        // Function to show all tools
+        function showAllTools() {
+          const allCategories = [];
+          document.querySelectorAll(".dashboard-card-title").forEach((el) => {
+            allCategories.push(el.textContent.trim());
+          });
+
+          // Hide search results
+          document.getElementById("searchResults").style.display = "none";
+          document.getElementById("toolSearch").value = "";
+
+          // Clear highlighted tags
+          document.querySelectorAll(".search-tag").forEach((tagEl) => {
+            tagEl.style.backgroundColor = "";
+            tagEl.style.borderColor = "";
+          });
+
+          // Show all categories one after another
+          let delay = 0;
+          allCategories.forEach((category) => {
+            setTimeout(() => showCategoryTools(category), delay);
+            delay += 300;
+          });
+        }
+      });
+
+      function showCategoryTools(category) {
+        document.getElementById(category.replace(/ /g, "")).style.display =
+          "block";
+      }
+
+      function hideCategoryTools(category) {
+        document.getElementById(category.replace(/ /g, "")).style.display =
+          "none";
+      }
     </script>
-</body>
+  </body>
 </html>

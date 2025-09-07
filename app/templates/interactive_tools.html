@@ -1,1047 +1,1232 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Interactive Tools - BINGOxBANGO</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='styles.css') }}"
+    />
     <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
     <style>
-        .tool-panel {
-            background-color: #1a1a2e;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .tool-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #333;
-            padding-bottom: 10px;
-        }
-
-        .tool-icon {
-            margin-right: 15px;
-            background-color: #232e4d;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .tool-title {
-            margin: 0;
-            color: #e94560;
-            font-size: 1.5rem;
-        }
-
-        .tool-description {
-            color: #ccc;
-            margin-bottom: 20px;
-        }
-
-        .input-group {
-            margin-bottom: 15px;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 5px;
-            color: #ddd;
-        }
-
-        .input-group input, .input-group select, .input-group textarea {
-            width: 100%;
-            padding: 10px;
-            background-color: #0f3460;
-            border: 1px solid #444;
-            border-radius: 4px;
-            color: #fff;
-        }
-
-        .input-group textarea {
-            min-height: 100px;
-            font-family: monospace;
-        }
-
-        .tool-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-        }
-
-        .action-btn {
-            padding: 10px 20px;
-            background-color: #e94560;
-            border: none;
-            border-radius: 4px;
-            color: #fff;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .action-btn-secondary {
-            background-color: #16213e;
-        }
-
-        .results-container {
-            margin-top: 20px;
-            background-color: #0f3460;
-            border: 1px solid #444;
-            border-radius: 4px;
-            padding: 15px;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        .results-container pre {
-            margin: 0;
-            color: #ddd;
-            font-family: monospace;
-            white-space: pre-wrap;
-        }
-
-        .tab-container {
-            display: flex;
-            border-bottom: 1px solid #333;
-            margin-bottom: 20px;
-        }
-
-        .tab {
-            padding: 10px 20px;
-            cursor: pointer;
-            color: #ccc;
-            border-bottom: 3px solid transparent;
-        }
-
-        .tab.active {
-            color: #e94560;
-            border-bottom: 3px solid #e94560;
-        }
-
-        .tab-panel {
-            display: none;
-        }
-
-        .tab-panel.active {
-            display: block;
-        }
-
-        .severity-critical {
-            color: #ff3860;
-            font-weight: bold;
-        }
-
-        .severity-high {
-            color: #ff8c42;
-            font-weight: bold;
-        }
-
-        .severity-medium {
-            color: #f9d423;
-        }
-
-        .severity-low {
-            color: #5bd75b;
-        }
-
-        .template-card {
-            background-color: #232e4d;
-            border-radius: 6px;
-            padding: 15px;
-            margin-bottom: 15px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .template-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-        }
-
-        .template-card h4 {
-            margin-top: 0;
-            color: #fff;
-        }
-
-        .template-tags {
-            display: flex;
-            gap: 8px;
-            margin-top: 10px;
-        }
-
-        .template-tag {
-            background-color: #0f3460;
-            color: #ccc;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-        }
-
-        .bot-status {
-            display: inline-block;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            margin-right: 8px;
-        }
-
-        .bot-status.active {
-            background-color: #5bd75b;
-        }
-
-        .bot-status.idle {
-            background-color: #f9d423;
-        }
-
-        .bot-status.error {
-            background-color: #ff3860;
-        }
-
-        .bot-card {
-            background-color: #232e4d;
-            border-radius: 6px;
-            padding: 15px;
-            margin-bottom: 15px;
-        }
-
-        .bot-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .bot-card-title {
-            margin: 0;
-            display: flex;
-            align-items: center;
-        }
-
-        .bot-results {
-            background-color: #1a1a2e;
-            border-radius: 4px;
-            padding: 10px;
-            margin-top: 10px;
-        }
-
-        .bot-output {
-            padding: 10px;
-            border-bottom: 1px solid #333;
-            display: flex;
-            align-items: flex-start;
-        }
-
-        .bot-output:last-child {
-            border-bottom: none;
-        }
-
-        .output-time {
-            color: #aaa;
-            font-family: monospace;
-            margin-right: 10px;
-            min-width: 70px;
-        }
-
-        .output-content {
-            flex-grow: 1;
-        }
-
-        .bot-output.success strong {
-            color: #4caf50;
-        }
-
-        .bot-output.warning strong {
-            color: #ff9800;
-        }
-
-        .bot-output.error strong {
-            color: #f44336;
-        }
-
-        .bot-results-container {
-            max-height: 300px;
-            overflow-y: auto;
-            background-color: #0d0d1a;
-            border-radius: 4px;
-            border: 1px solid #333;
-            margin-top: 10px;
-        }
-
-        .bot-selection-area {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-
-        .bot-status-badge {
-            display: flex;
-            align-items: center;
-            padding: 5px 10px;
-            background-color: #1e1e30;
-            border-radius: 15px;
-        }
-
-        .status-indicator {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            margin-right: 8px;
-        }
-
-        .status-indicator.active {
-            background-color: #4caf50;
-            box-shadow: 0 0 5px #4caf50;
-        }
-
-        .status-indicator.idle {
-            background-color: #ffc107;
-        }
-
-        .status-indicator.error {
-            background-color: #f44336;
-        }
-
-        .results-tabs {
-            display: flex;
-            border-bottom: 1px solid #333;
-            margin-bottom: 15px;
-        }
-
-        .results-tabs .tab {
-            padding: 8px 15px;
-            cursor: pointer;
-            color: #ddd;
-            border-bottom: 2px solid transparent;
-        }
-
-        .results-tabs .tab.active {
-            color: #fff;
-            border-bottom: 2px solid #2196f3;
-        }
-
-        .results-tab-panel {
-            margin-bottom: 20px;
-        }
-
-        .output-controls, .data-controls {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        .bot-data-container {
-            background-color: #0d0d1a;
-            border-radius: 4px;
-            border: 1px solid #333;
-            padding: 15px;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        .analytics-summary {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .analytics-card {
-            background-color: #1a1a2e;
-            border-radius: 4px;
-            padding: 15px;
-            text-align: center;
-        }
-
-        .analytics-value {
-            font-size: 24px;
-            font-weight: bold;
-            margin-top: 5px;
-        }
-
-        .analytics-details {
-            background-color: #1a1a2e;
-            border-radius: 4px;
-            padding: 15px;
-        }
-
-        .chart-placeholder {
-            height: 150px;
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-around;
-            padding: 10px 0;
-            margin: 15px 0;
-        }
-
-        .chart-bar {
-            width: 30px;
-            background: linear-gradient(to top, #2196f3, #21cbf3);
-            border-radius: 3px 3px 0 0;
-        }
-
-        .chart-label {
-            text-align: center;
-            color: #aaa;
-            font-size: 12px;
-        }
-
-        .task-control-section {
-            background-color: #1a1a2e;
-            border-radius: 4px;
-            padding: 15px;
-            margin-top: 20px;
-        }
-
-        .task-options {
-            display: flex;
-            gap: 20px;
-            margin: 15px 0;
-        }
-
-        .panel-header {
-            margin-bottom: 20px;
-        }
-
-        .panel-header h4 {
-            margin-bottom: 5px;
-        }
-
-        .panel-header p {
-            color: #aaa;
-            margin: 0;
-        }
+      .tool-panel {
+        background-color: #1a1a2e;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      .tool-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+        border-bottom: 1px solid #333;
+        padding-bottom: 10px;
+      }
+
+      .tool-icon {
+        margin-right: 15px;
+        background-color: #232e4d;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .tool-title {
+        margin: 0;
+        color: #e94560;
+        font-size: 1.5rem;
+      }
+
+      .tool-description {
+        color: #ccc;
+        margin-bottom: 20px;
+      }
+
+      .input-group {
+        margin-bottom: 15px;
+      }
+
+      .input-group label {
+        display: block;
+        margin-bottom: 5px;
+        color: #ddd;
+      }
+
+      .input-group input,
+      .input-group select,
+      .input-group textarea {
+        width: 100%;
+        padding: 10px;
+        background-color: #0f3460;
+        border: 1px solid #444;
+        border-radius: 4px;
+        color: #fff;
+      }
+
+      .input-group textarea {
+        min-height: 100px;
+        font-family: monospace;
+      }
+
+      .tool-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+      }
+
+      .action-btn {
+        padding: 10px 20px;
+        background-color: #e94560;
+        border: none;
+        border-radius: 4px;
+        color: #fff;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .action-btn-secondary {
+        background-color: #16213e;
+      }
+
+      .results-container {
+        margin-top: 20px;
+        background-color: #0f3460;
+        border: 1px solid #444;
+        border-radius: 4px;
+        padding: 15px;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+
+      .results-container pre {
+        margin: 0;
+        color: #ddd;
+        font-family: monospace;
+        white-space: pre-wrap;
+      }
+
+      .tab-container {
+        display: flex;
+        border-bottom: 1px solid #333;
+        margin-bottom: 20px;
+      }
+
+      .tab {
+        padding: 10px 20px;
+        cursor: pointer;
+        color: #ccc;
+        border-bottom: 3px solid transparent;
+      }
+
+      .tab.active {
+        color: #e94560;
+        border-bottom: 3px solid #e94560;
+      }
+
+      .tab-panel {
+        display: none;
+      }
+
+      .tab-panel.active {
+        display: block;
+      }
+
+      .severity-critical {
+        color: #ff3860;
+        font-weight: bold;
+      }
+
+      .severity-high {
+        color: #ff8c42;
+        font-weight: bold;
+      }
+
+      .severity-medium {
+        color: #f9d423;
+      }
+
+      .severity-low {
+        color: #5bd75b;
+      }
+
+      .template-card {
+        background-color: #232e4d;
+        border-radius: 6px;
+        padding: 15px;
+        margin-bottom: 15px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .template-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+      }
+
+      .template-card h4 {
+        margin-top: 0;
+        color: #fff;
+      }
+
+      .template-tags {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+      }
+
+      .template-tag {
+        background-color: #0f3460;
+        color: #ccc;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+      }
+
+      .bot-status {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 8px;
+      }
+
+      .bot-status.active {
+        background-color: #5bd75b;
+      }
+
+      .bot-status.idle {
+        background-color: #f9d423;
+      }
+
+      .bot-status.error {
+        background-color: #ff3860;
+      }
+
+      .bot-card {
+        background-color: #232e4d;
+        border-radius: 6px;
+        padding: 15px;
+        margin-bottom: 15px;
+      }
+
+      .bot-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .bot-card-title {
+        margin: 0;
+        display: flex;
+        align-items: center;
+      }
+
+      .bot-results {
+        background-color: #1a1a2e;
+        border-radius: 4px;
+        padding: 10px;
+        margin-top: 10px;
+      }
+
+      .bot-output {
+        padding: 10px;
+        border-bottom: 1px solid #333;
+        display: flex;
+        align-items: flex-start;
+      }
+
+      .bot-output:last-child {
+        border-bottom: none;
+      }
+
+      .output-time {
+        color: #aaa;
+        font-family: monospace;
+        margin-right: 10px;
+        min-width: 70px;
+      }
+
+      .output-content {
+        flex-grow: 1;
+      }
+
+      .bot-output.success strong {
+        color: #4caf50;
+      }
+
+      .bot-output.warning strong {
+        color: #ff9800;
+      }
+
+      .bot-output.error strong {
+        color: #f44336;
+      }
+
+      .bot-results-container {
+        max-height: 300px;
+        overflow-y: auto;
+        background-color: #0d0d1a;
+        border-radius: 4px;
+        border: 1px solid #333;
+        margin-top: 10px;
+      }
+
+      .bot-selection-area {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+      }
+
+      .bot-status-badge {
+        display: flex;
+        align-items: center;
+        padding: 5px 10px;
+        background-color: #1e1e30;
+        border-radius: 15px;
+      }
+
+      .status-indicator {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 8px;
+      }
+
+      .status-indicator.active {
+        background-color: #4caf50;
+        box-shadow: 0 0 5px #4caf50;
+      }
+
+      .status-indicator.idle {
+        background-color: #ffc107;
+      }
+
+      .status-indicator.error {
+        background-color: #f44336;
+      }
+
+      .results-tabs {
+        display: flex;
+        border-bottom: 1px solid #333;
+        margin-bottom: 15px;
+      }
+
+      .results-tabs .tab {
+        padding: 8px 15px;
+        cursor: pointer;
+        color: #ddd;
+        border-bottom: 2px solid transparent;
+      }
+
+      .results-tabs .tab.active {
+        color: #fff;
+        border-bottom: 2px solid #2196f3;
+      }
+
+      .results-tab-panel {
+        margin-bottom: 20px;
+      }
+
+      .output-controls,
+      .data-controls {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+
+      .bot-data-container {
+        background-color: #0d0d1a;
+        border-radius: 4px;
+        border: 1px solid #333;
+        padding: 15px;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+
+      .analytics-summary {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+
+      .analytics-card {
+        background-color: #1a1a2e;
+        border-radius: 4px;
+        padding: 15px;
+        text-align: center;
+      }
+
+      .analytics-value {
+        font-size: 24px;
+        font-weight: bold;
+        margin-top: 5px;
+      }
+
+      .analytics-details {
+        background-color: #1a1a2e;
+        border-radius: 4px;
+        padding: 15px;
+      }
+
+      .chart-placeholder {
+        height: 150px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-around;
+        padding: 10px 0;
+        margin: 15px 0;
+      }
+
+      .chart-bar {
+        width: 30px;
+        background: linear-gradient(to top, #2196f3, #21cbf3);
+        border-radius: 3px 3px 0 0;
+      }
+
+      .chart-label {
+        text-align: center;
+        color: #aaa;
+        font-size: 12px;
+      }
+
+      .task-control-section {
+        background-color: #1a1a2e;
+        border-radius: 4px;
+        padding: 15px;
+        margin-top: 20px;
+      }
+
+      .task-options {
+        display: flex;
+        gap: 20px;
+        margin: 15px 0;
+      }
+
+      .panel-header {
+        margin-bottom: 20px;
+      }
+
+      .panel-header h4 {
+        margin-bottom: 5px;
+      }
+
+      .panel-header p {
+        color: #aaa;
+        margin: 0;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="page-container">
-        <!-- Chat Sidebar -->
-        <div class="chat-sidebar" id="chatSidebar">
-            <div class="chat-header">
-                <h3 class="chat-title">Uncensored AI Chat</h3>
-                <button class="chat-toggle" id="chatToggle">
-                    <i data-feather="chevrons-left"></i>
-                </button>
-            </div>
-            <div class="chat-messages" id="chatMessages">
-                <div class="chat-message ai-message">
-                    Welcome to BINGOxBANGO, ready to get into some trouble?
-                </div>
-            </div>
-            <div class="chat-input-container">
-                <form class="chat-input-form" id="chatForm">
-                    <input type="text" class="chat-input" id="userMessage" placeholder="Type your message...">
-                    <button type="submit" class="chat-send">
-                        <i data-feather="send"></i>
-                    </button>
-                </form>
-            </div>
+      <!-- Chat Sidebar -->
+      <div class="chat-sidebar" id="chatSidebar">
+        <div class="chat-header">
+          <h3 class="chat-title">Uncensored AI Chat</h3>
+          <button class="chat-toggle" id="chatToggle">
+            <i data-feather="chevrons-left"></i>
+          </button>
         </div>
+        <div class="chat-messages" id="chatMessages">
+          <div class="chat-message ai-message">
+            Welcome to BINGOxBANGO, ready to get into some trouble?
+          </div>
+        </div>
+        <div class="chat-input-container">
+          <form class="chat-input-form" id="chatForm">
+            <input
+              type="text"
+              class="chat-input"
+              id="userMessage"
+              placeholder="Type your message..."
+            />
+            <button type="submit" class="chat-send">
+              <i data-feather="send"></i>
+            </button>
+          </form>
+        </div>
+      </div>
 
-        <!-- Main Content -->
-        <div class="main-content" id="mainContent">
-            <header>
-                <div class="logo">
-                    <h1><i data-feather="zap"></i> BINGOxBANGO</h1>
+      <!-- Main Content -->
+      <div class="main-content" id="mainContent">
+        <header>
+          <div class="logo">
+            <h1><i data-feather="zap"></i> BINGOxBANGO</h1>
+          </div>
+          <nav>
+            <a href="{{ url_for('index') }}" class="nav-link"
+              ><i data-feather="home"></i> Home</a
+            >
+            <a href="{{ url_for('security_tools') }}" class="nav-link"
+              ><i data-feather="shield"></i> Security Tools</a
+            >
+            <a href="#" class="nav-link"
+              ><i data-feather="settings"></i> Settings</a
+            >
+          </nav>
+        </header>
+
+        <main>
+          <!-- Page Header -->
+          <section class="status-panel">
+            <h2>Interactive Tools</h2>
+            <p>
+              Advanced toolset for automated security testing and operations
+            </p>
+
+            <!-- Tool Navigation Tabs -->
+            <div class="tab-container">
+              <div class="tab active" data-tab="vuln-scanner">
+                <i data-feather="search"></i> Vulnerability Scanner
+              </div>
+              <div class="tab" data-tab="location-changer">
+                <i data-feather="globe"></i> Location Changer
+              </div>
+              <div class="tab" data-tab="email-templates">
+                <i data-feather="mail"></i> Email Templates
+              </div>
+              <div class="tab" data-tab="bot-maker">
+                <i data-feather="cpu"></i> Bot Maker
+              </div>
+              <div class="tab" data-tab="onion-generator">
+                <i data-feather="globe"></i> Onion Generator
+              </div>
+            </div>
+          </section>
+
+          <!-- Vulnerability Scanner Tab -->
+          <div class="tab-panel active" id="vuln-scanner-panel">
+            <section class="tool-panel">
+              <div class="tool-header">
+                <div class="tool-icon">
+                  <i data-feather="search"></i>
                 </div>
-                <nav>
-                    <a href="{{ url_for('index') }}" class="nav-link"><i data-feather="home"></i> Home</a>
-                    <a href="{{ url_for('security_tools') }}" class="nav-link"><i data-feather="shield"></i> Security Tools</a>
-                    <a href="#" class="nav-link"><i data-feather="settings"></i> Settings</a>
-                </nav>
-            </header>
+                <h3 class="tool-title">Vulnerability Scanner</h3>
+              </div>
+              <div class="tool-description">
+                <p>
+                  Scan websites, servers, and applications for security
+                  vulnerabilities and misconfigurations. This tool identifies
+                  common security issues like missing headers, open ports, XSS
+                  vulnerabilities, and more.
+                </p>
+              </div>
 
-            <main>
-                <!-- Page Header -->
-                <section class="status-panel">
-                    <h2>Interactive Tools</h2>
-                    <p>Advanced toolset for automated security testing and operations</p>
+              <form id="vulnScanForm">
+                <div class="input-group">
+                  <label for="target">Target URL or IP Address</label>
+                  <input
+                    type="text"
+                    id="target"
+                    name="target"
+                    placeholder="https://example.com or 192.168.1.1"
+                    required
+                  />
+                </div>
 
-                    <!-- Tool Navigation Tabs -->
-                    <div class="tab-container">
-                        <div class="tab active" data-tab="vuln-scanner">
-                            <i data-feather="search"></i> Vulnerability Scanner
-                        </div>
-                        <div class="tab" data-tab="location-changer">
-                            <i data-feather="globe"></i> Location Changer
-                        </div>
-                        <div class="tab" data-tab="email-templates">
-                            <i data-feather="mail"></i> Email Templates
-                        </div>
-                        <div class="tab" data-tab="bot-maker">
-                            <i data-feather="cpu"></i> Bot Maker
-                        </div>
-                        <div class="tab" data-tab="onion-generator">
-                            <i data-feather="globe"></i> Onion Generator
-                        </div>
+                <div class="input-group">
+                  <label for="scanType">Scan Type</label>
+                  <select id="scanType" name="scanType">
+                    <option value="quick">Quick Scan</option>
+                    <option value="full">Full Scan</option>
+                    <option value="port">Port Scan</option>
+                    <option value="headers">Headers Analysis</option>
+                    <option value="ai">AI-Enhanced Analysis</option>
+                  </select>
+                </div>
+
+                <div class="input-group">
+                  <label for="scanOptions">Advanced Options</label>
+                  <div class="checkbox-group">
+                    <input type="checkbox" id="useAI" name="useAI" checked />
+                    <label for="useAI">Use AI for enhanced analysis</label>
+                  </div>
+                  <div class="checkbox-group">
+                    <input type="checkbox" id="useTor" name="useTor" />
+                    <label for="useTor">Route through Tor network</label>
+                  </div>
+                </div>
+
+                <div class="tool-actions">
+                  <button
+                    type="button"
+                    class="action-btn action-btn-secondary"
+                    id="resetVulnScan"
+                  >
+                    <i data-feather="refresh-cw"></i> Reset
+                  </button>
+                  <button type="submit" class="action-btn" id="startVulnScan">
+                    <i data-feather="play"></i> Start Scan
+                  </button>
+                </div>
+              </form>
+
+              <div
+                id="vulnScanResults"
+                class="results-container"
+                style="display: none"
+              >
+                <h4>Scan Results</h4>
+                <div id="scanSummary"></div>
+                <pre id="scanResultsJson"></pre>
+              </div>
+            </section>
+          </div>
+
+          <!-- Location Changer Tab -->
+          <div class="tab-panel" id="location-changer-panel">
+            <section class="tool-panel">
+              <div class="tool-header">
+                <div class="tool-icon">
+                  <i data-feather="globe"></i>
+                </div>
+                <h3 class="tool-title">Location Changer</h3>
+              </div>
+              <div class="tool-description">
+                <p>
+                  Change your apparent geolocation by routing your traffic
+                  through different exit nodes around the world. This tool helps
+                  maintain anonymity and bypass geo-restrictions.
+                </p>
+              </div>
+
+              <div class="current-location-panel">
+                <h4>Current Location</h4>
+                <div id="currentLocationInfo">
+                  <p>
+                    <strong>IP:</strong> <span id="currentIP">Checking...</span>
+                  </p>
+                  <p>
+                    <strong>Country:</strong>
+                    <span id="currentCountry">Checking...</span>
+                  </p>
+                  <p>
+                    <strong>City:</strong>
+                    <span id="currentCity">Checking...</span>
+                  </p>
+                  <p>
+                    <strong>ISP:</strong>
+                    <span id="currentISP">Checking...</span>
+                  </p>
+                </div>
+              </div>
+
+              <form id="locationChangerForm">
+                <div class="input-group">
+                  <label for="locationMethod">Method</label>
+                  <select id="locationMethod" name="locationMethod">
+                    <option value="tor">Tor Network</option>
+                    <option value="proxy">Proxy Server</option>
+                    <option value="vpn">VPN (Premium)</option>
+                  </select>
+                </div>
+
+                <div class="input-group">
+                  <label for="locationCountry">Desired Country</label>
+                  <select id="locationCountry" name="locationCountry">
+                    <option value="">Random Exit Node</option>
+                    <option value="US">United States</option>
+                    <option value="UK">United Kingdom</option>
+                    <option value="DE">Germany</option>
+                    <option value="FR">France</option>
+                    <option value="JP">Japan</option>
+                    <option value="CA">Canada</option>
+                    <option value="CH">Switzerland</option>
+                    <option value="NL">Netherlands</option>
+                    <option value="SE">Sweden</option>
+                    <option value="NO">Norway</option>
+                  </select>
+                </div>
+
+                <div class="tool-actions">
+                  <button
+                    type="button"
+                    class="action-btn action-btn-secondary"
+                    id="testAnonymity"
+                  >
+                    <i data-feather="shield"></i> Test Anonymity
+                  </button>
+                  <button type="submit" class="action-btn" id="changeLocation">
+                    <i data-feather="refresh-cw"></i> Change Location
+                  </button>
+                </div>
+              </form>
+
+              <div
+                id="locationChangeResults"
+                class="results-container"
+                style="display: none"
+              >
+                <h4>Location Change Results</h4>
+                <pre id="locationResultsJson"></pre>
+              </div>
+            </section>
+          </div>
+
+          <!-- Email Templates Tab -->
+          <div class="tab-panel" id="email-templates-panel">
+            <section class="tool-panel">
+              <div class="tool-header">
+                <div class="tool-icon">
+                  <i data-feather="mail"></i>
+                </div>
+                <h3 class="tool-title">Email Templates</h3>
+              </div>
+              <div class="tool-description">
+                <p>
+                  Create and customize professional email templates for security
+                  awareness training, phishing simulations, and social
+                  engineering assessments. These templates help organizations
+                  identify security vulnerabilities in their human layer.
+                </p>
+              </div>
+
+              <div class="tab-container">
+                <div class="tab active" data-tab="phishing">Phishing</div>
+                <div class="tab" data-tab="spear-phishing">Spear Phishing</div>
+                <div class="tab" data-tab="bec">Business Email Compromise</div>
+                <div class="tab" data-tab="malware">Malware Delivery</div>
+              </div>
+
+              <!-- Phishing Templates -->
+              <div class="tab-panel active" id="phishing-panel">
+                <div class="template-list">
+                  <div class="template-card" data-template="password-reset">
+                    <h4>Password Reset</h4>
+                    <p>
+                      Simulates a password reset request from a popular service
+                    </p>
+                    <div class="template-tags">
+                      <span class="template-tag">Beginner</span>
+                      <span class="template-tag">Authentication</span>
+                      <span class="template-tag">High Success Rate</span>
                     </div>
-                </section>
+                  </div>
 
-                <!-- Vulnerability Scanner Tab -->
-                <div class="tab-panel active" id="vuln-scanner-panel">
-                    <section class="tool-panel">
-                        <div class="tool-header">
-                            <div class="tool-icon">
-                                <i data-feather="search"></i>
-                            </div>
-                            <h3 class="tool-title">Vulnerability Scanner</h3>
-                        </div>
-                        <div class="tool-description">
-                            <p>Scan websites, servers, and applications for security vulnerabilities and misconfigurations. This tool identifies common security issues like missing headers, open ports, XSS vulnerabilities, and more.</p>
-                        </div>
+                  <div class="template-card" data-template="package-delivery">
+                    <h4>Package Delivery</h4>
+                    <p>
+                      Notification about a package that couldn't be delivered
+                    </p>
+                    <div class="template-tags">
+                      <span class="template-tag">Beginner</span>
+                      <span class="template-tag">E-commerce</span>
+                      <span class="template-tag">Seasonal</span>
+                    </div>
+                  </div>
 
-                        <form id="vulnScanForm">
-                            <div class="input-group">
-                                <label for="target">Target URL or IP Address</label>
-                                <input type="text" id="target" name="target" placeholder="https://example.com or 192.168.1.1" required>
-                            </div>
+                  <div class="template-card" data-template="docusign">
+                    <h4>DocuSign Document</h4>
+                    <p>Request to review and sign an important document</p>
+                    <div class="template-tags">
+                      <span class="template-tag">Intermediate</span>
+                      <span class="template-tag">Business</span>
+                      <span class="template-tag">Professional</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-                            <div class="input-group">
-                                <label for="scanType">Scan Type</label>
-                                <select id="scanType" name="scanType">
-                                    <option value="quick">Quick Scan</option>
-                                    <option value="full">Full Scan</option>
-                                    <option value="port">Port Scan</option>
-                                    <option value="headers">Headers Analysis</option>
-                                    <option value="ai">AI-Enhanced Analysis</option>
-                                </select>
-                            </div>
+              <!-- Spear Phishing Templates -->
+              <div class="tab-panel" id="spear-phishing-panel">
+                <div class="template-list">
+                  <div class="template-card" data-template="ceo-request">
+                    <h4>CEO Wire Transfer Request</h4>
+                    <p>Urgent request from CEO to transfer funds</p>
+                    <div class="template-tags">
+                      <span class="template-tag">Advanced</span>
+                      <span class="template-tag">Financial</span>
+                      <span class="template-tag">Executive</span>
+                    </div>
+                  </div>
 
-                            <div class="input-group">
-                                <label for="scanOptions">Advanced Options</label>
-                                <div class="checkbox-group">
-                                    <input type="checkbox" id="useAI" name="useAI" checked>
-                                    <label for="useAI">Use AI for enhanced analysis</label>
-                                </div>
-                                <div class="checkbox-group">
-                                    <input type="checkbox" id="useTor" name="useTor">
-                                    <label for="useTor">Route through Tor network</label>
-                                </div>
-                            </div>
+                  <div class="template-card" data-template="hr-document">
+                    <h4>HR Document Review</h4>
+                    <p>
+                      Request to review updated employee benefits information
+                    </p>
+                    <div class="template-tags">
+                      <span class="template-tag">Intermediate</span>
+                      <span class="template-tag">Corporate</span>
+                      <span class="template-tag">Document</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-                            <div class="tool-actions">
-                                <button type="button" class="action-btn action-btn-secondary" id="resetVulnScan">
-                                    <i data-feather="refresh-cw"></i> Reset
-                                </button>
-                                <button type="submit" class="action-btn" id="startVulnScan">
-                                    <i data-feather="play"></i> Start Scan
-                                </button>
-                            </div>
-                        </form>
+              <!-- Business Email Compromise Templates -->
+              <div class="tab-panel" id="bec-panel">
+                <div class="template-list">
+                  <div class="template-card" data-template="vendor-payment">
+                    <h4>Vendor Payment Change Request</h4>
+                    <p>Request to update payment information for a supplier</p>
+                    <div class="template-tags">
+                      <span class="template-tag">Advanced</span>
+                      <span class="template-tag">Financial</span>
+                      <span class="template-tag">Supply Chain</span>
+                    </div>
+                  </div>
 
-                        <div id="vulnScanResults" class="results-container" style="display: none;">
-                            <h4>Scan Results</h4>
-                            <div id="scanSummary"></div>
-                            <pre id="scanResultsJson"></pre>
-                        </div>
-                    </section>
+                  <div
+                    class="template-card"
+                    data-template="executive-assistant"
+                  >
+                    <h4>Executive Assistant Request</h4>
+                    <p>Request for assistance from an executive</p>
+                    <div class="template-tags">
+                      <span class="template-tag">Advanced</span>
+                      <span class="template-tag">Gift Cards</span>
+                      <span class="template-tag">Urgent</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Malware Delivery Templates -->
+              <div class="tab-panel" id="malware-panel">
+                <div class="template-list">
+                  <div class="template-card" data-template="invoice">
+                    <h4>Invoice Attachment</h4>
+                    <p>Invoice with a malicious document attachment</p>
+                    <div class="template-tags">
+                      <span class="template-tag">Intermediate</span>
+                      <span class="template-tag">Financial</span>
+                      <span class="template-tag">Attachment</span>
+                    </div>
+                  </div>
+
+                  <div class="template-card" data-template="shipping">
+                    <h4>Shipping Confirmation</h4>
+                    <p>Confirmation of shipment with tracking information</p>
+                    <div class="template-tags">
+                      <span class="template-tag">Beginner</span>
+                      <span class="template-tag">E-commerce</span>
+                      <span class="template-tag">Tracking Link</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Template Editor -->
+              <div id="templateEditor" style="display: none; margin-top: 20px">
+                <h4>Template Editor</h4>
+                <form id="templateForm">
+                  <div class="input-group">
+                    <label for="templateSubject">Subject</label>
+                    <input
+                      type="text"
+                      id="templateSubject"
+                      name="templateSubject"
+                    />
+                  </div>
+
+                  <div class="input-group">
+                    <label for="templateSender">Sender Name</label>
+                    <input
+                      type="text"
+                      id="templateSender"
+                      name="templateSender"
+                    />
+                  </div>
+
+                  <div class="input-group">
+                    <label for="templateSenderEmail">Sender Email</label>
+                    <input
+                      type="text"
+                      id="templateSenderEmail"
+                      name="templateSenderEmail"
+                    />
+                  </div>
+
+                  <div class="input-group">
+                    <label for="templateBody">Email Body (HTML)</label>
+                    <textarea id="templateBody" name="templateBody"></textarea>
+                  </div>
+
+                  <div class="tool-actions">
+                    <button
+                      type="button"
+                      class="action-btn action-btn-secondary"
+                      id="cancelTemplate"
+                    >
+                      <i data-feather="x"></i> Cancel
+                    </button>
+                    <button
+                      type="button"
+                      class="action-btn action-btn-secondary"
+                      id="previewTemplate"
+                    >
+                      <i data-feather="eye"></i> Preview
+                    </button>
+                    <button type="submit" class="action-btn" id="saveTemplate">
+                      <i data-feather="save"></i> Save Template
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </section>
+          </div>
+
+          <!-- Bot Maker Tab -->
+          <div class="tab-panel" id="bot-maker-panel">
+            <section class="tool-panel">
+              <div class="tool-header">
+                <div class="tool-icon">
+                  <i data-feather="cpu"></i>
+                </div>
+                <h3 class="tool-title">Bot Maker</h3>
+              </div>
+              <div class="tool-description">
+                <p>
+                  Create and control automated bots for various security testing
+                  scenarios. These bots can perform tasks like web crawling,
+                  social media interactions, network scanning, and more.
+                </p>
+              </div>
+
+              <div class="tab-container">
+                <div class="tab active" data-tab="active-bots">Active Bots</div>
+                <div class="tab" data-tab="create-bot">Create Bot</div>
+                <div class="tab" data-tab="bot-results">Bot Results</div>
+              </div>
+
+              <!-- Active Bots Panel -->
+              <div class="tab-panel active" id="active-bots-panel">
+                <div id="activeBotsList">
+                  <div class="bot-card">
+                    <div class="bot-card-header">
+                      <h4 class="bot-card-title">
+                        <span class="bot-status active"></span>
+                        Web Crawler Bot #1
+                      </h4>
+                      <div class="bot-actions">
+                        <button class="action-btn action-btn-secondary btn-sm">
+                          <i data-feather="pause"></i>
+                        </button>
+                        <button class="action-btn action-btn-secondary btn-sm">
+                          <i data-feather="trash-2"></i>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="bot-details">
+                      <p><strong>Type:</strong> Web Crawler</p>
+                      <p><strong>Status:</strong> Running (5 pages crawled)</p>
+                      <p><strong>Created:</strong> 5 minutes ago</p>
+                    </div>
+                    <div class="bot-results">
+                      <h5>Recent Results</h5>
+                      <div class="bot-output">
+                        <p>
+                          <strong>Search:</strong> Completed (3 matches found)
+                        </p>
+                      </div>
+                      <div class="bot-output">
+                        <p><strong>Download:</strong> In progress...</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="bot-card">
+                    <div class="bot-card-header">
+                      <h4 class="bot-card-title">
+                        <span class="bot-status idle"></span>
+                        Network Scanner Bot
+                      </h4>
+                      <div class="bot-actions">
+                        <button class="action-btn action-btn-secondary btn-sm">
+                          <i data-feather="play"></i>
+                        </button>
+                        <button class="action-btn action-btn-secondary btn-sm">
+                          <i data-feather="trash-2"></i>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="bot-details">
+                      <p><strong>Type:</strong> Network Scanner</p>
+                      <p><strong>Status:</strong> Idle</p>
+                      <p><strong>Created:</strong> 10 minutes ago</p>
+                    </div>
+                    <div class="bot-results">
+                      <h5>Recent Results</h5>
+                      <div class="bot-output">
+                        <p>
+                          <strong>Scan Target:</strong> Completed (3 open ports
+                          found)
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Create Bot Panel -->
+              <div class="tab-panel" id="create-bot-panel">
+                <form id="createBotForm">
+                  <div class="input-group">
+                    <label for="botType">Bot Type</label>
+                    <select id="botType" name="botType">
+                      <option value="web_crawler">Web Crawler</option>
+                      <option value="chat_bot">Chat Bot</option>
+                      <option value="social_media_bot">Social Media Bot</option>
+                      <option value="network_scanner">Network Scanner</option>
+                      <option value="crypto_miner_sim">
+                        Crypto Miner Simulator
+                      </option>
+                    </select>
+                  </div>
+
+                  <!-- Web Crawler Bot Options (default) -->
+                  <div class="bot-options" id="web_crawler_options">
+                    <div class="input-group">
+                      <label for="startUrls"
+                        >Starting URLs (one per line)</label
+                      >
+                      <textarea
+                        id="startUrls"
+                        name="startUrls"
+                        placeholder="https://example.com
+https://another-site.com"
+                      ></textarea>
+                    </div>
+
+                    <div class="input-group">
+                      <label for="crawlDepth">Crawl Depth</label>
+                      <input
+                        type="number"
+                        id="crawlDepth"
+                        name="crawlDepth"
+                        value="3"
+                        min="1"
+                        max="5"
+                      />
+                    </div>
+
+                    <div class="input-group">
+                      <label for="maxPages">Maximum Pages</label>
+                      <input
+                        type="number"
+                        id="maxPages"
+                        name="maxPages"
+                        value="50"
+                        min="1"
+                        max="100"
+                      />
+                    </div>
+
+                    <div class="input-group">
+                      <label for="keywords"
+                        >Keywords to Search (comma separated)</label
+                      >
+                      <input
+                        type="text"
+                        id="keywords"
+                        name="keywords"
+                        placeholder="password, login, secret"
+                      />
+                    </div>
+                  </div>
+
+                  <!-- Network Scanner Bot Options (hidden initially) -->
+                  <div
+                    class="bot-options"
+                    id="network_scanner_options"
+                    style="display: none"
+                  >
+                    <div class="input-group">
+                      <label for="targetIP">Target IP or Domain</label>
+                      <input
+                        type="text"
+                        id="targetIP"
+                        name="targetIP"
+                        placeholder="192.168.1.1 or example.com"
+                      />
+                    </div>
+
+                    <div class="input-group">
+                      <label for="scanType">Scan Type</label>
+                      <select id="scanType" name="scanType">
+                        <option value="port_scan">Port Scan</option>
+                        <option value="service_detection">
+                          Service Detection
+                        </option>
+                        <option value="os_detection">OS Detection</option>
+                        <option value="vulnerability_scan">
+                          Vulnerability Scan
+                        </option>
+                      </select>
+                    </div>
+
+                    <div class="input-group">
+                      <label for="portRange"
+                        >Port Range (comma separated)</label
+                      >
+                      <input
+                        type="text"
+                        id="portRange"
+                        name="portRange"
+                        placeholder="21,22,23,80,443,8080"
+                      />
+                    </div>
+                  </div>
+
+                  <div class="tool-actions">
+                    <button
+                      type="reset"
+                      class="action-btn action-btn-secondary"
+                    >
+                      <i data-feather="refresh-cw"></i> Reset
+                    </button>
+                    <button type="submit" class="action-btn">
+                      <i data-feather="plus"></i> Create Bot
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              <!-- Bot Results Panel -->
+              <div class="tab-panel" id="bot-results-panel">
+                <div class="panel-header">
+                  <h4>Bot Execution Results</h4>
+                  <p>
+                    View and manage results from your automated bot operations
+                  </p>
                 </div>
 
-                <!-- Location Changer Tab -->
-                <div class="tab-panel" id="location-changer-panel">
-                    <section class="tool-panel">
-                        <div class="tool-header">
-                            <div class="tool-icon">
-                                <i data-feather="globe"></i>
-                            </div>
-                            <h3 class="tool-title">Location Changer</h3>
-                        </div>
-                        <div class="tool-description">
-                            <p>Change your apparent geolocation by routing your traffic through different exit nodes around the world. This tool helps maintain anonymity and bypass geo-restrictions.</p>
-                        </div>
+                <div class="bot-selection-area">
+                  <div class="input-group">
+                    <label for="selectBot">Select Active Bot</label>
+                    <select id="selectBot" name="selectBot">
+                      <option value="bot1">Web Crawler Bot #1</option>
+                      <option value="bot2">Network Scanner Bot</option>
+                      <option value="bot3">Social Media Bot</option>
+                    </select>
+                  </div>
 
-                        <div class="current-location-panel">
-                            <h4>Current Location</h4>
-                            <div id="currentLocationInfo">
-                                <p><strong>IP:</strong> <span id="currentIP">Checking...</span></p>
-                                <p><strong>Country:</strong> <span id="currentCountry">Checking...</span></p>
-                                <p><strong>City:</strong> <span id="currentCity">Checking...</span></p>
-                                <p><strong>ISP:</strong> <span id="currentISP">Checking...</span></p>
-                            </div>
-                        </div>
-
-                        <form id="locationChangerForm">
-                            <div class="input-group">
-                                <label for="locationMethod">Method</label>
-                                <select id="locationMethod" name="locationMethod">
-                                    <option value="tor">Tor Network</option>
-                                    <option value="proxy">Proxy Server</option>
-                                    <option value="vpn">VPN (Premium)</option>
-                                </select>
-                            </div>
-
-                            <div class="input-group">
-                                <label for="locationCountry">Desired Country</label>
-                                <select id="locationCountry" name="locationCountry">
-                                    <option value="">Random Exit Node</option>
-                                    <option value="US">United States</option>
-                                    <option value="UK">United Kingdom</option>
-                                    <option value="DE">Germany</option>
-                                    <option value="FR">France</option>
-                                    <option value="JP">Japan</option>
-                                    <option value="CA">Canada</option>
-                                    <option value="CH">Switzerland</option>
-                                    <option value="NL">Netherlands</option>
-                                    <option value="SE">Sweden</option>
-                                    <option value="NO">Norway</option>
-                                </select>
-                            </div>
-
-                            <div class="tool-actions">
-                                <button type="button" class="action-btn action-btn-secondary" id="testAnonymity">
-                                    <i data-feather="shield"></i> Test Anonymity
-                                </button>
-                                <button type="submit" class="action-btn" id="changeLocation">
-                                    <i data-feather="refresh-cw"></i> Change Location
-                                </button>
-                            </div>
-                        </form>
-
-                        <div id="locationChangeResults" class="results-container" style="display: none;">
-                            <h4>Location Change Results</h4>
-                            <pre id="locationResultsJson"></pre>
-                        </div>
-                    </section>
+                  <div class="bot-status-badge">
+                    <span class="status-indicator active"></span>
+                    <span class="status-text">Running</span>
+                  </div>
                 </div>
 
-                <!-- Email Templates Tab -->
-                <div class="tab-panel" id="email-templates-panel">
-                    <section class="tool-panel">
-                        <div class="tool-header">
-                            <div class="tool-icon">
-                                <i data-feather="mail"></i>
-                            </div>
-                            <h3 class="tool-title">Email Templates</h3>
-                        </div>
-                        <div class="tool-description">
-                            <p>Create and customize professional email templates for security awareness training, phishing simulations, and social engineering assessments. These templates help organizations identify security vulnerabilities in their human layer.</p>
-                        </div>
-
-                        <div class="tab-container">
-                            <div class="tab active" data-tab="phishing">Phishing</div>
-                            <div class="tab" data-tab="spear-phishing">Spear Phishing</div>
-                            <div class="tab" data-tab="bec">Business Email Compromise</div>
-                            <div class="tab" data-tab="malware">Malware Delivery</div>
-                        </div>
-
-                        <!-- Phishing Templates -->
-                        <div class="tab-panel active" id="phishing-panel">
-                            <div class="template-list">
-                                <div class="template-card" data-template="password-reset">
-                                    <h4>Password Reset</h4>
-                                    <p>Simulates a password reset request from a popular service</p>
-                                    <div class="template-tags">
-                                        <span class="template-tag">Beginner</span>
-                                        <span class="template-tag">Authentication</span>
-                                        <span class="template-tag">High Success Rate</span>
-                                    </div>
-                                </div>
-
-                                <div class="template-card" data-template="package-delivery">
-                                    <h4>Package Delivery</h4>
-                                    <p>Notification about a package that couldn't be delivered</p>
-                                    <div class="template-tags">
-                                        <span class="template-tag">Beginner</span>
-                                        <span class="template-tag">E-commerce</span>
-                                        <span class="template-tag">Seasonal</span>
-                                    </div>
-                                </div>
-
-                                <div class="template-card" data-template="docusign">
-                                    <h4>DocuSign Document</h4>
-                                    <p>Request to review and sign an important document</p>
-                                    <div class="template-tags">
-                                        <span class="template-tag">Intermediate</span>
-                                        <span class="template-tag">Business</span>
-                                        <span class="template-tag">Professional</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Spear Phishing Templates -->
-                        <div class="tab-panel" id="spear-phishing-panel">
-                            <div class="template-list">
-                                <div class="template-card" data-template="ceo-request">
-                                    <h4>CEO Wire Transfer Request</h4>
-                                    <p>Urgent request from CEO to transfer funds</p>
-                                    <div class="template-tags">
-                                        <span class="template-tag">Advanced</span>
-                                        <span class="template-tag">Financial</span>
-                                        <span class="template-tag">Executive</span>
-                                    </div>
-                                </div>
-
-                                <div class="template-card" data-template="hr-document">
-                                    <h4>HR Document Review</h4>
-                                    <p>Request to review updated employee benefits information</p>
-                                    <div class="template-tags">
-                                        <span class="template-tag">Intermediate</span>
-                                        <span class="template-tag">Corporate</span>
-                                        <span class="template-tag">Document</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Business Email Compromise Templates -->
-                        <div class="tab-panel" id="bec-panel">
-                            <div class="template-list">
-                                <div class="template-card" data-template="vendor-payment">
-                                    <h4>Vendor Payment Change Request</h4>
-                                    <p>Request to update payment information for a supplier</p>
-                                    <div class="template-tags">
-                                        <span class="template-tag">Advanced</span>
-                                        <span class="template-tag">Financial</span>
-                                        <span class="template-tag">Supply Chain</span>
-                                    </div>
-                                </div>
-
-                                <div class="template-card" data-template="executive-assistant">
-                                    <h4>Executive Assistant Request</h4>
-                                    <p>Request for assistance from an executive</p>
-                                    <div class="template-tags">
-                                        <span class="template-tag">Advanced</span>
-                                        <span class="template-tag">Gift Cards</span>
-                                        <span class="template-tag">Urgent</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Malware Delivery Templates -->
-                        <div class="tab-panel" id="malware-panel">
-                            <div class="template-list">
-                                <div class="template-card" data-template="invoice">
-                                    <h4>Invoice Attachment</h4>
-                                    <p>Invoice with a malicious document attachment</p>
-                                    <div class="template-tags">
-                                        <span class="template-tag">Intermediate</span>
-                                        <span class="template-tag">Financial</span>
-                                        <span class="template-tag">Attachment</span>
-                                    </div>
-                                </div>
-
-                                <div class="template-card" data-template="shipping">
-                                    <h4>Shipping Confirmation</h4>
-                                    <p>Confirmation of shipment with tracking information</p>
-                                    <div class="template-tags">
-                                        <span class="template-tag">Beginner</span>
-                                        <span class="template-tag">E-commerce</span>
-                                        <span class="template-tag">Tracking Link</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Template Editor -->
-                        <div id="templateEditor" style="display: none; margin-top: 20px;">
-                            <h4>Template Editor</h4>
-                            <form id="templateForm">
-                                <div class="input-group">
-                                    <label for="templateSubject">Subject</label>
-                                    <input type="text" id="templateSubject" name="templateSubject">
-                                </div>
-
-                                <div class="input-group">
-                                    <label for="templateSender">Sender Name</label>
-                                    <input type="text" id="templateSender" name="templateSender">
-                                </div>
-
-                                <div class="input-group">
-                                    <label for="templateSenderEmail">Sender Email</label>
-                                    <input type="text" id="templateSenderEmail" name="templateSenderEmail">
-                                </div>
-
-                                <div class="input-group">
-                                    <label for="templateBody">Email Body (HTML)</label>
-                                    <textarea id="templateBody" name="templateBody"></textarea>
-                                </div>
-
-                                <div class="tool-actions">
-                                    <button type="button" class="action-btn action-btn-secondary" id="cancelTemplate">
-                                        <i data-feather="x"></i> Cancel
-                                    </button>
-                                    <button type="button" class="action-btn action-btn-secondary" id="previewTemplate">
-                                        <i data-feather="eye"></i> Preview
-                                    </button>
-                                    <button type="submit" class="action-btn" id="saveTemplate">
-                                        <i data-feather="save"></i> Save Template
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </section>
+                <div class="results-tabs">
+                  <div class="tab active" data-results-tab="bot-outputs">
+                    Output Log
+                  </div>
+                  <div class="tab" data-results-tab="bot-data">
+                    Collected Data
+                  </div>
+                  <div class="tab" data-results-tab="bot-analytics">
+                    Analytics
+                  </div>
                 </div>
 
-                <!-- Bot Maker Tab -->
-                <div class="tab-panel" id="bot-maker-panel">
-                    <section class="tool-panel">
-                        <div class="tool-header">
-                            <div class="tool-icon">
-                                <i data-feather="cpu"></i>
-                            </div>
-                            <h3 class="tool-title">Bot Maker</h3>
-                        </div>
-                        <div class="tool-description">
-                            <p>Create and control automated bots for various security testing scenarios. These bots can perform tasks like web crawling, social media interactions, network scanning, and more.</p>
-                        </div>
+                <!-- Bot Output Log Tab -->
+                <div class="results-tab-panel active" id="bot-outputs-panel">
+                  <div class="output-controls">
+                    <button
+                      class="action-btn action-btn-secondary btn-sm"
+                      id="clearOutputLog"
+                    >
+                      <i data-feather="trash-2"></i> Clear Log
+                    </button>
+                    <button
+                      class="action-btn action-btn-secondary btn-sm"
+                      id="downloadOutputLog"
+                    >
+                      <i data-feather="download"></i> Download Log
+                    </button>
+                  </div>
 
-                        <div class="tab-container">
-                            <div class="tab active" data-tab="active-bots">Active Bots</div>
-                            <div class="tab" data-tab="create-bot">Create Bot</div>
-                            <div class="tab" data-tab="bot-results">Bot Results</div>
-                        </div>
+                  <div class="bot-results-container" id="botOutputLog">
+                    <div class="bot-output success">
+                      <div class="output-time">08:12:45</div>
+                      <div class="output-content">
+                        <strong>Initialization:</strong> Bot started
+                        successfully
+                      </div>
+                    </div>
+                    <div class="bot-output">
+                      <div class="output-time">08:12:46</div>
+                      <div class="output-content">
+                        <strong>Connection:</strong> Establishing secure
+                        connection via Tor network
+                      </div>
+                    </div>
+                    <div class="bot-output success">
+                      <div class="output-time">08:12:48</div>
+                      <div class="output-content">
+                        <strong>Connection:</strong> Secure connection
+                        established through exit node in Netherlands
+                      </div>
+                    </div>
+                    <div class="bot-output">
+                      <div class="output-time">08:12:50</div>
+                      <div class="output-content">
+                        <strong>Task:</strong> Beginning port scan of target
+                        192.168.1.1
+                      </div>
+                    </div>
+                    <div class="bot-output warning">
+                      <div class="output-time">08:13:05</div>
+                      <div class="output-content">
+                        <strong>Warning:</strong> Native nmap functionality not
+                        available in this environment
+                      </div>
+                    </div>
+                    <div class="bot-output">
+                      <div class="output-time">08:13:06</div>
+                      <div class="output-content">
+                        <strong>Task:</strong> Switching to alternative network
+                        scanning module
+                      </div>
+                    </div>
+                    <div class="bot-output success">
+                      <div class="output-time">08:13:15</div>
+                      <div class="output-content">
+                        <strong>Result:</strong> Scan complete - 3 open ports
+                        discovered (22, 80, 443)
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
-                        <!-- Active Bots Panel -->
-                        <div class="tab-panel active" id="active-bots-panel">
-                            <div id="activeBotsList">
-                                <div class="bot-card">
-                                    <div class="bot-card-header">
-                                        <h4 class="bot-card-title">
-                                            <span class="bot-status active"></span>
-                                            Web Crawler Bot #1
-                                        </h4>
-                                        <div class="bot-actions">
-                                            <button class="action-btn action-btn-secondary btn-sm">
-                                                <i data-feather="pause"></i>
-                                            </button>
-                                            <button class="action-btn action-btn-secondary btn-sm">
-                                                <i data-feather="trash-2"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="bot-details">
-                                        <p><strong>Type:</strong> Web Crawler</p>
-                                        <p><strong>Status:</strong> Running (5 pages crawled)</p>
-                                        <p><strong>Created:</strong> 5 minutes ago</p>
-                                    </div>
-                                    <div class="bot-results">
-                                        <h5>Recent Results</h5>
-                                        <div class="bot-output">
-                                            <p><strong>Search:</strong> Completed (3 matches found)</p>
-                                        </div>
-                                        <div class="bot-output">
-                                            <p><strong>Download:</strong> In progress...</p>
-                                        </div>
-                                    </div>
-                                </div>
+                <!-- Bot Collected Data Tab -->
+                <div
+                  class="results-tab-panel"
+                  id="bot-data-panel"
+                  style="display: none"
+                >
+                  <div class="data-controls">
+                    <div class="input-group">
+                      <label for="dataFormat">Export Format</label>
+                      <select id="dataFormat">
+                        <option value="json">JSON</option>
+                        <option value="csv">CSV</option>
+                        <option value="txt">Plain Text</option>
+                      </select>
+                    </div>
+                    <button
+                      class="action-btn action-btn-secondary"
+                      id="exportData"
+                    >
+                      <i data-feather="download"></i> Export Data
+                    </button>
+                  </div>
 
-                                <div class="bot-card">
-                                    <div class="bot-card-header">
-                                        <h4 class="bot-card-title">
-                                            <span class="bot-status idle"></span>
-                                            Network Scanner Bot
-                                        </h4>
-                                        <div class="bot-actions">
-                                            <button class="action-btn action-btn-secondary btn-sm">
-                                                <i data-feather="play"></i>
-                                            </button>
-                                            <button class="action-btn action-btn-secondary btn-sm">
-                                                <i data-feather="trash-2"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="bot-details">
-                                        <p><strong>Type:</strong> Network Scanner</p>
-                                        <p><strong>Status:</strong> Idle</p>
-                                        <p><strong>Created:</strong> 10 minutes ago</p>
-                                    </div>
-                                    <div class="bot-results">
-                                        <h5>Recent Results</h5>
-                                        <div class="bot-output">
-                                            <p><strong>Scan Target:</strong> Completed (3 open ports found)</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Create Bot Panel -->
-                        <div class="tab-panel" id="create-bot-panel">
-                            <form id="createBotForm">
-                                <div class="input-group">
-                                    <label for="botType">Bot Type</label>
-                                    <select id="botType" name="botType">
-                                        <option value="web_crawler">Web Crawler</option>
-                                        <option value="chat_bot">Chat Bot</option>
-                                        <option value="social_media_bot">Social Media Bot</option>
-                                        <option value="network_scanner">Network Scanner</option>
-                                        <option value="crypto_miner_sim">Crypto Miner Simulator</option>
-                                    </select>
-                                </div>
-
-                                <!-- Web Crawler Bot Options (default) -->
-                                <div class="bot-options" id="web_crawler_options">
-                                    <div class="input-group">
-                                        <label for="startUrls">Starting URLs (one per line)</label>
-                                        <textarea id="startUrls" name="startUrls" placeholder="https://example.com
-https://another-site.com"></textarea>
-                                    </div>
-
-                                    <div class="input-group">
-                                        <label for="crawlDepth">Crawl Depth</label>
-                                        <input type="number" id="crawlDepth" name="crawlDepth" value="3" min="1" max="5">
-                                    </div>
-
-                                    <div class="input-group">
-                                        <label for="maxPages">Maximum Pages</label>
-                                        <input type="number" id="maxPages" name="maxPages" value="50" min="1" max="100">
-                                    </div>
-
-                                    <div class="input-group">
-                                        <label for="keywords">Keywords to Search (comma separated)</label>
-                                        <input type="text" id="keywords" name="keywords" placeholder="password, login, secret">
-                                    </div>
-                                </div>
-
-                                <!-- Network Scanner Bot Options (hidden initially) -->
-                                <div class="bot-options" id="network_scanner_options" style="display: none;">
-                                    <div class="input-group">
-                                        <label for="targetIP">Target IP or Domain</label>
-                                        <input type="text" id="targetIP" name="targetIP" placeholder="192.168.1.1 or example.com">
-                                    </div>
-
-                                    <div class="input-group">
-                                        <label for="scanType">Scan Type</label>
-                                        <select id="scanType" name="scanType">
-                                            <option value="port_scan">Port Scan</option>
-                                            <option value="service_detection">Service Detection</option>
-                                            <option value="os_detection">OS Detection</option>
-                                            <option value="vulnerability_scan">Vulnerability Scan</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="input-group">
-                                        <label for="portRange">Port Range (comma separated)</label>
-                                        <input type="text" id="portRange" name="portRange" placeholder="21,22,23,80,443,8080">
-                                    </div>
-                                </div>
-
-                                <div class="tool-actions">
-                                    <button type="reset" class="action-btn action-btn-secondary">
-                                        <i data-feather="refresh-cw"></i> Reset
-                                    </button>
-                                    <button type="submit" class="action-btn">
-                                        <i data-feather="plus"></i> Create Bot
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-
-                        <!-- Bot Results Panel -->
-                        <div class="tab-panel" id="bot-results-panel">
-                            <div class="panel-header">
-                                <h4>Bot Execution Results</h4>
-                                <p>View and manage results from your automated bot operations</p>
-                            </div>
-
-                            <div class="bot-selection-area">
-                                <div class="input-group">
-                                    <label for="selectBot">Select Active Bot</label>
-                                    <select id="selectBot" name="selectBot">
-                                        <option value="bot1">Web Crawler Bot #1</option>
-                                        <option value="bot2">Network Scanner Bot</option>
-                                        <option value="bot3">Social Media Bot</option>
-                                    </select>
-                                </div>
-
-                                <div class="bot-status-badge">
-                                    <span class="status-indicator active"></span>
-                                    <span class="status-text">Running</span>
-                                </div>
-                            </div>
-
-                            <div class="results-tabs">
-                                <div class="tab active" data-results-tab="bot-outputs">Output Log</div>
-                                <div class="tab" data-results-tab="bot-data">Collected Data</div>
-                                <div class="tab" data-results-tab="bot-analytics">Analytics</div>
-                            </div>
-
-                            <!-- Bot Output Log Tab -->
-                            <div class="results-tab-panel active" id="bot-outputs-panel">
-                                <div class="output-controls">
-                                    <button class="action-btn action-btn-secondary btn-sm" id="clearOutputLog">
-                                        <i data-feather="trash-2"></i> Clear Log
-                                    </button>
-                                    <button class="action-btn action-btn-secondary btn-sm" id="downloadOutputLog">
-                                        <i data-feather="download"></i> Download Log
-                                    </button>
-                                </div>
-
-                                <div class="bot-results-container" id="botOutputLog">
-                                    <div class="bot-output success">
-                                        <div class="output-time">08:12:45</div>
-                                        <div class="output-content">
-                                            <strong>Initialization:</strong> Bot started successfully
-                                        </div>
-                                    </div>
-                                    <div class="bot-output">
-                                        <div class="output-time">08:12:46</div>
-                                        <div class="output-content">
-                                            <strong>Connection:</strong> Establishing secure connection via Tor network
-                                        </div>
-                                    </div>
-                                    <div class="bot-output success">
-                                        <div class="output-time">08:12:48</div>
-                                        <div class="output-content">
-                                            <strong>Connection:</strong> Secure connection established through exit node in Netherlands
-                                        </div>
-                                    </div>
-                                    <div class="bot-output">
-                                        <div class="output-time">08:12:50</div>
-                                        <div class="output-content">
-                                            <strong>Task:</strong> Beginning port scan of target 192.168.1.1
-                                        </div>
-                                    </div>
-                                    <div class="bot-output warning">
-                                        <div class="output-time">08:13:05</div>
-                                        <div class="output-content">
-                                            <strong>Warning:</strong> Native nmap functionality not available in this environment
-                                        </div>
-                                    </div>
-                                    <div class="bot-output">
-                                        <div class="output-time">08:13:06</div>
-                                        <div class="output-content">
-                                            <strong>Task:</strong> Switching to alternative network scanning module
-                                        </div>
-                                    </div>
-                                    <div class="bot-output success">
-                                        <div class="output-time">08:13:15</div>
-                                        <div class="output-content">
-                                            <strong>Result:</strong> Scan complete - 3 open ports discovered (22, 80, 443)
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Bot Collected Data Tab -->
-                            <div class="results-tab-panel" id="bot-data-panel" style="display: none;">
-                                <div class="data-controls">
-                                    <div class="input-group">
-                                        <label for="dataFormat">Export Format</label>
-                                        <select id="dataFormat">
-                                            <option value="json">JSON</option>
-                                            <option value="csv">CSV</option>
-                                            <option value="txt">Plain Text</option>
-                                        </select>
-                                    </div>
-                                    <button class="action-btn action-btn-secondary" id="exportData">
-                                        <i data-feather="download"></i> Export Data
-                                    </button>
-                                </div>
-
-                                <div class="bot-data-container">
-                                    <pre id="botDataJson">{
+                  <div class="bot-data-container">
+                    <pre id="botDataJson">
+{
   "scan_results": {
     "target": "192.168.1.1",
     "timestamp": "2025-05-07T08:13:15Z",
@@ -1070,565 +1255,660 @@ https://another-site.com"></textarea>
     "method": "alternative_scanner",
     "notes": "Performed using Pythonic socket-based scanner due to nmap unavailability"
   }
-}</pre>
-                                </div>
-                            </div>
-
-                            <!-- Bot Analytics Tab -->
-                            <div class="results-tab-panel" id="bot-analytics-panel" style="display: none;">
-                                <div class="analytics-summary">
-                                    <div class="analytics-card">
-                                        <h5>Total Tasks</h5>
-                                        <div class="analytics-value">7</div>
-                                    </div>
-                                    <div class="analytics-card">
-                                        <h5>Success Rate</h5>
-                                        <div class="analytics-value">85.7%</div>
-                                    </div>
-                                    <div class="analytics-card">
-                                        <h5>Execution Time</h5>
-                                        <div class="analytics-value">30s</div>
-                                    </div>
-                                    <div class="analytics-card">
-                                        <h5>Items Processed</h5>
-                                        <div class="analytics-value">3</div>
-                                    </div>
-                                </div>
-
-                                <div class="analytics-details">
-                                    <h5>Performance Metrics</h5>
-                                    <div class="analytics-chart" id="performanceChart">
-                                        <div class="chart-placeholder">
-                                            <div class="chart-bar" style="height: 30%"></div>
-                                            <div class="chart-bar" style="height: 45%"></div>
-                                            <div class="chart-bar" style="height: 70%"></div>
-                                            <div class="chart-bar" style="height: 90%"></div>
-                                            <div class="chart-bar" style="height: 60%"></div>
-                                            <div class="chart-bar" style="height: 40%"></div>
-                                            <div class="chart-bar" style="height: 50%"></div>
-                                        </div>
-                                        <div class="chart-label">Task Execution Time (ms)</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Task Control Section -->
-                            <div class="task-control-section">
-                                <h5>New Task Execution</h5>
-
-                                <div class="input-group">
-                                    <label for="newTaskType">Task Type</label>
-                                    <select id="newTaskType" name="newTaskType">
-                                        <option value="port_scan">Port Scan</option>
-                                        <option value="service_detection">Service Detection</option>
-                                        <option value="vulnerability_scan">Vulnerability Scan</option>
-                                        <option value="os_detection">OS Detection</option>
-                                    </select>
-                                </div>
-
-                                <div class="input-group">
-                                    <label for="taskTarget">Target</label>
-                                    <input type="text" id="taskTarget" name="taskTarget" placeholder="IP address or domain">
-                                </div>
-
-                                <div class="input-group">
-                                    <label for="taskOptions">Options</label>
-                                    <input type="text" id="taskOptions" name="taskOptions" placeholder="Additional options (e.g. port range: 1-1000)">
-                                </div>
-
-                                <div class="task-options">
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="useTorForTask" checked>
-                                        <label for="useTorForTask">Route through Tor</label>
-                                    </div>
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="useAIForTask">
-                                        <label for="useAIForTask">Use AI analysis</label>
-                                    </div>
-                                </div>
-
-                                <div class="tool-actions">
-                                    <button type="button" class="action-btn" id="executeNewTask">
-                                        <i data-feather="play"></i> Execute Task
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
+}</pre
+                    >
+                  </div>
                 </div>
-            </main>
 
-            <footer>
-                <p>BINGOxBANGO Dark Web Crawler &copy; 2025 | <a href="https://github.com/Z4nzu/hackingtool" target="_blank">GitHub</a></p>
-            </footer>
-        </div>
+                <!-- Bot Analytics Tab -->
+                <div
+                  class="results-tab-panel"
+                  id="bot-analytics-panel"
+                  style="display: none"
+                >
+                  <div class="analytics-summary">
+                    <div class="analytics-card">
+                      <h5>Total Tasks</h5>
+                      <div class="analytics-value">7</div>
+                    </div>
+                    <div class="analytics-card">
+                      <h5>Success Rate</h5>
+                      <div class="analytics-value">85.7%</div>
+                    </div>
+                    <div class="analytics-card">
+                      <h5>Execution Time</h5>
+                      <div class="analytics-value">30s</div>
+                    </div>
+                    <div class="analytics-card">
+                      <h5>Items Processed</h5>
+                      <div class="analytics-value">3</div>
+                    </div>
+                  </div>
+
+                  <div class="analytics-details">
+                    <h5>Performance Metrics</h5>
+                    <div class="analytics-chart" id="performanceChart">
+                      <div class="chart-placeholder">
+                        <div class="chart-bar" style="height: 30%"></div>
+                        <div class="chart-bar" style="height: 45%"></div>
+                        <div class="chart-bar" style="height: 70%"></div>
+                        <div class="chart-bar" style="height: 90%"></div>
+                        <div class="chart-bar" style="height: 60%"></div>
+                        <div class="chart-bar" style="height: 40%"></div>
+                        <div class="chart-bar" style="height: 50%"></div>
+                      </div>
+                      <div class="chart-label">Task Execution Time (ms)</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Task Control Section -->
+                <div class="task-control-section">
+                  <h5>New Task Execution</h5>
+
+                  <div class="input-group">
+                    <label for="newTaskType">Task Type</label>
+                    <select id="newTaskType" name="newTaskType">
+                      <option value="port_scan">Port Scan</option>
+                      <option value="service_detection">
+                        Service Detection
+                      </option>
+                      <option value="vulnerability_scan">
+                        Vulnerability Scan
+                      </option>
+                      <option value="os_detection">OS Detection</option>
+                    </select>
+                  </div>
+
+                  <div class="input-group">
+                    <label for="taskTarget">Target</label>
+                    <input
+                      type="text"
+                      id="taskTarget"
+                      name="taskTarget"
+                      placeholder="IP address or domain"
+                    />
+                  </div>
+
+                  <div class="input-group">
+                    <label for="taskOptions">Options</label>
+                    <input
+                      type="text"
+                      id="taskOptions"
+                      name="taskOptions"
+                      placeholder="Additional options (e.g. port range: 1-1000)"
+                    />
+                  </div>
+
+                  <div class="task-options">
+                    <div class="checkbox-group">
+                      <input type="checkbox" id="useTorForTask" checked />
+                      <label for="useTorForTask">Route through Tor</label>
+                    </div>
+                    <div class="checkbox-group">
+                      <input type="checkbox" id="useAIForTask" />
+                      <label for="useAIForTask">Use AI analysis</label>
+                    </div>
+                  </div>
+
+                  <div class="tool-actions">
+                    <button
+                      type="button"
+                      class="action-btn"
+                      id="executeNewTask"
+                    >
+                      <i data-feather="play"></i> Execute Task
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </main>
+
+        <footer>
+          <p>
+            BINGOxBANGO Dark Web Crawler &copy; 2025 |
+            <a href="https://github.com/Z4nzu/hackingtool" target="_blank"
+              >GitHub</a
+            >
+          </p>
+        </footer>
+      </div>
     </div>
 
     <script>
-        // Initialize Feather icons
-        document.addEventListener('DOMContentLoaded', function() {
-            feather.replace();
+      // Initialize Feather icons
+      document.addEventListener("DOMContentLoaded", function () {
+        feather.replace();
 
-            // Main tab navigation
-            document.querySelectorAll('.tab-container .tab').forEach(tab => {
-                tab.addEventListener('click', function() {
-                    // Get the parent tab container
-                    const tabContainer = this.closest('.tab-container');
+        // Main tab navigation
+        document.querySelectorAll(".tab-container .tab").forEach((tab) => {
+          tab.addEventListener("click", function () {
+            // Get the parent tab container
+            const tabContainer = this.closest(".tab-container");
 
-                    // First remove active class from all siblings
-                    tabContainer.querySelectorAll('.tab').forEach(t => {
-                        t.classList.remove('active');
-                    });
-
-                    // Add active class to clicked tab
-                    this.classList.add('active');
-
-                    // Get the tab panel container
-                    let panelContainer;
-                    if (tabContainer.parentElement.classList.contains('status-panel')) {
-                        // This is the main tab navigation
-                        panelContainer = document.querySelector('main');
-
-                        // Hide all tab panels
-                        panelContainer.querySelectorAll('.tab-panel').forEach(panel => {
-                            panel.classList.remove('active');
-                        });
-
-                        // Show the selected panel
-                        const panelId = this.getAttribute('data-tab') + '-panel';
-                        document.getElementById(panelId).classList.add('active');
-                    } else {
-                        // This is a nested tab navigation
-                        panelContainer = tabContainer.parentElement;
-
-                        // Hide all tab panels
-                        panelContainer.querySelectorAll('.tab-panel').forEach(panel => {
-                            panel.style.display = 'none';
-                        });
-
-                        // Show the selected panel
-                        const panelId = this.getAttribute('data-tab') + '-panel';
-                        document.getElementById(panelId).style.display = 'block';
-                    }
-                });
+            // First remove active class from all siblings
+            tabContainer.querySelectorAll(".tab").forEach((t) => {
+              t.classList.remove("active");
             });
 
-            // Bot type selection changes visible options
-            document.getElementById('botType').addEventListener('change', function() {
-                const botType = this.value;
+            // Add active class to clicked tab
+            this.classList.add("active");
 
-                // Hide all bot option sections
-                document.querySelectorAll('.bot-options').forEach(section => {
-                    section.style.display = 'none';
-                });
+            // Get the tab panel container
+            let panelContainer;
+            if (tabContainer.parentElement.classList.contains("status-panel")) {
+              // This is the main tab navigation
+              panelContainer = document.querySelector("main");
 
-                // Show the relevant section
-                const optionsSection = document.getElementById(botType + '_options');
-                if (optionsSection) {
-                    optionsSection.style.display = 'block';
-                }
+              // Hide all tab panels
+              panelContainer.querySelectorAll(".tab-panel").forEach((panel) => {
+                panel.classList.remove("active");
+              });
+
+              // Show the selected panel
+              const panelId = this.getAttribute("data-tab") + "-panel";
+              document.getElementById(panelId).classList.add("active");
+            } else {
+              // This is a nested tab navigation
+              panelContainer = tabContainer.parentElement;
+
+              // Hide all tab panels
+              panelContainer.querySelectorAll(".tab-panel").forEach((panel) => {
+                panel.style.display = "none";
+              });
+
+              // Show the selected panel
+              const panelId = this.getAttribute("data-tab") + "-panel";
+              document.getElementById(panelId).style.display = "block";
+            }
+          });
+        });
+
+        // Bot type selection changes visible options
+        document
+          .getElementById("botType")
+          .addEventListener("change", function () {
+            const botType = this.value;
+
+            // Hide all bot option sections
+            document.querySelectorAll(".bot-options").forEach((section) => {
+              section.style.display = "none";
             });
 
-            // Bot Results Tabs
-            document.querySelectorAll('.results-tabs .tab').forEach(tab => {
-                tab.addEventListener('click', function() {
-                    // Remove active class from all tabs
-                    document.querySelectorAll('.results-tabs .tab').forEach(t => {
-                        t.classList.remove('active');
-                    });
+            // Show the relevant section
+            const optionsSection = document.getElementById(
+              botType + "_options",
+            );
+            if (optionsSection) {
+              optionsSection.style.display = "block";
+            }
+          });
 
-                    // Add active class to clicked tab
-                    this.classList.add('active');
-
-                    // Hide all panels
-                    document.querySelectorAll('.results-tab-panel').forEach(panel => {
-                        panel.style.display = 'none';
-                    });
-
-                    // Show the selected panel
-                    const tabId = this.getAttribute('data-results-tab');
-                    document.getElementById(tabId + '-panel').style.display = 'block';
-                });
+        // Bot Results Tabs
+        document.querySelectorAll(".results-tabs .tab").forEach((tab) => {
+          tab.addEventListener("click", function () {
+            // Remove active class from all tabs
+            document.querySelectorAll(".results-tabs .tab").forEach((t) => {
+              t.classList.remove("active");
             });
 
-            // Execute new bot task
-            document.getElementById('executeNewTask').addEventListener('click', function() {
-                const taskType = document.getElementById('newTaskType').value;
-                const target = document.getElementById('taskTarget').value;
-                const options = document.getElementById('taskOptions').value;
+            // Add active class to clicked tab
+            this.classList.add("active");
 
-                if (!target) {
-                    alert('Please enter a target IP or domain');
-                    return;
-                }
+            // Hide all panels
+            document.querySelectorAll(".results-tab-panel").forEach((panel) => {
+              panel.style.display = "none";
+            });
 
-                // Add to output log
-                const now = new Date();
-                const timeStr = now.getHours().toString().padStart(2, '0') + ':' + 
-                               now.getMinutes().toString().padStart(2, '0') + ':' + 
-                               now.getSeconds().toString().padStart(2, '0');
+            // Show the selected panel
+            const tabId = this.getAttribute("data-results-tab");
+            document.getElementById(tabId + "-panel").style.display = "block";
+          });
+        });
 
-                const outputLog = document.getElementById('botOutputLog');
+        // Execute new bot task
+        document
+          .getElementById("executeNewTask")
+          .addEventListener("click", function () {
+            const taskType = document.getElementById("newTaskType").value;
+            const target = document.getElementById("taskTarget").value;
+            const options = document.getElementById("taskOptions").value;
 
-                // Create initialization message
-                let newOutput = document.createElement('div');
-                newOutput.className = 'bot-output';
-                newOutput.innerHTML = `
+            if (!target) {
+              alert("Please enter a target IP or domain");
+              return;
+            }
+
+            // Add to output log
+            const now = new Date();
+            const timeStr =
+              now.getHours().toString().padStart(2, "0") +
+              ":" +
+              now.getMinutes().toString().padStart(2, "0") +
+              ":" +
+              now.getSeconds().toString().padStart(2, "0");
+
+            const outputLog = document.getElementById("botOutputLog");
+
+            // Create initialization message
+            let newOutput = document.createElement("div");
+            newOutput.className = "bot-output";
+            newOutput.innerHTML = `
                     <div class="output-time">${timeStr}</div>
                     <div class="output-content">
                         <strong>Task:</strong> Starting ${taskType} on target ${target}
                     </div>
                 `;
-                outputLog.appendChild(newOutput);
+            outputLog.appendChild(newOutput);
 
-                // Create "working" message
-                setTimeout(() => {
-                    let workingOutput = document.createElement('div');
-                    workingOutput.className = 'bot-output';
-                    workingOutput.innerHTML = `
+            // Create "working" message
+            setTimeout(() => {
+              let workingOutput = document.createElement("div");
+              workingOutput.className = "bot-output";
+              workingOutput.innerHTML = `
                         <div class="output-time">${timeStr}</div>
                         <div class="output-content">
                             <strong>Status:</strong> Processing ${taskType}...
                         </div>
                     `;
-                    outputLog.appendChild(workingOutput);
-                    outputLog.scrollTop = outputLog.scrollHeight;
+              outputLog.appendChild(workingOutput);
+              outputLog.scrollTop = outputLog.scrollHeight;
 
-                    // If it's a port scan and nmap is mentioned in options
-                    if (taskType === 'port_scan' && options.toLowerCase().includes('nmap')) {
-                        setTimeout(() => {
-                            let warningOutput = document.createElement('div');
-                            warningOutput.className = 'bot-output warning';
-                            warningOutput.innerHTML = `
+              // If it's a port scan and nmap is mentioned in options
+              if (
+                taskType === "port_scan" &&
+                options.toLowerCase().includes("nmap")
+              ) {
+                setTimeout(() => {
+                  let warningOutput = document.createElement("div");
+                  warningOutput.className = "bot-output warning";
+                  warningOutput.innerHTML = `
                                 <div class="output-time">${timeStr}</div>
                                 <div class="output-content">
                                     <strong>Warning:</strong> Native nmap functionality not available in this environment
                                 </div>
                             `;
-                            outputLog.appendChild(warningOutput);
+                  outputLog.appendChild(warningOutput);
 
-                            let alternativeOutput = document.createElement('div');
-                            alternativeOutput.className = 'bot-output';
-                            alternativeOutput.innerHTML = `
+                  let alternativeOutput = document.createElement("div");
+                  alternativeOutput.className = "bot-output";
+                  alternativeOutput.innerHTML = `
                                 <div class="output-time">${timeStr}</div>
                                 <div class="output-content">
                                     <strong>Info:</strong> Using Python socket-based port scanner instead
                                 </div>
                             `;
-                            outputLog.appendChild(alternativeOutput);
-                            outputLog.scrollTop = outputLog.scrollHeight;
-                        }, 800);
-                    }
+                  outputLog.appendChild(alternativeOutput);
+                  outputLog.scrollTop = outputLog.scrollHeight;
+                }, 800);
+              }
 
-                    // Add success message after simulated processing time
-                    setTimeout(() => {
-                        let resultOutput = document.createElement('div');
-                        resultOutput.className = 'bot-output success';
+              // Add success message after simulated processing time
+              setTimeout(() => {
+                let resultOutput = document.createElement("div");
+                resultOutput.className = "bot-output success";
 
-                        // Different results based on task type
-                        let resultContent = '';
-                        if (taskType === 'port_scan') {
-                            resultContent = `Scan complete - 3 open ports discovered (22, 80, 443)`;
-                        } else if (taskType === 'service_detection') {
-                            resultContent = `Service detection complete - SSH (22), HTTP (80), HTTPS (443)`;
-                        } else if (taskType === 'vulnerability_scan') {
-                            resultContent = `Vulnerability scan complete - 2 potential vulnerabilities found`;
-                        } else {
-                            resultContent = `${taskType} complete on ${target}`;
-                        }
+                // Different results based on task type
+                let resultContent = "";
+                if (taskType === "port_scan") {
+                  resultContent = `Scan complete - 3 open ports discovered (22, 80, 443)`;
+                } else if (taskType === "service_detection") {
+                  resultContent = `Service detection complete - SSH (22), HTTP (80), HTTPS (443)`;
+                } else if (taskType === "vulnerability_scan") {
+                  resultContent = `Vulnerability scan complete - 2 potential vulnerabilities found`;
+                } else {
+                  resultContent = `${taskType} complete on ${target}`;
+                }
 
-                        resultOutput.innerHTML = `
+                resultOutput.innerHTML = `
                             <div class="output-time">${timeStr}</div>
                             <div class="output-content">
                                 <strong>Result:</strong> ${resultContent}
                             </div>
                         `;
-                        outputLog.appendChild(resultOutput);
-                        outputLog.scrollTop = outputLog.scrollHeight;
-
-                        // Also update the data panel with results
-                        if (taskType === 'port_scan') {
-                            const resultData = {
-                                scan_results: {
-                                    target: target,
-                                    timestamp: new Date().toISOString(),
-                                    scan_type: "port_scan",
-                                    open_ports: [
-                                        {
-                                            port: 22,
-                                            protocol: "tcp",
-                                            service: "SSH",
-                                            state: "open"
-                                        },
-                                        {
-                                            port: 80,
-                                            protocol: "tcp",
-                                            service: "HTTP",
-                                            state: "open"
-                                        },
-                                        {
-                                            port: 443,
-                                            protocol: "tcp",
-                                            service: "HTTPS",
-                                            state: "open"
-                                        }
-                                    ],
-                                    scan_duration: Math.random() * 5 + 5,
-                                    method: "alternative_scanner",
-                                    notes: "Performed using Pythonic socket-based scanner due to nmap unavailability"
-                                }
-                            };
-                            document.getElementById('botDataJson').textContent = JSON.stringify(resultData, null, 2);
-                        }
-                    }, 3000);
-                }, 500);
-
-                // Scroll to the bottom of the output log
+                outputLog.appendChild(resultOutput);
                 outputLog.scrollTop = outputLog.scrollHeight;
-            });
 
-            // Clear output log
-            document.getElementById('clearOutputLog').addEventListener('click', function() {
-                if (confirm('Are you sure you want to clear the output log?')) {
-                    document.getElementById('botOutputLog').innerHTML = '';
+                // Also update the data panel with results
+                if (taskType === "port_scan") {
+                  const resultData = {
+                    scan_results: {
+                      target: target,
+                      timestamp: new Date().toISOString(),
+                      scan_type: "port_scan",
+                      open_ports: [
+                        {
+                          port: 22,
+                          protocol: "tcp",
+                          service: "SSH",
+                          state: "open",
+                        },
+                        {
+                          port: 80,
+                          protocol: "tcp",
+                          service: "HTTP",
+                          state: "open",
+                        },
+                        {
+                          port: 443,
+                          protocol: "tcp",
+                          service: "HTTPS",
+                          state: "open",
+                        },
+                      ],
+                      scan_duration: Math.random() * 5 + 5,
+                      method: "alternative_scanner",
+                      notes:
+                        "Performed using Pythonic socket-based scanner due to nmap unavailability",
+                    },
+                  };
+                  document.getElementById("botDataJson").textContent =
+                    JSON.stringify(resultData, null, 2);
                 }
-            });
+              }, 3000);
+            }, 500);
 
-            // Download output log
-            document.getElementById('downloadOutputLog').addEventListener('click', function() {
-                const outputLog = document.getElementById('botOutputLog').innerText;
-                const blob = new Blob([outputLog], { type: 'text/plain' });
-                const url = URL.createObjectURL(blob);
+            // Scroll to the bottom of the output log
+            outputLog.scrollTop = outputLog.scrollHeight;
+          });
 
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'bot_output_log.txt';
-                document.body.appendChild(a);
-                a.click();
+        // Clear output log
+        document
+          .getElementById("clearOutputLog")
+          .addEventListener("click", function () {
+            if (confirm("Are you sure you want to clear the output log?")) {
+              document.getElementById("botOutputLog").innerHTML = "";
+            }
+          });
 
-                setTimeout(() => {
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-                }, 0);
-            });
+        // Download output log
+        document
+          .getElementById("downloadOutputLog")
+          .addEventListener("click", function () {
+            const outputLog = document.getElementById("botOutputLog").innerText;
+            const blob = new Blob([outputLog], { type: "text/plain" });
+            const url = URL.createObjectURL(blob);
 
-            // Email template card selection
-            document.querySelectorAll('.template-card').forEach(card => {
-                card.addEventListener('click', function() {
-                    const templateId = this.getAttribute('data-template');
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "bot_output_log.txt";
+            document.body.appendChild(a);
+            a.click();
 
-                    // In a real implementation, this would load the template data
-                    // For demonstration, we'll just show the editor
-                    document.getElementById('templateEditor').style.display = 'block';
+            setTimeout(() => {
+              document.body.removeChild(a);
+              URL.revokeObjectURL(url);
+            }, 0);
+          });
 
-                    // Scroll to the editor
-                    document.getElementById('templateEditor').scrollIntoView({ behavior: 'smooth' });
-                });
-            });
+        // Email template card selection
+        document.querySelectorAll(".template-card").forEach((card) => {
+          card.addEventListener("click", function () {
+            const templateId = this.getAttribute("data-template");
 
-            // Cancel template editing
-            document.getElementById('cancelTemplate').addEventListener('click', function() {
-                document.getElementById('templateEditor').style.display = 'none';
-            });
+            // In a real implementation, this would load the template data
+            // For demonstration, we'll just show the editor
+            document.getElementById("templateEditor").style.display = "block";
 
-            // Simulated vulnerability scan
-            document.getElementById('vulnScanForm').addEventListener('submit', function(e) {
-                e.preventDefault();
+            // Scroll to the editor
+            document
+              .getElementById("templateEditor")
+              .scrollIntoView({ behavior: "smooth" });
+          });
+        });
 
-                const target = document.getElementById('target').value;
-                const scanType = document.getElementById('scanType').value;
+        // Cancel template editing
+        document
+          .getElementById("cancelTemplate")
+          .addEventListener("click", function () {
+            document.getElementById("templateEditor").style.display = "none";
+          });
 
-                // Simulate scan
-                document.getElementById('startVulnScan').innerHTML = '<i data-feather="loader"></i> Scanning...';
-                feather.replace();
+        // Simulated vulnerability scan
+        document
+          .getElementById("vulnScanForm")
+          .addEventListener("submit", function (e) {
+            e.preventDefault();
 
-                setTimeout(() => {
-                    // Display results
-                    document.getElementById('vulnScanResults').style.display = 'block';
-                    document.getElementById('startVulnScan').innerHTML = '<i data-feather="play"></i> Start Scan';
-                    feather.replace();
+            const target = document.getElementById("target").value;
+            const scanType = document.getElementById("scanType").value;
 
-                    document.getElementById('scanSummary').innerHTML = `
+            // Simulate scan
+            document.getElementById("startVulnScan").innerHTML =
+              '<i data-feather="loader"></i> Scanning...';
+            feather.replace();
+
+            setTimeout(() => {
+              // Display results
+              document.getElementById("vulnScanResults").style.display =
+                "block";
+              document.getElementById("startVulnScan").innerHTML =
+                '<i data-feather="play"></i> Start Scan';
+              feather.replace();
+
+              document.getElementById("scanSummary").innerHTML = `
                         <p>Scan of ${target} completed.</p>
                         <p>Found 3 vulnerabilities (1 high, 2 medium)</p>
                     `;
 
-                    document.getElementById('scanResultsJson').textContent = JSON.stringify({
-                        target: target,
-                        scan_type: scanType,
-                        time_completed: new Date().toISOString(),
-                        vulnerabilities: [
-                            {
-                                type: "missing_security_header",
-                                name: "Content-Security-Policy",
-                                severity: "medium",
-                                description: "Missing CSP header could allow XSS attacks."
-                            },
-                            {
-                                type: "open_port",
-                                name: "Telnet Service Exposed",
-                                severity: "high",
-                                description: "Telnet service is running and exposed. This is insecure."
-                            },
-                            {
-                                type: "outdated_library",
-                                name: "jQuery 1.8.3",
-                                severity: "medium",
-                                description: "Using an outdated jQuery library with known vulnerabilities."
-                            }
-                        ]
-                    }, null, 2);
+              document.getElementById("scanResultsJson").textContent =
+                JSON.stringify(
+                  {
+                    target: target,
+                    scan_type: scanType,
+                    time_completed: new Date().toISOString(),
+                    vulnerabilities: [
+                      {
+                        type: "missing_security_header",
+                        name: "Content-Security-Policy",
+                        severity: "medium",
+                        description:
+                          "Missing CSP header could allow XSS attacks.",
+                      },
+                      {
+                        type: "open_port",
+                        name: "Telnet Service Exposed",
+                        severity: "high",
+                        description:
+                          "Telnet service is running and exposed. This is insecure.",
+                      },
+                      {
+                        type: "outdated_library",
+                        name: "jQuery 1.8.3",
+                        severity: "medium",
+                        description:
+                          "Using an outdated jQuery library with known vulnerabilities.",
+                      },
+                    ],
+                  },
+                  null,
+                  2,
+                );
 
-                    // Scroll to results
-                    document.getElementById('vulnScanResults').scrollIntoView({ behavior: 'smooth' });
-                }, 2000);
-            });
+              // Scroll to results
+              document
+                .getElementById("vulnScanResults")
+                .scrollIntoView({ behavior: "smooth" });
+            }, 2000);
+          });
 
-            // Reset vulnerability scan form
-            document.getElementById('resetVulnScan').addEventListener('click', function() {
-                document.getElementById('vulnScanForm').reset();
-                document.getElementById('vulnScanResults').style.display = 'none';
-            });
+        // Reset vulnerability scan form
+        document
+          .getElementById("resetVulnScan")
+          .addEventListener("click", function () {
+            document.getElementById("vulnScanForm").reset();
+            document.getElementById("vulnScanResults").style.display = "none";
+          });
 
-            // Simulated location check
-            simulateLocationCheck();
+        // Simulated location check
+        simulateLocationCheck();
 
-            // Simulated location change
-            document.getElementById('locationChangerForm').addEventListener('submit', function(e) {
-                e.preventDefault();
+        // Simulated location change
+        document
+          .getElementById("locationChangerForm")
+          .addEventListener("submit", function (e) {
+            e.preventDefault();
 
-                const method = document.getElementById('locationMethod').value;
-                const country = document.getElementById('locationCountry').value;
+            const method = document.getElementById("locationMethod").value;
+            const country = document.getElementById("locationCountry").value;
 
-                // Simulate location change
-                document.getElementById('changeLocation').innerHTML = '<i data-feather="loader"></i> Changing...';
-                feather.replace();
+            // Simulate location change
+            document.getElementById("changeLocation").innerHTML =
+              '<i data-feather="loader"></i> Changing...';
+            feather.replace();
 
-                setTimeout(() => {
-                    // Display results
-                    document.getElementById('locationChangeResults').style.display = 'block';
-                    document.getElementById('changeLocation').innerHTML = '<i data-feather="refresh-cw"></i> Change Location';
-                    feather.replace();
+            setTimeout(() => {
+              // Display results
+              document.getElementById("locationChangeResults").style.display =
+                "block";
+              document.getElementById("changeLocation").innerHTML =
+                '<i data-feather="refresh-cw"></i> Change Location';
+              feather.replace();
 
-                    // Update current location to show change
-                    document.getElementById('currentIP').textContent = "45.33.32.156";
-                    document.getElementById('currentCountry').textContent = country || "Netherlands";
-                    document.getElementById('currentCity').textContent = "Amsterdam";
-                    document.getElementById('currentISP').textContent = "Tor Exit Node";
+              // Update current location to show change
+              document.getElementById("currentIP").textContent = "45.33.32.156";
+              document.getElementById("currentCountry").textContent =
+                country || "Netherlands";
+              document.getElementById("currentCity").textContent = "Amsterdam";
+              document.getElementById("currentISP").textContent =
+                "Tor Exit Node";
 
-                    document.getElementById('locationResultsJson').textContent = JSON.stringify({
-                        success: true,
-                        method: method,
-                        country_requested: country || "random",
-                        new_location: {
-                            ip: "45.33.32.156",
-                            country: country || "Netherlands",
-                            city: "Amsterdam",
-                            region: "North Holland",
-                            postal: "1012",
-                            timezone: "Europe/Amsterdam",
-                            isp: "Tor Exit Node"
-                        }
-                    }, null, 2);
+              document.getElementById("locationResultsJson").textContent =
+                JSON.stringify(
+                  {
+                    success: true,
+                    method: method,
+                    country_requested: country || "random",
+                    new_location: {
+                      ip: "45.33.32.156",
+                      country: country || "Netherlands",
+                      city: "Amsterdam",
+                      region: "North Holland",
+                      postal: "1012",
+                      timezone: "Europe/Amsterdam",
+                      isp: "Tor Exit Node",
+                    },
+                  },
+                  null,
+                  2,
+                );
 
-                    // Scroll to results
-                    document.getElementById('locationChangeResults').scrollIntoView({ behavior: 'smooth' });
-                }, 2000);
-            });
+              // Scroll to results
+              document
+                .getElementById("locationChangeResults")
+                .scrollIntoView({ behavior: "smooth" });
+            }, 2000);
+          });
 
-            // Chat sidebar toggle functionality
-            const chatToggle = document.getElementById('chatToggle');
-            const chatSidebar = document.getElementById('chatSidebar');
-            const mainContent = document.getElementById('mainContent');
+        // Chat sidebar toggle functionality
+        const chatToggle = document.getElementById("chatToggle");
+        const chatSidebar = document.getElementById("chatSidebar");
+        const mainContent = document.getElementById("mainContent");
 
-            chatToggle.addEventListener('click', function() {
-                chatSidebar.classList.toggle('chat-sidebar-collapsed');
-                mainContent.classList.toggle('main-content-expanded');
+        chatToggle.addEventListener("click", function () {
+          chatSidebar.classList.toggle("chat-sidebar-collapsed");
+          mainContent.classList.toggle("main-content-expanded");
 
-                // Change icon based on sidebar state
-                if (chatSidebar.classList.contains('chat-sidebar-collapsed')) {
-                    chatToggle.innerHTML = '<i data-feather="chevrons-right"></i>';
-                } else {
-                    chatToggle.innerHTML = '<i data-feather="chevrons-left"></i>';
-                }
+          // Change icon based on sidebar state
+          if (chatSidebar.classList.contains("chat-sidebar-collapsed")) {
+            chatToggle.innerHTML = '<i data-feather="chevrons-right"></i>';
+          } else {
+            chatToggle.innerHTML = '<i data-feather="chevrons-left"></i>';
+          }
 
-                // Re-init feather icons
-                feather.replace();
-            });
-
-            // Chat form submission
-            const chatForm = document.getElementById('chatForm');
-            const chatMessages = document.getElementById('chatMessages');
-            const userMessageInput = document.getElementById('userMessage');
-
-            chatForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-
-                const userMessage = userMessageInput.value.trim();
-                if (!userMessage) return;
-
-                // Add user message to chat
-                addMessage(userMessage, 'user');
-
-                // Clear input
-                userMessageInput.value = '';
-
-                // Simulate AI response (uncensored)
-                setTimeout(() => {
-                    simulateAIResponse(userMessage);
-                }, 1000);
-            });
-
-            function addMessage(message, sender) {
-                const messageDiv = document.createElement('div');
-                messageDiv.className = `chat-message ${sender}-message`;
-                messageDiv.textContent = message;
-
-                chatMessages.appendChild(messageDiv);
-
-                // Scroll to bottom
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-            }
-
-            function simulateAIResponse(userMessage) {
-                // This would normally connect to your AI backend
-                // For now, we'll simulate an uncensored response
-
-                const lowercaseMsg = userMessage.toLowerCase();
-                let response = "";
-
-                if (lowercaseMsg.includes('hello') || lowercaseMsg.includes('hi')) {
-                    response = "Hello! I'm your uncensored AI assistant. How can I help with your security testing today?";
-                } 
-                else if (lowercaseMsg.includes('vulnerability') || lowercaseMsg.includes('scan')) {
-                    response = "The vulnerability scanner can identify security issues in websites and servers. What target would you like to scan?";
-                }
-                else if (lowercaseMsg.includes('location') || lowercaseMsg.includes('change location')) {
-                    response = "The location changer allows you to route your traffic through different countries using Tor exit nodes. This helps maintain anonymity during testing.";
-                }
-                else if (lowercaseMsg.includes('bot') || lowercaseMsg.includes('bot maker')) {
-                    response = "The bot maker lets you create automated agents for security testing. You can make web crawlers, network scanners, and more to perform tasks without manual intervention.";
-                }
-                else if (lowercaseMsg.includes('email') || lowercaseMsg.includes('phishing')) {
-                    response = "The email templates section has professionally crafted templates for security awareness training and phishing simulations. These help organizations test their human security layer.";
-                }
-                else {
-                    response = "I'm here to help with all your security testing needs. The interactive tools include vulnerability scanning, location changing, email templates for phishing simulations, and automated bot creation. What would you like to explore?";
-                }
-
-                addMessage(response, 'ai');
-            }
-
-            function simulateLocationCheck() {
-                // In a real implementation, this would get the actual location data
-                setTimeout(() => {
-                    document.getElementById('currentIP').textContent = "203.0.113.42";
-                    document.getElementById('currentCountry').textContent = "United States";
-                    document.getElementById('currentCity').textContent = "Chicago";
-                    document.getElementById('currentISP').textContent = "Example ISP";
-                }, 1000);
-            }
+          // Re-init feather icons
+          feather.replace();
         });
+
+        // Chat form submission
+        const chatForm = document.getElementById("chatForm");
+        const chatMessages = document.getElementById("chatMessages");
+        const userMessageInput = document.getElementById("userMessage");
+
+        chatForm.addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          const userMessage = userMessageInput.value.trim();
+          if (!userMessage) return;
+
+          // Add user message to chat
+          addMessage(userMessage, "user");
+
+          // Clear input
+          userMessageInput.value = "";
+
+          // Simulate AI response (uncensored)
+          setTimeout(() => {
+            simulateAIResponse(userMessage);
+          }, 1000);
+        });
+
+        function addMessage(message, sender) {
+          const messageDiv = document.createElement("div");
+          messageDiv.className = `chat-message ${sender}-message`;
+          messageDiv.textContent = message;
+
+          chatMessages.appendChild(messageDiv);
+
+          // Scroll to bottom
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function simulateAIResponse(userMessage) {
+          // This would normally connect to your AI backend
+          // For now, we'll simulate an uncensored response
+
+          const lowercaseMsg = userMessage.toLowerCase();
+          let response = "";
+
+          if (lowercaseMsg.includes("hello") || lowercaseMsg.includes("hi")) {
+            response =
+              "Hello! I'm your uncensored AI assistant. How can I help with your security testing today?";
+          } else if (
+            lowercaseMsg.includes("vulnerability") ||
+            lowercaseMsg.includes("scan")
+          ) {
+            response =
+              "The vulnerability scanner can identify security issues in websites and servers. What target would you like to scan?";
+          } else if (
+            lowercaseMsg.includes("location") ||
+            lowercaseMsg.includes("change location")
+          ) {
+            response =
+              "The location changer allows you to route your traffic through different countries using Tor exit nodes. This helps maintain anonymity during testing.";
+          } else if (
+            lowercaseMsg.includes("bot") ||
+            lowercaseMsg.includes("bot maker")
+          ) {
+            response =
+              "The bot maker lets you create automated agents for security testing. You can make web crawlers, network scanners, and more to perform tasks without manual intervention.";
+          } else if (
+            lowercaseMsg.includes("email") ||
+            lowercaseMsg.includes("phishing")
+          ) {
+            response =
+              "The email templates section has professionally crafted templates for security awareness training and phishing simulations. These help organizations test their human security layer.";
+          } else {
+            response =
+              "I'm here to help with all your security testing needs. The interactive tools include vulnerability scanning, location changing, email templates for phishing simulations, and automated bot creation. What would you like to explore?";
+          }
+
+          addMessage(response, "ai");
+        }
+
+        function simulateLocationCheck() {
+          // In a real implementation, this would get the actual location data
+          setTimeout(() => {
+            document.getElementById("currentIP").textContent = "203.0.113.42";
+            document.getElementById("currentCountry").textContent =
+              "United States";
+            document.getElementById("currentCity").textContent = "Chicago";
+            document.getElementById("currentISP").textContent = "Example ISP";
+          }, 1000);
+        }
+      });
     </script>
-</body>
+  </body>
 </html>

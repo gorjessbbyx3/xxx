@@ -23,6 +23,7 @@ The `render.yaml` file is already configured with:
 ## Environment Variables
 
 Required environment variables:
+
 - `PYTHON_VERSION`: 3.11.0
 - `PORT`: 5000
 - `OLLAMA_HOST`: "0.0.0.0"
@@ -36,7 +37,6 @@ Required environment variables:
 4. Connect your repository
 5. Render will use the `render.yaml` configuration automatically
 
-
 ## Important Notes
 
 1. **AI Integration**: Ollama will be installed and configured during build
@@ -47,6 +47,7 @@ Required environment variables:
 ## Troubleshooting
 
 If you encounter issues:
+
 1. Check Render logs for errors
 2. Verify Ollama is running (`ollama list`)
 3. Ensure all dependencies are in requirements.txt

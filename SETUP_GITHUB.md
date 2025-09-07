@@ -5,6 +5,7 @@ This document provides instructions for setting up the BINGOxBANGO project on Gi
 ## Steps to Create the GitHub Repository
 
 1. **Create a new repository on GitHub**
+
    - Go to https://github.com/new
    - Name: BINGOxBANGO
    - Description: Advanced Dark Web Crawler with Security Tools
@@ -14,6 +15,7 @@ This document provides instructions for setting up the BINGOxBANGO project on Gi
 
 2. **Required Dependencies**
    Make sure your requirements.txt file includes the following packages:
+
    ```
    flask==2.3.3
    beautifulsoup4==4.12.2
@@ -28,6 +30,7 @@ This document provides instructions for setting up the BINGOxBANGO project on Gi
    ```
 
 3. **From your local development environment**
+
    ```bash
    # Initialize Git repository
    git init
@@ -54,8 +57,8 @@ The project has the following key components:
   - `templates/` - HTML templates for web interface
   - `static/` - CSS, JavaScript, and static assets
   - `routes.py` - Main web application routes
-  
 - `security_tools/` - Security tool components
+
   - `api.py` - API for security tools
   - `vuln_scanner.py` - Vulnerability scanner
   - `location_changer.py` - Location changing via Tor
